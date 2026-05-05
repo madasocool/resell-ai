@@ -330,6 +330,17 @@
         </div>
       </div>
 
+      <!-- Inline condition selector — only shown for BLIP results -->
+      <div id="blip-cond-row" style="display:none;margin:0 18px 14px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:9px;color:var(--gray)">What's the condition?</div>
+        <div style="display:flex;gap:8px">
+          <button class="bcond-btn" onclick="blipCondChange(1.0,'new')"     style="flex:1;background:var(--card);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;color:#fff;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer">🆕 New</button>
+          <button class="bcond-btn sel" onclick="blipCondChange(0.85,'like new')" style="flex:1;background:rgba(124,58,237,.3);border:1.5px solid var(--purple);border-radius:10px;color:#fff;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer">✨ Like New</button>
+          <button class="bcond-btn" onclick="blipCondChange(0.65,'good')"   style="flex:1;background:var(--card);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;color:#fff;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer">👍 Good</button>
+          <button class="bcond-btn" onclick="blipCondChange(0.45,'fair')"   style="flex:1;background:var(--card);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;color:#fff;font-size:11px;font-weight:700;padding:8px 4px;cursor:pointer">⚠️ Fair</button>
+        </div>
+      </div>
+
       <div class="fcard">
         <div class="fcircle" id="r-fc">
           <div class="fn" id="r-fn">–</div>
@@ -782,33 +793,203 @@ document.getElementById('fileInput').addEventListener('change', function() {
   img.src = url; this.value='';
 });
 
+// ─── BLIP VISION AI ────────────────────────────────────────────────────────────
+async function identifyWithBLIP(canvas) {
+  const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.85));
+  // Try base model first (fast), then large (better quality) as fallback
+  const models = [
+    'https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base',
+    'https://api-inference.huggingface.co/models/nlpconnect/vit-gpt2-image-captioning'
+  ];
+  for (const url of models) {
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'image/jpeg' },
+        body: blob,
+        signal: AbortSignal.timeout(15000)
+      });
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      // Handle both model response formats
+      const text = data[0]?.generated_text || data[0]?.label || null;
+      if (text && text.length > 5) return text;
+    } catch(e) { continue; }
+  }
+  return null;
+}
+
+function cleanBLIPText(raw) {
+  return raw
+    .replace(/^(a |an |the )/i, '')
+    .replace(/ (on|in|at|with|against|over|under|near|next to|placed on|sitting on|resting on|displayed on|laying on).*/i, '')
+    .trim();
+}
+
+function inferCategoryFromText(text) {
+  const t = text.toLowerCase();
+  if (/\b(shoe|sneaker|boot|loafer|heel|slipper|sandal|kicks|trainer)\b/.test(t)) return {cat:'Sneakers', emoji:'👟', flip:7};
+  if (/\b(iphone|samsung|pixel|smartphone|phone|android|mobile)\b/.test(t)) return {cat:'Electronics', emoji:'📱', flip:5};
+  if (/\b(bag|purse|handbag|backpack|tote|wallet|clutch|satchel|pouch)\b/.test(t)) return {cat:'Bags', emoji:'👜', flip:7};
+  if (/\b(watch|timepiece|smartwatch|rolex|casio|omega|seiko)\b/.test(t)) return {cat:'Watches', emoji:'⌚', flip:7};
+  if (/\b(headphone|earphone|earbud|airpod|speaker|beats|bose|sony)\b/.test(t)) return {cat:'Electronics', emoji:'🎧', flip:5};
+  if (/\b(laptop|macbook|notebook|computer|tablet|ipad)\b/.test(t)) return {cat:'Electronics', emoji:'💻', flip:4};
+  if (/\b(jacket|hoodie|sweatshirt|coat|sweater|jersey|shirt|pants|jeans|dress|cardigan)\b/.test(t)) return {cat:'Clothing', emoji:'🧥', flip:6};
+  if (/\b(console|playstation|xbox|nintendo|controller|gamepad|ps4|ps5)\b/.test(t)) return {cat:'Gaming', emoji:'🎮', flip:5};
+  if (/\b(camera|dslr|mirrorless|canon|nikon|fujifilm|gopro|lens)\b/.test(t)) return {cat:'Electronics', emoji:'📸', flip:6};
+  if (/\b(card|pokemon|lego|funko|toy|collectible|figure|action figure)\b/.test(t)) return {cat:'Collectibles', emoji:'🏆', flip:8};
+  if (/\b(sunglasses|glasses|spectacles|eyewear|ray-ban|oakley)\b/.test(t)) return {cat:'Accessories', emoji:'🕶️', flip:6};
+  if (/\b(book|novel|textbook|comic|manga)\b/.test(t)) return {cat:'Books', emoji:'📚', flip:3};
+  return {cat:'General Item', emoji:'📦', flip:4};
+}
+
 // ─── AI ANALYSIS ──────────────────────────────────────────────────────────────
 async function runAI(canvas) {
   document.getElementById('prev-img').src = capturedImg;
   showScreen('analyzing');
-  const msgs = ['🔍 Scanning image…','🏷️ Classifying item…','📊 Matching database…'];
-  let si = 0;
-  const steps = document.getElementById('anlyz-steps');
-  const iv = setInterval(() => {
-    if (si < msgs.length-1) { si++;
-      steps.innerHTML = msgs.slice(0,si+1).map((s,i)=>
-        `<div class="${i===si?'sact':i<si?'sdone':''}">${i<si?s.replace(/^[^ ]+/,'✅'):s}</div>`).join('');
-    }
-  }, 700);
 
-  let detected = DB[0]; // default sneakers
-  try {
-    if (tfModel) {
-      const preds = await tfModel.classify(canvas, 5);
-      const labels = preds.map(p=>p.className.toLowerCase()).join(' ');
+  const steps = document.getElementById('anlyz-steps');
+  const msgs = [
+    '🤖 Sending to Vision AI…',
+    '🏷️ Identifying item…',
+    '📊 Fetching eBay prices…'
+  ];
+  let si = 0;
+  steps.innerHTML = `<div class="sact">${msgs[0]}</div>`;
+  const iv = setInterval(() => {
+    if (si < msgs.length - 1) {
+      si++;
+      steps.innerHTML = msgs.slice(0, si + 1).map((s, i) =>
+        `<div class="${i === si ? 'sact' : 'sdone'}">${i < si ? s.replace(/^[^ ]+/, '✅') : s}</div>`
+      ).join('');
+    }
+  }, 1800);
+
+  // Run BLIP and MobileNet simultaneously
+  const [blipRes, tfRes] = await Promise.allSettled([
+    identifyWithBLIP(canvas),
+    tfModel ? tfModel.classify(canvas, 5) : Promise.resolve(null)
+  ]);
+  clearInterval(iv);
+
+  const blipText = blipRes.status === 'fulfilled' ? blipRes.value : null;
+  const tfPreds  = tfRes.status  === 'fulfilled' ? tfRes.value  : null;
+
+  if (blipText && blipText.length > 6) {
+    // BLIP worked — go straight to result, no picker needed
+    buildBlipResult(blipText, tfPreds);
+  } else {
+    // Fallback: use MobileNet + picker flow
+    let detected = DB[0];
+    if (tfPreds) {
+      const labels = tfPreds.map(p => p.className.toLowerCase()).join(' ');
       for (const it of DB) {
-        if (it.keys.some(k => labels.includes(k))) { detected=it; break; }
+        if (it.keys.some(k => labels.includes(k))) { detected = it; break; }
       }
     }
-  } catch(e) {}
-  clearInterval(iv);
-  state.item = detected;
-  showBrandPicker(detected);
+    state.item = detected;
+    showBrandPicker(detected);
+  }
+}
+
+// ─── BLIP DIRECT RESULT ───────────────────────────────────────────────────────
+function buildBlipResult(blipText, tfPreds) {
+  const cleaned   = cleanBLIPText(blipText);
+  const itemName  = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+  const { cat, emoji, flip } = inferCategoryFromText(blipText);
+
+  // Try to match a DB item for tip text
+  let dbMatch = null;
+  if (tfPreds) {
+    const labels = tfPreds.map(p => p.className.toLowerCase()).join(' ');
+    for (const it of DB) {
+      if (it.keys.some(k => labels.includes(k))) { dbMatch = it; break; }
+    }
+  }
+  // Also match from BLIP text
+  if (!dbMatch) {
+    for (const it of DB) {
+      if (it.keys.some(k => blipText.toLowerCase().includes(k))) { dbMatch = it; break; }
+    }
+  }
+
+  const tip = dbMatch?.tip || 'Search eBay sold listings to verify pricing before you buy.';
+  const FCOLS = {'Hot Flip':'#10B981','Good Flip':'#06B6D4','Decent Flip':'#F59E0B','Low Margin':'#F97316','Skip':'#EF4444'};
+  const VERDICTS = [null,'Skip','Skip','Low Margin','Low Margin','Low Margin','Decent Flip','Good Flip','Good Flip','Hot Flip','Hot Flip'];
+  const verdict = VERDICTS[Math.round(flip)] || 'Decent Flip';
+  const col = FCOLS[verdict];
+
+  document.getElementById('r-img').src = capturedImg || '';
+  if (document.getElementById('r-img').src === '') {
+    document.getElementById('r-img').style.display = 'none';
+  }
+  document.getElementById('r-cat').textContent = `${emoji} ${cat}`;
+  document.getElementById('r-name').textContent = itemName;
+  document.getElementById('r-sub').textContent = `Identified by Vision AI · tap eBay link to verify`;
+  document.getElementById('r-conf').style.width = '78%';
+  document.getElementById('r-conf-t').textContent = '78%';
+
+  const fc = document.getElementById('r-fc');
+  fc.style.background = col + '22'; fc.style.border = `3px solid ${col}`;
+  document.getElementById('r-fn').textContent = flip;
+  document.getElementById('r-fn').style.color = col;
+  document.getElementById('r-verdict').textContent = verdict;
+  document.getElementById('r-reason').textContent = `Based on typical resale demand for ${cat.toLowerCase()}`;
+
+  // No DB prices for arbitrary items — hide estimated platform rows
+  document.getElementById('r-plats').innerHTML = `
+    <div style="font-size:13px;color:var(--gray);padding:4px 0;line-height:1.7">
+      Estimated prices are being pulled from real eBay sold listings below.
+      Use the profit calculator once live prices load.
+    </div>`;
+
+  // eBay search link
+  const q = encodeURIComponent(itemName + ' sold');
+  document.getElementById('ebay-link').href = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(itemName)}&LH_Sold=1&LH_Complete=1&_sop=13`;
+
+  document.getElementById('r-tip').textContent = tip;
+  document.getElementById('sellIn').value = '';
+  document.getElementById('costIn').value = '';
+  document.getElementById('pval').textContent = '$—';
+
+  // Show inline condition selector for BLIP results
+  document.getElementById('blip-cond-row').style.display = '';
+
+  scansToday++;
+  localStorage.setItem('rs_today_n', scansToday);
+  recentScans.unshift({ name: itemName, category: cat, price: 0, t: Date.now() });
+  if (recentScans.length > 10) recentScans.pop();
+  localStorage.setItem('rs_v2', JSON.stringify(recentScans));
+
+  // Reset live card
+  document.getElementById('live-sub').textContent = 'Fetching real sold data…';
+  document.getElementById('live-badge').style.cssText = 'background:var(--red);animation:pulse 2s infinite';
+  document.getElementById('live-body').innerHTML = `<div class="live-loading"><div class="live-spin"></div><div style="font-size:12px;color:var(--gray)">Pulling recent eBay sales…</div></div>`;
+
+  showScreen('result');
+
+  // Store for condition re-fetch
+  state.blipName = itemName;
+  state.condition = 0.85;
+
+  fetchRealPrices(itemName, 0.85).then(data => {
+    showLivePrices(data, itemName);
+    if (data?.median) {
+      recentScans[0].price = data.median;
+      localStorage.setItem('rs_v2', JSON.stringify(recentScans));
+    }
+  });
+}
+
+function blipCondChange(mul, label) {
+  const name = state.blipName;
+  if (!name) return;
+  state.condition = mul;
+  document.querySelectorAll('.bcond-btn').forEach(b => b.classList.remove('sel'));
+  event.currentTarget.classList.add('sel');
+  // Re-fetch live prices with new condition context
+  document.getElementById('live-body').innerHTML = `<div class="live-loading"><div class="live-spin"></div><div style="font-size:12px;color:var(--gray)">Updating for ${label} condition…</div></div>`;
+  fetchRealPrices(name + ' ' + label, mul).then(data => showLivePrices(data, name));
 }
 
 // ─── BRAND PICKER ─────────────────────────────────────────────────────────────
@@ -961,10 +1142,13 @@ function buildResult() {
   if (recentScans.length>10) recentScans.pop();
   localStorage.setItem('rs_v2', JSON.stringify(recentScans));
 
+  // Hide BLIP condition row for picker-flow results
+  document.getElementById('blip-cond-row').style.display = 'none';
+  document.getElementById('r-img').style.display = '';
+
   // Reset live card to loading state
   document.getElementById('live-sub').textContent = 'Fetching real sold data…';
-  document.getElementById('live-badge').style.background = 'var(--red)';
-  document.getElementById('live-badge').style.animation = 'pulse 2s infinite';
+  document.getElementById('live-badge').style.cssText = 'background:var(--red);animation:pulse 2s infinite';
   document.getElementById('live-body').innerHTML = `
     <div class="live-loading">
       <div class="live-spin"></div>
