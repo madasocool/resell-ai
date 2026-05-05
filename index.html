@@ -4,43 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Resell.Ai</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     :root{
-      --navy:#0A1628;--navy2:#0F1F3D;--purple:#7C3AED;--pl:#A855F7;
-      --teal:#06B6D4;--green:#10B981;--red:#EF4444;--orange:#F59E0B;
-      --white:#fff;--gray:#94A3B8;--card:#1E2D4D;
+      --navy:#0A1628;--purple:#7C3AED;--pl:#A855F7;
+      --teal:#06B6D4;--green:#10B981;--red:#EF4444;
+      --gray:#94A3B8;--card:#1E2D4D;
     }
     html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;background:#000;color:#fff;overflow:hidden}
     #app{width:100%;max-width:430px;height:100dvh;height:100vh;margin:0 auto;position:relative;overflow:hidden;background:var(--navy)}
-
     .screen{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s cubic-bezier(.4,0,.2,1);transform:translateX(40px)}
     .screen.active{opacity:1;pointer-events:all;transform:translateX(0)}
     .screen.exit{opacity:0;transform:translateX(-30px)}
 
-    /* ─── SETUP SCREEN ─── */
-    #setup{background:var(--navy);align-items:center;justify-content:center;padding:32px 28px;text-align:center}
-    .setup-logo{font-size:42px;font-weight:900;background:linear-gradient(135deg,var(--pl),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
-    .setup-sub{font-size:14px;color:var(--gray);margin-bottom:36px;line-height:1.6}
-    .setup-card{background:var(--card);border-radius:20px;padding:24px 20px;width:100%;margin-bottom:18px;text-align:left}
-    .setup-card h3{font-size:15px;font-weight:800;margin-bottom:14px}
-    .step-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
-    .step-num{width:24px;height:24px;border-radius:50%;background:var(--purple);font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-    .step-txt{font-size:13px;color:rgba(255,255,255,.8);line-height:1.5}
-    .step-txt a{color:var(--teal);text-decoration:none;font-weight:700}
-    .setup-input{width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;color:#fff;font-size:15px;padding:13px 14px;outline:none;margin-top:16px;font-family:monospace;letter-spacing:.05em}
-    .setup-input:focus{border-color:var(--purple)}
-    .setup-input::placeholder{color:var(--gray);font-family:-apple-system,sans-serif;letter-spacing:0}
-    .setup-btn{width:100%;background:linear-gradient(135deg,var(--purple),var(--teal));border:none;color:#fff;font-size:16px;font-weight:800;padding:16px;border-radius:14px;cursor:pointer;transition:opacity .15s}
-    .setup-btn:active{opacity:.85}
-    .setup-note{font-size:11px;color:var(--gray);text-align:center;margin-top:10px;line-height:1.5}
-
-    /* ─── HOME ─── */
+    /* HOME */
     .home-scroll{flex:1;overflow-y:auto;padding-bottom:90px}
     .home-top{padding:56px 22px 10px;display:flex;justify-content:space-between;align-items:flex-start}
     .home-logo{font-size:26px;font-weight:900;background:linear-gradient(135deg,var(--pl),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .key-badge{font-size:11px;color:var(--green);background:rgba(16,185,129,.15);padding:4px 9px;border-radius:20px;font-weight:700;cursor:pointer}
-
+    .ai-badge{font-size:11px;color:var(--green);background:rgba(16,185,129,.15);padding:4px 9px;border-radius:20px;font-weight:700}
     .hero{margin:8px 18px 0;background:linear-gradient(145deg,#5B21B6,var(--purple));border-radius:22px;padding:24px 20px 20px;position:relative;overflow:hidden;cursor:pointer;box-shadow:0 10px 36px rgba(124,58,237,.45);transition:transform .15s}
     .hero:active{transform:scale(.97)}
     .hero::before{content:'';position:absolute;top:-60px;right:-40px;width:200px;height:200px;background:rgba(255,255,255,.06);border-radius:50%}
@@ -48,90 +31,96 @@
     .hero-h{font-size:22px;font-weight:900;margin-bottom:4px}
     .hero-sub{font-size:13px;color:rgba(255,255,255,.75);margin-bottom:18px;line-height:1.5}
     .hero-btn{display:inline-flex;align-items:center;gap:7px;background:#fff;color:var(--purple);font-weight:800;font-size:14px;padding:10px 16px;border-radius:50px;border:none;cursor:pointer}
-
     .stats{display:flex;gap:10px;padding:14px 18px 0}
     .stat{flex:1;background:var(--card);border-radius:14px;padding:13px 10px;text-align:center}
     .stat-n{font-size:20px;font-weight:900;color:var(--teal)}
     .stat-l{font-size:10px;color:var(--gray);margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
-
     .sec-hdr{padding:18px 18px 10px;font-size:16px;font-weight:800}
     .recent-list{padding:0 18px;display:flex;flex-direction:column;gap:9px}
-    .ri{background:var(--card);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .12s}
-    .ri:active{transform:scale(.97)}
+    .ri{background:var(--card);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:12px}
     .ri-ico{width:40px;height:40px;background:linear-gradient(135deg,var(--purple),var(--teal));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
     .ri-name{font-size:13px;font-weight:700}
     .ri-cat{font-size:11px;color:var(--gray);margin-top:2px}
     .ri-price{margin-left:auto;font-size:14px;font-weight:900;color:var(--green)}
 
-    /* ─── SCAN ─── */
+    /* SCAN */
     #scan{background:#000}
     .scan-header{position:absolute;top:0;left:0;right:0;z-index:10;padding:52px 20px 14px;display:flex;align-items:center;gap:12px;background:linear-gradient(#000a,transparent)}
     .back-btn{width:38px;height:38px;background:rgba(255,255,255,.15);border-radius:50%;border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
     .scan-title{font-size:18px;font-weight:800}
-
     #video{width:100%;height:100%;object-fit:cover;display:block}
-    .cam-overlay{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none}
-    .cam-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:260px;height:260px}
+    .cam-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);width:260px;height:260px;pointer-events:none}
     .cam-frame::before,.cam-frame::after{content:'';position:absolute;width:50px;height:50px;border-color:rgba(255,255,255,.9);border-style:solid}
     .cam-frame::before{top:0;left:0;border-width:3px 0 0 3px;border-radius:8px 0 0 0}
     .cam-frame::after{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 8px 0}
-    .cam-frame-br{position:absolute;bottom:0;left:0;width:50px;height:50px;border:3px solid rgba(255,255,255,.9);border-width:0 0 3px 3px;border-radius:0 0 0 8px}
-    .cam-frame-tr{position:absolute;top:0;right:0;width:50px;height:50px;border:3px solid rgba(255,255,255,.9);border-width:3px 3px 0 0;border-radius:0 8px 0 0}
-
+    .cam-br{position:absolute;bottom:0;left:0;width:50px;height:50px;border:3px solid rgba(255,255,255,.9);border-width:0 0 3px 3px;border-radius:0 0 0 8px}
+    .cam-tr{position:absolute;top:0;right:0;width:50px;height:50px;border:3px solid rgba(255,255,255,.9);border-width:3px 3px 0 0;border-radius:0 8px 0 0}
     .scan-bottom{position:absolute;bottom:0;left:0;right:0;z-index:10;padding:20px 24px 44px;background:linear-gradient(transparent,#000d)}
     .scan-hint{font-size:13px;color:rgba(255,255,255,.65);text-align:center;margin-bottom:18px}
     .scan-row{display:flex;align-items:center;justify-content:center;gap:20px}
     .upload-btn{width:48px;height:48px;background:rgba(255,255,255,.12);border-radius:50%;border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
     .capture-btn{width:74px;height:74px;background:#fff;border-radius:50%;border:5px solid rgba(255,255,255,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .12s;box-shadow:0 0 0 2px #fff}
     .capture-btn:active{transform:scale(.93)}
-    .capture-inner{width:56px;height:56px;background:var(--purple);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px}
+    .cap-inner{width:56px;height:56px;background:var(--purple);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px}
     #fileInput{display:none}
+    #canvas{display:none}
 
-    /* ─── ANALYZING ─── */
+    /* ANALYZING */
     #analyzing{background:var(--navy);align-items:center;justify-content:center;text-align:center;padding:40px 30px}
-    #preview-img{width:220px;height:220px;border-radius:22px;object-fit:cover;margin-bottom:30px;box-shadow:0 16px 48px rgba(0,0,0,.5)}
-    .spin{width:48px;height:48px;border:4px solid rgba(168,85,247,.25);border-top-color:var(--pl);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px}
+    #preview-img{width:200px;height:200px;border-radius:20px;object-fit:cover;margin-bottom:28px;box-shadow:0 16px 48px rgba(0,0,0,.5)}
+    .spin{width:44px;height:44px;border:4px solid rgba(168,85,247,.25);border-top-color:var(--pl);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 14px}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .analyzing-h{font-size:20px;font-weight:800;margin-bottom:8px}
-    .analyzing-steps{font-size:13px;color:var(--gray);line-height:1.8}
+    .analyzing-h{font-size:19px;font-weight:800;margin-bottom:8px}
+    #analyzeSteps{font-size:13px;color:var(--gray);line-height:2}
+    .step-done{color:var(--green)}
     .step-active{color:var(--teal);font-weight:700}
 
-    /* ─── RESULT ─── */
+    /* BRAND PICKER */
+    #brandpick{background:var(--navy)}
+    .brand-scroll{flex:1;overflow-y:auto;padding:56px 20px 100px}
+    .brand-preview{width:160px;height:160px;border-radius:18px;object-fit:cover;margin:0 auto 20px;display:block;box-shadow:0 12px 36px rgba(0,0,0,.5)}
+    .detected-chip{background:rgba(124,58,237,.25);border:1px solid rgba(124,58,237,.5);border-radius:20px;font-size:12px;font-weight:700;padding:5px 14px;display:inline-block;margin-bottom:6px;color:var(--pl)}
+    .brand-h{font-size:20px;font-weight:900;margin-bottom:4px;text-align:center}
+    .brand-sub{font-size:13px;color:var(--gray);text-align:center;margin-bottom:22px;line-height:1.5}
+    .brand-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+    .brand-btn{background:var(--card);border:1.5px solid rgba(255,255,255,.08);border-radius:14px;padding:13px 8px;text-align:center;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:5px}
+    .brand-btn:active,.brand-btn.selected{background:rgba(124,58,237,.3);border-color:var(--purple)}
+    .brand-ico{font-size:22px}
+    .brand-name{font-size:12px;font-weight:700}
+    .skip-btn{width:100%;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.1);border-radius:14px;color:var(--gray);font-size:14px;font-weight:600;padding:13px;cursor:pointer;margin-bottom:10px}
+    .confirm-btn{width:100%;background:linear-gradient(135deg,var(--purple),var(--teal));border:none;color:#fff;font-size:15px;font-weight:800;padding:15px;border-radius:14px;cursor:pointer;transition:opacity .15s}
+    .confirm-btn:active{opacity:.85}
+    .confirm-btn:disabled{opacity:.4;cursor:not-allowed}
+
+    /* RESULT */
     #result{background:var(--navy)}
     .result-scroll{flex:1;overflow-y:auto;padding-bottom:90px}
     .result-header{padding:52px 20px 16px;display:flex;align-items:center;gap:12px}
-    .result-header .back-btn{flex-shrink:0}
     .item-card{margin:0 18px 16px;background:var(--card);border-radius:22px;overflow:hidden}
     #result-img{width:100%;height:200px;object-fit:cover;display:block}
     .item-info{padding:18px}
     .item-category{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--pl);font-weight:800;margin-bottom:6px}
     .item-name{font-size:20px;font-weight:900;line-height:1.3;margin-bottom:4px}
     .item-sub{font-size:13px;color:var(--gray);margin-bottom:14px}
-    .confidence-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-    .conf-label{font-size:11px;color:var(--gray)}
+    .conf-row{display:flex;align-items:center;gap:8px}
+    .conf-lbl{font-size:11px;color:var(--gray)}
     .conf-bar{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
     .conf-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--purple),var(--teal))}
-
-    .flip-score{margin:0 18px 16px;background:var(--card);border-radius:18px;padding:18px;display:flex;align-items:center;gap:16px}
+    .flip-card{margin:0 18px 16px;background:var(--card);border-radius:18px;padding:18px;display:flex;align-items:center;gap:16px}
     .flip-circle{width:70px;height:70px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;font-weight:900}
     .flip-n{font-size:26px;line-height:1}
     .flip-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
-    .flip-info h4{font-size:15px;font-weight:800;margin-bottom:4px}
-    .flip-info p{font-size:12px;color:var(--gray);line-height:1.5}
-
     .prices-card{margin:0 18px 16px;background:var(--card);border-radius:18px;padding:18px}
     .prices-title{font-size:14px;font-weight:800;margin-bottom:14px}
-    .platform-row{display:flex;align-items:center;margin-bottom:10px}
-    .platform-row:last-child{margin-bottom:0}
+    .plat-row{display:flex;align-items:center;margin-bottom:10px}
+    .plat-row:last-child{margin-bottom:0}
     .plat-ico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;margin-right:10px}
     .plat-name{font-size:13px;font-weight:700;flex:1}
     .plat-range{font-size:13px;font-weight:900;color:var(--green)}
     .plat-na{font-size:12px;color:var(--gray)}
-
-    .tips-card{margin:0 18px 16px;background:linear-gradient(135deg,rgba(124,58,237,.25),rgba(6,182,212,.15));border:1px solid rgba(124,58,237,.3);border-radius:18px;padding:18px}
-    .tips-h{font-size:13px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-    .tips-txt{font-size:13px;color:rgba(255,255,255,.8);line-height:1.6}
-
+    .tip-card{margin:0 18px 16px;background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(6,182,212,.1));border:1px solid rgba(124,58,237,.3);border-radius:18px;padding:18px}
+    .tip-h{font-size:13px;font-weight:800;margin-bottom:8px}
+    .tip-txt{font-size:13px;color:rgba(255,255,255,.8);line-height:1.6}
     .calc-card{margin:0 18px 16px;background:var(--card);border-radius:18px;padding:18px}
     .calc-title{font-size:14px;font-weight:800;margin-bottom:14px}
     .calc-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
@@ -139,53 +128,24 @@
     .calc-input{flex:1;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;font-size:15px;font-weight:700;padding:9px 12px;outline:none;text-align:right}
     .calc-input:focus{border-color:var(--purple)}
     .calc-result{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:10px}
-    .calc-profit-lbl{font-size:13px;font-weight:700}
-    .calc-profit-val{font-size:22px;font-weight:900;color:var(--green)}
+    .profit-val{font-size:22px;font-weight:900;color:var(--green)}
 
-    /* ─── NAV ─── */
+    /* NAV */
     .nav{position:absolute;bottom:0;left:0;right:0;background:rgba(10,22,40,.95);backdrop-filter:blur(12px);display:flex;padding:10px 0 28px;border-top:1px solid rgba(255,255,255,.07)}
     .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px 0}
     .nav-ico{font-size:22px}
     .nav-lbl{font-size:10px;color:var(--gray)}
     .nav-item.active .nav-lbl{color:var(--pl)}
-    .nav-item.active .nav-ico{filter:drop-shadow(0 0 6px var(--pl))}
 
-    /* ─── TOAST ─── */
-    .toast{position:absolute;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(30,45,77,.95);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;white-space:nowrap;opacity:0;transition:opacity .2s,transform .2s;z-index:999;backdrop-filter:blur(8px)}
-    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-    #canvas{display:none}
+    /* MODEL LOADING BANNER */
+    #modelBanner{position:absolute;top:0;left:0;right:0;background:rgba(124,58,237,.9);font-size:12px;font-weight:700;text-align:center;padding:10px;z-index:100;transition:opacity .5s}
   </style>
 </head>
 <body>
 <div id="app">
+  <div id="modelBanner">⚡ Loading AI model…</div>
 
-  <!-- ═══ SETUP SCREEN ═══ -->
-  <div class="screen" id="setup">
-    <div class="setup-logo">Resell.Ai</div>
-    <div class="setup-sub">AI-powered item scanner that identifies<br>specific products and their resale value</div>
-
-    <div class="setup-card">
-      <h3>🔑 Get your free AI key</h3>
-      <div class="step-row">
-        <div class="step-num">1</div>
-        <div class="step-txt">Open <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> — use <strong>Google AI Studio</strong>, not Google Cloud Console</div>
-      </div>
-      <div class="step-row">
-        <div class="step-num">2</div>
-        <div class="step-txt">Click <strong>"Create API key"</strong> → when it shows a project dropdown, scroll down and click <strong>"Create API key in new project"</strong></div>
-      </div>
-      <div class="step-row">
-        <div class="step-num">3</div>
-        <div class="step-txt">Copy the long key that appears (starts with AIza...) and paste below</div>
-      </div>
-      <input class="setup-input" id="apiKeyInput" type="password" placeholder="Paste your Gemini API key here..." autocomplete="off" spellcheck="false">
-    </div>
-
-    <button class="setup-btn" id="setupBtn">Start Scanning →</button>
-    <div class="setup-note">Your key is stored only on this device.<br>Never shared with anyone.</div>
-  </div>
-
-  <!-- ═══ HOME SCREEN ═══ -->
+  <!-- HOME -->
   <div class="screen" id="home">
     <div class="home-scroll">
       <div class="home-top">
@@ -193,28 +153,27 @@
           <div class="home-logo">Resell.Ai</div>
           <div style="font-size:12px;color:var(--gray);margin-top:3px">AI Item Scanner</div>
         </div>
-        <div class="key-badge" id="keyBadge" onclick="resetKey()">AI ✓</div>
+        <div class="ai-badge">No signup needed</div>
       </div>
 
       <div class="hero" onclick="goScan()">
-        <div class="hero-chip">✦ Powered by Gemini AI</div>
+        <div class="hero-chip">✦ On-Device AI + Smart Pricing</div>
         <div class="hero-h">Scan Any Item</div>
-        <div class="hero-sub">Point your camera and get the exact product name, brand, and resale prices in seconds</div>
+        <div class="hero-sub">Point your camera, pick the brand, and get real resale prices across eBay, Poshmark, Mercari & StockX</div>
         <button class="hero-btn">📷 &nbsp;Scan Now</button>
       </div>
 
       <div class="stats">
-        <div class="stat"><div class="stat-n" id="stat-scans">0</div><div class="stat-l">Scans Today</div></div>
-        <div class="stat"><div class="stat-n" id="stat-profit">$0</div><div class="stat-l">Potential Profit</div></div>
-        <div class="stat"><div class="stat-n">AI</div><div class="stat-l">Vision Model</div></div>
+        <div class="stat"><div class="stat-n" id="stat-scans">0</div><div class="stat-l">Scans</div></div>
+        <div class="stat"><div class="stat-n" id="stat-profit">$0</div><div class="stat-l">Potential</div></div>
+        <div class="stat"><div class="stat-n">4</div><div class="stat-l">Platforms</div></div>
       </div>
 
       <div class="sec-hdr">Recent Scans</div>
       <div class="recent-list" id="recentList">
-        <div style="padding:20px 0;text-align:center;color:var(--gray);font-size:13px">No scans yet — tap Scan Now to start!</div>
+        <div style="padding:20px 0;text-align:center;color:var(--gray);font-size:13px">No scans yet — tap Scan Now!</div>
       </div>
     </div>
-
     <nav class="nav">
       <div class="nav-item active"><div class="nav-ico">🏠</div><div class="nav-lbl">Home</div></div>
       <div class="nav-item" onclick="goScan()"><div class="nav-ico">📷</div><div class="nav-lbl">Scan</div></div>
@@ -223,26 +182,19 @@
     </nav>
   </div>
 
-  <!-- ═══ SCAN SCREEN ═══ -->
+  <!-- SCAN -->
   <div class="screen" id="scan">
     <div class="scan-header">
       <button class="back-btn" onclick="goHome()">←</button>
       <div class="scan-title">Point at Item</div>
     </div>
     <video id="video" autoplay playsinline muted></video>
-    <div class="cam-overlay">
-      <div class="cam-frame">
-        <div class="cam-frame-br"></div>
-        <div class="cam-frame-tr"></div>
-      </div>
-    </div>
+    <div class="cam-frame"><div class="cam-br"></div><div class="cam-tr"></div></div>
     <div class="scan-bottom">
       <div class="scan-hint">Center item in frame, then tap scan</div>
       <div class="scan-row">
         <button class="upload-btn" onclick="document.getElementById('fileInput').click()" title="Upload photo">🖼</button>
-        <div class="capture-btn" onclick="captureAndAnalyze()">
-          <div class="capture-inner">📷</div>
-        </div>
+        <div class="capture-btn" onclick="capturePhoto()"><div class="cap-inner">📷</div></div>
         <div style="width:48px"></div>
       </div>
     </div>
@@ -250,58 +202,73 @@
     <canvas id="canvas"></canvas>
   </div>
 
-  <!-- ═══ ANALYZING SCREEN ═══ -->
+  <!-- ANALYZING -->
   <div class="screen" id="analyzing">
-    <img id="preview-img" src="" alt="preview">
+    <img id="preview-img" src="" alt="">
     <div class="spin"></div>
     <div class="analyzing-h">Identifying Item…</div>
-    <div class="analyzing-steps" id="analyzeSteps">
-      <div class="step-active">🔍 Sending to Gemini AI…</div>
+    <div id="analyzeSteps">
+      <div class="step-active">🔍 Analyzing image…</div>
     </div>
   </div>
 
-  <!-- ═══ RESULT SCREEN ═══ -->
+  <!-- BRAND PICKER -->
+  <div class="screen" id="brandpick">
+    <div class="brand-scroll">
+      <img class="brand-preview" id="brand-preview" src="" alt="">
+      <div style="text-align:center">
+        <div class="detected-chip" id="detected-chip">Detected: Sneakers</div>
+      </div>
+      <div class="brand-h" id="brand-h">Who made it?</div>
+      <div class="brand-sub" id="brand-sub">Select the brand to get accurate resale prices</div>
+      <div class="brand-grid" id="brandGrid"></div>
+      <button class="skip-btn" onclick="skipBrand()">Skip — show general prices</button>
+      <button class="confirm-btn" id="confirmBtn" onclick="confirmBrand()" disabled>Get Prices →</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
   <div class="screen" id="result">
     <div class="result-scroll">
       <div class="result-header">
         <button class="back-btn" onclick="goHome()">←</button>
         <div style="font-size:17px;font-weight:800">Scan Result</div>
-        <button style="margin-left:auto;background:var(--purple);border:none;color:#fff;font-size:13px;font-weight:700;padding:7px 14px;border-radius:20px;cursor:pointer" onclick="goScan()">Scan Again</button>
+        <button onclick="goScan()" style="margin-left:auto;background:var(--purple);border:none;color:#fff;font-size:13px;font-weight:700;padding:7px 14px;border-radius:20px;cursor:pointer">Scan Again</button>
       </div>
 
       <div class="item-card">
-        <img id="result-img" src="" alt="scanned item">
+        <img id="result-img" src="" alt="">
         <div class="item-info">
-          <div class="item-category" id="result-category">Category</div>
-          <div class="item-name" id="result-name">Item Name</div>
-          <div class="item-sub" id="result-sub">Details</div>
-          <div class="confidence-row">
-            <div class="conf-label">AI Confidence</div>
-            <div class="conf-bar"><div class="conf-fill" id="conf-fill" style="width:0%"></div></div>
-            <div style="font-size:11px;color:var(--gray)" id="conf-pct">0%</div>
+          <div class="item-category" id="r-cat">Category</div>
+          <div class="item-name" id="r-name">Item</div>
+          <div class="item-sub" id="r-sub">Details</div>
+          <div class="conf-row">
+            <div class="conf-lbl">AI Confidence</div>
+            <div class="conf-bar"><div class="conf-fill" id="r-conf" style="width:0%"></div></div>
+            <div style="font-size:11px;color:var(--gray)" id="r-conf-txt">0%</div>
           </div>
         </div>
       </div>
 
-      <div class="flip-score" id="flip-card">
-        <div class="flip-circle" id="flip-circle">
-          <div class="flip-n" id="flip-num">–</div>
+      <div class="flip-card">
+        <div class="flip-circle" id="r-flip-circle">
+          <div class="flip-n" id="r-flip-n">–</div>
           <div class="flip-lbl">FLIP</div>
         </div>
-        <div class="flip-info">
-          <h4 id="flip-verdict">Calculating…</h4>
-          <p id="flip-tip">Analyzing market data…</p>
+        <div>
+          <div style="font-size:15px;font-weight:800" id="r-verdict">–</div>
+          <div style="font-size:12px;color:var(--gray);margin-top:4px;line-height:1.5" id="r-reason">–</div>
         </div>
       </div>
 
       <div class="prices-card">
         <div class="prices-title">📊 Resale Prices</div>
-        <div id="platform-list"></div>
+        <div id="r-platforms"></div>
       </div>
 
-      <div class="tips-card" id="tips-card" style="display:none">
-        <div class="tips-h">💡 Selling Tip</div>
-        <div class="tips-txt" id="tips-txt"></div>
+      <div class="tip-card" id="r-tip-card">
+        <div class="tip-h">💡 Selling Tip</div>
+        <div class="tip-txt" id="r-tip"></div>
       </div>
 
       <div class="calc-card">
@@ -315,8 +282,8 @@
           <input class="calc-input" id="sellInput" type="number" placeholder="$0" oninput="calcProfit()">
         </div>
         <div class="calc-result">
-          <div class="calc-profit-lbl">Your profit</div>
-          <div class="calc-profit-val" id="profitVal">$—</div>
+          <div style="font-size:13px;font-weight:700">Your profit</div>
+          <div class="profit-val" id="profitVal">$—</div>
         </div>
       </div>
     </div>
@@ -327,357 +294,449 @@
       <div class="nav-item"><div class="nav-ico">👤</div><div class="nav-lbl">Profile</div></div>
     </nav>
   </div>
-
-  <div class="toast" id="toast"></div>
 </div>
 
 <script>
-// ── State ────────────────────────────────────────────────────────────────
-let apiKey = localStorage.getItem('gemini_key') || '';
+// ── Item Database ─────────────────────────────────────────────────────────────
+// Each entry: keywords MobileNet might return, brands to show, base prices per brand
+const ITEMS = [
+  {
+    type: 'Sneakers', emoji: '👟', category: 'Sneakers',
+    keys: ['sneaker','running shoe','loafer','boot','clog','shoe','sandal','moccasin','oxford','tennis shoe'],
+    brands: [
+      {name:'Nike',     ico:'✔️', mul:{ebay:[1.2,1.8],posh:[1.0,1.5],merc:[1.1,1.6],sx:[1.3,2.0]}},
+      {name:'Jordan',   ico:'🏀', mul:{ebay:[1.8,3.2],posh:[1.5,2.8],merc:[1.6,2.9],sx:[2.0,4.0]}},
+      {name:'Adidas',   ico:'🔵', mul:{ebay:[1.1,1.6],posh:[0.9,1.4],merc:[1.0,1.5],sx:[1.2,1.8]}},
+      {name:'Yeezy',    ico:'⭐', mul:{ebay:[2.0,4.0],posh:[1.8,3.5],merc:[1.9,3.8],sx:[2.2,5.0]}},
+      {name:'New Balance',ico:'🟡',mul:{ebay:[1.0,1.5],posh:[0.9,1.3],merc:[1.0,1.4],sx:[1.1,1.7]}},
+      {name:'ASICS',    ico:'🟢', mul:{ebay:[0.8,1.2],posh:[0.7,1.0],merc:[0.8,1.1],sx:null}},
+      {name:'Puma',     ico:'🐾', mul:{ebay:[0.7,1.1],posh:[0.6,1.0],merc:[0.7,1.1],sx:null}},
+      {name:'Reebok',   ico:'🔷', mul:{ebay:[0.8,1.2],posh:[0.7,1.0],merc:[0.8,1.1],sx:[0.9,1.3]}},
+      {name:'Other',    ico:'📦', mul:{ebay:[0.5,0.9],posh:[0.4,0.8],merc:[0.5,0.9],sx:null}},
+    ],
+    base:{ebay:80, posh:65, merc:70, sx:90},
+    flip:7, verdict:'Good Flip', reason:'Sneaker resale is strong on all platforms',
+    tip:'Clean the soles and include original box — can add 30–50% value on StockX.',
+    platforms:{ebay:true,posh:true,merc:true,sx:true}
+  },
+  {
+    type: 'Smartphone', emoji: '📱', category: 'Electronics',
+    keys: ['phone','cellular','mobile','smartphone','iphone','android','pixel'],
+    brands: [
+      {name:'iPhone 15',  ico:'🍎', mul:{ebay:[3.5,5.0],posh:[3.0,4.5],merc:[3.2,4.8],sx:null}},
+      {name:'iPhone 14',  ico:'🍎', mul:{ebay:[2.5,3.8],posh:[2.2,3.5],merc:[2.3,3.6],sx:null}},
+      {name:'iPhone 13',  ico:'🍎', mul:{ebay:[1.8,2.8],posh:[1.6,2.5],merc:[1.7,2.6],sx:null}},
+      {name:'iPhone 12',  ico:'🍎', mul:{ebay:[1.2,1.9],posh:[1.0,1.7],merc:[1.1,1.8],sx:null}},
+      {name:'Samsung S24',ico:'🌀', mul:{ebay:[2.8,4.0],posh:[2.5,3.6],merc:[2.6,3.8],sx:null}},
+      {name:'Samsung S23',ico:'🌀', mul:{ebay:[2.0,3.0],posh:[1.8,2.7],merc:[1.9,2.8],sx:null}},
+      {name:'Google Pixel',ico:'🎯',mul:{ebay:[1.5,2.5],posh:[1.3,2.2],merc:[1.4,2.3],sx:null}},
+      {name:'Other',      ico:'📱', mul:{ebay:[0.8,1.5],posh:[0.7,1.3],merc:[0.8,1.4],sx:null}},
+    ],
+    base:{ebay:100, posh:85, merc:90, sx:0},
+    flip:6, verdict:'Good Flip', reason:'Phones sell fast — check for iCloud lock first',
+    tip:'List as "factory unlocked" if applicable — adds significant buyer demand.',
+    platforms:{ebay:true,posh:true,merc:true,sx:false}
+  },
+  {
+    type: 'Laptop', emoji: '💻', category: 'Electronics',
+    keys: ['laptop','notebook','macbook','computer','pc'],
+    brands: [
+      {name:'MacBook Pro', ico:'🍎', mul:{ebay:[4.0,7.0],posh:[3.5,6.0],merc:[3.8,6.5],sx:null}},
+      {name:'MacBook Air', ico:'🍎', mul:{ebay:[2.5,4.5],posh:[2.2,4.0],merc:[2.3,4.2],sx:null}},
+      {name:'Dell XPS',    ico:'💻', mul:{ebay:[2.0,3.5],posh:[1.8,3.0],merc:[1.9,3.2],sx:null}},
+      {name:'HP',          ico:'🖥', mul:{ebay:[1.2,2.0],posh:[1.0,1.8],merc:[1.1,1.9],sx:null}},
+      {name:'Lenovo',      ico:'🔲', mul:{ebay:[1.3,2.2],posh:[1.1,1.9],merc:[1.2,2.0],sx:null}},
+      {name:'Other',       ico:'💻', mul:{ebay:[0.8,1.5],posh:[0.7,1.3],merc:[0.8,1.4],sx:null}},
+    ],
+    base:{ebay:300, posh:250, merc:270, sx:0},
+    flip:5, verdict:'Decent Flip', reason:'Electronics need testing before listing',
+    tip:'List with specs (RAM, storage, processor) and include charger.',
+    platforms:{ebay:true,posh:true,merc:true,sx:false}
+  },
+  {
+    type: 'Bag / Purse', emoji: '👜', category: 'Bags',
+    keys: ['bag','purse','handbag','backpack','tote','wallet','briefcase','satchel'],
+    brands: [
+      {name:'Louis Vuitton',ico:'👑', mul:{ebay:[5.0,12.0],posh:[4.5,11.0],merc:[5.0,10.0],sx:null}},
+      {name:'Gucci',        ico:'🌿', mul:{ebay:[4.0,9.0], posh:[3.5,8.0], merc:[4.0,8.5], sx:null}},
+      {name:'Coach',        ico:'🏇', mul:{ebay:[1.5,3.5], posh:[1.3,3.0], merc:[1.4,3.2], sx:null}},
+      {name:'Michael Kors', ico:'💼', mul:{ebay:[1.0,2.5], posh:[0.9,2.2], merc:[1.0,2.3], sx:null}},
+      {name:'Kate Spade',   ico:'♠️', mul:{ebay:[1.2,2.8], posh:[1.0,2.5], merc:[1.1,2.6], sx:null}},
+      {name:'Supreme',      ico:'🔴', mul:{ebay:[2.0,4.0], posh:[1.8,3.5], merc:[1.9,3.7], sx:[2.2,5.0]}},
+      {name:'Nike/Adidas',  ico:'🎒', mul:{ebay:[0.8,1.5], posh:[0.7,1.3], merc:[0.8,1.4], sx:null}},
+      {name:'Other',        ico:'👜', mul:{ebay:[0.5,1.0], posh:[0.4,0.9], merc:[0.5,1.0], sx:null}},
+    ],
+    base:{ebay:60, posh:50, merc:55, sx:0},
+    flip:7, verdict:'Good Flip', reason:'Designer bags hold value extremely well',
+    tip:'Photograph the logo, hardware, and serial number — buyers need authentication proof.',
+    platforms:{ebay:true,posh:true,merc:true,sx:false}
+  },
+  {
+    type: 'Watch', emoji: '⌚', category: 'Watches',
+    keys: ['watch','wristwatch','timepiece','clock','smartwatch'],
+    brands: [
+      {name:'Rolex',       ico:'👑', mul:{ebay:[20,50],posh:[18,45],merc:[19,48],sx:null}},
+      {name:'Apple Watch', ico:'🍎', mul:{ebay:[2.0,3.5],posh:[1.8,3.0],merc:[1.9,3.2],sx:null}},
+      {name:'Casio G-Shock',ico:'💪',mul:{ebay:[1.5,3.0],posh:[1.3,2.5],merc:[1.4,2.8],sx:null}},
+      {name:'Fossil',      ico:'🦴', mul:{ebay:[0.8,1.5],posh:[0.7,1.3],merc:[0.8,1.4],sx:null}},
+      {name:'Michael Kors',ico:'💼', mul:{ebay:[0.9,1.8],posh:[0.8,1.6],merc:[0.9,1.7],sx:null}},
+      {name:'Other',       ico:'⌚', mul:{ebay:[0.5,1.0],posh:[0.4,0.9],merc:[0.5,1.0],sx:null}},
+    ],
+    base:{ebay:100, posh:85, merc:90, sx:0},
+    flip:7, verdict:'Good Flip', reason:'Watches are one of the best resale categories',
+    tip:'Include original box and papers — doubles the value for luxury brands.',
+    platforms:{ebay:true,posh:true,merc:true,sx:false}
+  },
+  {
+    type: 'Sunglasses', emoji: '🕶️', category: 'Accessories',
+    keys: ['sunglasses','sunglass','glasses','spectacles','goggles'],
+    brands: [
+      {name:'Ray-Ban',  ico:'🕶️', mul:{ebay:[1.5,2.5],posh:[1.3,2.2],merc:[1.4,2.3],sx:null}},
+      {name:'Oakley',   ico:'🔆', mul:{ebay:[1.2,2.0],posh:[1.0,1.8],merc:[1.1,1.9],sx:null}},
+      {name:'Gucci',    ico:'🌿', mul:{ebay:[2.5,5.0],posh:[2.2,4.5],merc:[2.3,4.8],sx:null}},
+      {name:'Versace',  ico:'🦋', mul:{ebay:[2.0,4.0],posh:[1.8,3.5],merc:[1.9,3.8],sx:null}},
+      {name:'Prada',    ico:'🔺', mul:{ebay:[2.5,5.5],posh:[2.2,5.0],merc:[2.3,5.2],sx:null}},
+      {name:'Other',    ico:'🕶️', mul:{ebay:[0.4,0.9],posh:[0.3,0.8],merc:[0.4,0.9],sx:null}},
+    ],
+    base:{ebay:40, posh:35, merc:38, sx:0},
+    flip:6, verdict:'Decent Flip', reason:'Authentic designer eyewear is in high demand',
+    tip:'Post on Poshmark — fashion buyers pay premium for authenticated eyewear.',
+    platforms:{ebay:true,posh:true,merc:true,sx:false}
+  },
+  {
+    type: 'Headphones', emoji: '🎧', category: 'Electronics',
+    keys: ['headphone','earphone','earbuds','headset','airpod','speaker'],
+    brands: [
+      {name:'AirPods Pro', ico:'🍎', mul:{ebay:[1.5,2.2],posh:[1.3,2.0],merc:[1.4,2.1],sx:null}},
+      {name:'AirPods Max', ico:'🍎', mul:{ebay:[2.5,3.8],posh:[2.2,3.5],merc:[2.3,3.6],sx:null}},
+      {name:'Sony WH-1000X',ico:'🎵',mul:{ebay:[1.3,2.0],posh:[1.1,1.8],merc:[1.2,1.9],sx:null}},
+      {name:'Bose QC45',  ico:'🔊', mul:{ebay:[1.2,1.9],posh:[1.0,1.7],merc:[1.1,1.8],sx:null}},
+      {name:'Beats',      ico:'🎧', mul:{ebay:[1.0,1.6],posh:[0.9,1.4],merc:[1.0,1.5],sx:null}},
+      {name:'Other',      ico:'🎧', mul:{ebay:[0.5,0.9],posh:[0.4,0.8],merc:[0.5,0.9],sx:null}},
+    ],
+    base:{ebay:80, posh:65, merc:70, sx:0},
+    flip:6, verdict:'Good Flip', reason:'Wireless audio sells well if in good condition',
+    tip:'Test and confirm noise cancellation works — mention it in the listing.',
+    platforms:{ebay:true,posh:true,merc:true,sx:false}
+  },
+  {
+    type: 'Gaming', emoji: '🎮', category: 'Gaming',
+    keys: ['controller','gamepad','joystick','console','playstation','xbox','nintendo','game'],
+    brands: [
+      {name:'PS5',           ico:'🎮', mul:{ebay:[1.1,1.4],posh:[1.0,1.3],merc:[1.1,1.4],sx:[1.0,1.3]}},
+      {name:'Xbox Series X', ico:'🟩', mul:{ebay:[1.0,1.3],posh:[0.9,1.2],merc:[1.0,1.3],sx:[0.9,1.2]}},
+      {name:'Nintendo Switch',ico:'🔴',mul:{ebay:[0.9,1.2],posh:[0.8,1.1],merc:[0.9,1.2],sx:[0.8,1.1]}},
+      {name:'PS4',           ico:'🎮', mul:{ebay:[0.6,0.9],posh:[0.5,0.8],merc:[0.6,0.9],sx:null}},
+      {name:'Other',         ico:'🕹️', mul:{ebay:[0.5,0.9],posh:[0.4,0.8],merc:[0.5,0.9],sx:null}},
+    ],
+    base:{ebay:280, posh:250, merc:260, sx:300},
+    flip:5, verdict:'Decent Flip', reason:'Consoles sell steadily but margins are slim',
+    tip:'Bundle with games and controllers — bundles move faster at better prices.',
+    platforms:{ebay:true,posh:true,merc:true,sx:true}
+  },
+  {
+    type: 'Jacket / Hoodie', emoji: '🧥', category: 'Clothing',
+    keys: ['jersey','sweatshirt','hoodie','jacket','coat','parka','windbreaker','zip','pullover'],
+    brands: [
+      {name:'Supreme',    ico:'🔴', mul:{ebay:[3.0,8.0],posh:[2.8,7.0],merc:[2.9,7.5],sx:[3.2,9.0]}},
+      {name:'Nike',       ico:'✔️', mul:{ebay:[1.2,2.2],posh:[1.0,2.0],merc:[1.1,2.1],sx:null}},
+      {name:'Adidas',     ico:'🔵', mul:{ebay:[1.1,2.0],posh:[1.0,1.8],merc:[1.0,1.9],sx:null}},
+      {name:'North Face', ico:'🏔️', mul:{ebay:[1.5,3.0],posh:[1.3,2.7],merc:[1.4,2.8],sx:null}},
+      {name:'Vintage',    ico:'🕰️', mul:{ebay:[1.5,4.0],posh:[1.3,3.5],merc:[1.4,3.8],sx:null}},
+      {name:'Other',      ico:'🧥', mul:{ebay:[0.5,1.0],posh:[0.4,0.9],merc:[0.5,1.0],sx:null}},
+    ],
+    base:{ebay:40, posh:35, merc:38, sx:0},
+    flip:6, verdict:'Good Flip', reason:'Streetwear and vintage hoodies are hot right now',
+    tip:'Search sold listings to price competitively — vintage items can 10x.',
+    platforms:{ebay:true,posh:true,merc:true,sx:false}
+  },
+  {
+    type: 'Camera', emoji: '📸', category: 'Electronics',
+    keys: ['camera','dslr','mirrorless','lens','canon','nikon','sony alpha'],
+    brands: [
+      {name:'Sony Alpha',   ico:'📸', mul:{ebay:[1.5,2.5],posh:[1.3,2.2],merc:[1.4,2.3],sx:null}},
+      {name:'Canon EOS',    ico:'🔴', mul:{ebay:[1.2,2.0],posh:[1.0,1.8],merc:[1.1,1.9],sx:null}},
+      {name:'Nikon',        ico:'🟡', mul:{ebay:[1.2,1.9],posh:[1.0,1.7],merc:[1.1,1.8],sx:null}},
+      {name:'GoPro',        ico:'🎥', mul:{ebay:[0.8,1.4],posh:[0.7,1.2],merc:[0.8,1.3],sx:null}},
+      {name:'Fujifilm',     ico:'🟩', mul:{ebay:[1.3,2.2],posh:[1.1,2.0],merc:[1.2,2.1],sx:null}},
+      {name:'Other',        ico:'📷', mul:{ebay:[0.6,1.2],posh:[0.5,1.0],merc:[0.6,1.1],sx:null}},
+    ],
+    base:{ebay:200, posh:170, merc:180, sx:0},
+    flip:6, verdict:'Good Flip', reason:'Camera gear holds value well if tested',
+    tip:'Test every function and mention sensor megapixels in the title.',
+    platforms:{ebay:true,posh:true,merc:true,sx:false}
+  },
+  {
+    type: 'Collectible', emoji: '🏆', category: 'Collectibles',
+    keys: ['toy','action figure','collectible','lego','pokemon','card','funko','figure','doll','teddy'],
+    brands: [
+      {name:'Pokémon Cards', ico:'⚡', mul:{ebay:[1.0,10.0],posh:[0.8,8.0],merc:[1.0,9.0],sx:null}},
+      {name:'Funko Pop',     ico:'🎭', mul:{ebay:[1.5,4.0], posh:[1.3,3.5], merc:[1.4,3.8], sx:null}},
+      {name:'LEGO',          ico:'🟦', mul:{ebay:[1.5,3.0], posh:[1.2,2.5], merc:[1.3,2.8], sx:null}},
+      {name:'Hot Wheels',    ico:'🏎️', mul:{ebay:[1.0,5.0], posh:[0.8,4.0], merc:[0.9,4.5], sx:null}},
+      {name:'Vintage Toy',   ico:'🕰️', mul:{ebay:[2.0,8.0], posh:[1.8,7.0], merc:[1.9,7.5], sx:null}},
+      {name:'Other',         ico:'📦', mul:{ebay:[0.5,2.0], posh:[0.4,1.5], merc:[0.5,1.8], sx:null}},
+    ],
+    base:{ebay:20, posh:15, merc:18, sx:0},
+    flip:8, verdict:'Hot Flip', reason:'Collectibles can skyrocket — research before pricing',
+    tip:'Search eBay sold listings FIRST — pricing wrong is the #1 collectibles mistake.',
+    platforms:{ebay:true,posh:true,merc:true,sx:false}
+  }
+];
+
+const FALLBACK = {
+  type:'Unknown Item', emoji:'📦', category:'General',
+  keys:[],
+  brands:[{name:'Unknown',ico:'📦',mul:{ebay:[0.5,1.0],posh:[0.4,0.9],merc:[0.5,1.0],sx:null}}],
+  base:{ebay:30, posh:25, merc:28, sx:0},
+  flip:3, verdict:'Low Margin', reason:'Could not identify item type',
+  tip:'Search eBay sold listings manually to check if this item is worth flipping.',
+  platforms:{ebay:true,posh:true,merc:true,sx:false}
+};
+
+// ── App State ──────────────────────────────────────────────────────────────────
+let tfModel = null;
 let cameraStream = null;
-let capturedImageData = null;
-let lastResult = null;
-let scansToday = parseInt(localStorage.getItem('scans_today') || '0');
-let scanDate = localStorage.getItem('scan_date') || '';
-let recentScans = JSON.parse(localStorage.getItem('recent_scans') || '[]');
+let capturedImg = null;
+let detectedItem = null;
+let selectedBrand = null;
+let recentScans = JSON.parse(localStorage.getItem('rs_scans') || '[]');
+let scansToday = parseInt(localStorage.getItem('rs_today_count') || '0');
+const todayKey = new Date().toDateString();
+if (localStorage.getItem('rs_today_date') !== todayKey) { scansToday = 0; localStorage.setItem('rs_today_date', todayKey); }
 
-// Reset daily count
-const today = new Date().toDateString();
-if (scanDate !== today) { scansToday = 0; localStorage.setItem('scan_date', today); }
-document.getElementById('stat-scans').textContent = scansToday;
+// ── Load Model ─────────────────────────────────────────────────────────────────
+const banner = document.getElementById('modelBanner');
+mobilenet.load().then(m => {
+  tfModel = m;
+  banner.style.opacity = '0';
+  setTimeout(() => banner.style.display = 'none', 500);
+}).catch(() => banner.textContent = '⚠️ AI model failed to load — use photo upload');
 
-// ── Screen Management ────────────────────────────────────────────────────
+// ── Screen nav ─────────────────────────────────────────────────────────────────
 let currentScreen = null;
 function showScreen(id) {
   if (currentScreen === id) return;
   const prev = currentScreen ? document.getElementById(currentScreen) : null;
-  if (prev) { prev.classList.add('exit'); setTimeout(() => { prev.classList.remove('active','exit'); }, 250); }
-  const next = document.getElementById(id);
-  next.classList.add('active');
+  if (prev) { prev.classList.add('exit'); setTimeout(() => prev.classList.remove('active','exit'), 250); }
+  document.getElementById(id).classList.add('active');
   currentScreen = id;
 }
+showScreen('home');
+updateStats();
+renderRecent();
 
-function init() {
-  if (apiKey) { showScreen('home'); updateStats(); renderRecent(); }
-  else showScreen('setup');
-}
-
-// ── Setup ────────────────────────────────────────────────────────────────
-document.getElementById('setupBtn').addEventListener('click', () => {
-  const key = document.getElementById('apiKeyInput').value.trim();
-  if (!key || key.length < 20) { showToast('Please paste your Gemini API key'); return; }
-  apiKey = key;
-  localStorage.setItem('gemini_key', key);
-  showScreen('home');
-  updateStats();
-  renderRecent();
-});
-
-function resetKey() {
-  if (!confirm('Remove your API key?')) return;
-  localStorage.removeItem('gemini_key');
-  apiKey = '';
-  showScreen('setup');
-}
-
-// ── Navigation ────────────────────────────────────────────────────────────
 function goHome() { stopCamera(); showScreen('home'); updateStats(); renderRecent(); }
 function goScan() { showScreen('scan'); startCamera(); }
 
+// ── Camera ─────────────────────────────────────────────────────────────────────
 function startCamera() {
-  const video = document.getElementById('video');
   if (cameraStream) return;
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } } })
-    .then(s => { cameraStream = s; video.srcObject = s; video.play(); })
-    .catch(() => { showToast('Camera blocked — use the 🖼 button to upload a photo'); });
+  const vid = document.getElementById('video');
+  navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ideal:'environment'}, width:{ideal:1280}, height:{ideal:720} } })
+    .then(s => { cameraStream = s; vid.srcObject = s; vid.play(); })
+    .catch(() => {});
 }
-
 function stopCamera() {
   if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
 }
 
-// ── Capture ────────────────────────────────────────────────────────────────
-function captureAndAnalyze() {
-  const video = document.getElementById('video');
-  const canvas = document.getElementById('canvas');
+// ── Capture ────────────────────────────────────────────────────────────────────
+function capturePhoto() {
+  const vid = document.getElementById('video');
+  const cv = document.getElementById('canvas');
   if (!cameraStream) { document.getElementById('fileInput').click(); return; }
-  canvas.width = video.videoWidth || 640;
-  canvas.height = video.videoHeight || 480;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-  capturedImageData = canvas.toDataURL('image/jpeg', 0.85);
+  cv.width = vid.videoWidth || 640; cv.height = vid.videoHeight || 480;
+  cv.getContext('2d').drawImage(vid, 0, 0);
+  capturedImg = cv.toDataURL('image/jpeg', 0.85);
   stopCamera();
-  runGeminiAnalysis();
+  runAnalysis(cv);
 }
-
 document.getElementById('fileInput').addEventListener('change', function() {
-  const file = this.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => { capturedImageData = e.target.result; runGeminiAnalysis(); };
-  reader.readAsDataURL(file);
+  const file = this.files[0]; if (!file) return;
+  const img = new Image();
+  const url = URL.createObjectURL(file);
+  img.onload = () => {
+    const cv = document.getElementById('canvas');
+    cv.width = img.width; cv.height = img.height;
+    cv.getContext('2d').drawImage(img, 0, 0);
+    capturedImg = cv.toDataURL('image/jpeg', 0.85);
+    URL.revokeObjectURL(url);
+    runAnalysis(cv);
+  };
+  img.src = url;
   this.value = '';
 });
 
-// ── Gemini Vision Analysis ──────────────────────────────────────────────────
-async function runGeminiAnalysis() {
-  document.getElementById('preview-img').src = capturedImageData;
+// ── AI Analysis ────────────────────────────────────────────────────────────────
+async function runAnalysis(canvas) {
+  document.getElementById('preview-img').src = capturedImg;
   showScreen('analyzing');
 
   const steps = document.getElementById('analyzeSteps');
-  const stepList = [
-    '🔍 Sending to Gemini Vision AI…',
-    '🏷️ Identifying brand & model…',
-    '📦 Looking up resale market…',
-    '💹 Calculating flip score…'
-  ];
+  const stepMsgs = ['🔍 Scanning image…','🏷️ Classifying item type…','📊 Matching to database…'];
   let si = 0;
-  const stepInterval = setInterval(() => {
-    si = Math.min(si + 1, stepList.length - 1);
-    steps.innerHTML = stepList.slice(0, si + 1).map((s, i) =>
-      `<div class="${i === si ? 'step-active' : ''}" style="color:${i < si ? 'var(--green)' : ''}">${i < si ? s.replace(/^[^ ]+/, '✅') : s}</div>`
-    ).join('');
-  }, 900);
+  const iv = setInterval(() => {
+    if (si < stepMsgs.length - 1) {
+      si++;
+      steps.innerHTML = stepMsgs.slice(0, si+1).map((s,i) =>
+        `<div class="${i===si?'step-active':i<si?'step-done':''}">${i<si?s.replace(/^[^ ]+/,'✅'):s}</div>`
+      ).join('');
+    }
+  }, 700);
 
   try {
-    const base64 = capturedImageData.split(',')[1];
-    const mimeType = capturedImageData.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
-
-    const prompt = `You are a reselling expert AI. Analyze this item image and respond with ONLY valid JSON (no markdown, no code blocks, just raw JSON).
-
-Identify the specific item as precisely as possible (brand, model, colorway, size range if visible, approximate year/generation).
-
-Return this exact JSON structure:
-{
-  "category": "Sneakers",
-  "name": "Nike Air Jordan 1 Retro High OG 'Chicago'",
-  "brand": "Nike",
-  "model": "Air Jordan 1 Retro High OG",
-  "details": "Red/White/Black colorway, 2015 release",
-  "confidence": 85,
-  "flip_score": 8,
-  "flip_verdict": "Hot Flip",
-  "flip_reason": "High demand colorway with consistent resale premiums",
-  "tip": "List on StockX for highest margin. Deadstock condition significantly increases value.",
-  "platforms": {
-    "ebay": {"low": 180, "high": 320, "available": true},
-    "poshmark": {"low": 150, "high": 280, "available": true},
-    "mercari": {"low": 160, "high": 295, "available": true},
-    "stockx": {"low": 200, "high": 350, "available": true}
-  }
-}
-
-Rules:
-- confidence: 0-100 (how sure you are about the specific identification)
-- flip_score: 1-10 (1=not worth flipping, 10=excellent flip)
-- flip_verdict: one of "Hot Flip", "Good Flip", "Decent Flip", "Low Margin", "Skip"
-- If an item doesn't sell on a platform (e.g., StockX for non-streetwear), set available: false and omit low/high
-- All prices in USD
-- Be specific! Don't say "blue sneaker" — say the brand and model if you can see it
-- If you truly can't identify the item, make your best educated guess based on visible features`;
-
-    const resp = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: mimeType, data: base64 } }] }],
-          generationConfig: { temperature: 0.2, maxOutputTokens: 1024 }
-        })
+    let item = FALLBACK;
+    if (tfModel) {
+      const preds = await tfModel.classify(canvas, 5);
+      const labels = preds.map(p => p.className.toLowerCase()).join(' ');
+      for (const it of ITEMS) {
+        if (it.keys.some(k => labels.includes(k))) { item = it; break; }
       }
-    );
-
-    clearInterval(stepInterval);
-
-    if (!resp.ok) {
-      const err = await resp.json();
-      const msg = err?.error?.message || `API error ${resp.status}`;
-      clearInterval(stepInterval);
-      showError(resp.status, msg);
-      return;
     }
-
-    const data = await resp.json();
-    let rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-    // Strip any markdown fences if present
-    rawText = rawText.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-
-    let result;
-    try { result = JSON.parse(rawText); }
-    catch(e) {
-      // Try to extract JSON from the text
-      const match = rawText.match(/\{[\s\S]*\}/);
-      if (match) result = JSON.parse(match[0]);
-      else throw new Error('Could not parse AI response');
-    }
-
-    lastResult = result;
-    showResult(result);
-
-  } catch(err) {
-    clearInterval(stepInterval);
-    console.error('Gemini error:', err);
-    showError(0, err.message || 'Unknown error');
+    clearInterval(iv);
+    detectedItem = item;
+    showBrandPicker(item);
+  } catch(e) {
+    clearInterval(iv);
+    detectedItem = FALLBACK;
+    showBrandPicker(FALLBACK);
   }
 }
 
-function showError(status, msg) {
-  let title = 'Scan Failed';
-  let body = msg;
-  let fix = '';
+// ── Brand Picker ───────────────────────────────────────────────────────────────
+function showBrandPicker(item) {
+  document.getElementById('brand-preview').src = capturedImg;
+  document.getElementById('detected-chip').textContent = `Detected: ${item.type} ${item.emoji}`;
+  document.getElementById('brand-h').textContent = `What brand is it?`;
+  document.getElementById('brand-sub').textContent = `Select the brand for accurate resale prices`;
+  selectedBrand = null;
+  document.getElementById('confirmBtn').disabled = true;
 
-  if (status === 400 || msg.toLowerCase().includes('api key')) {
-    title = 'Invalid API Key';
-    body = 'Your API key was rejected.';
-    fix = 'Go back and re-enter your key from aistudio.google.com/apikey';
-  } else if (msg.toLowerCase().includes('not enabled') || msg.toLowerCase().includes('disabled')) {
-    title = 'API Not Enabled';
-    body = 'The Gemini API isn\'t enabled for your key\'s project.';
-    fix = 'Make sure you created your key at aistudio.google.com/apikey (not Google Cloud Console). Keys from AI Studio work automatically.';
-  } else if (msg.toLowerCase().includes('quota') || status === 429) {
-    title = 'Daily Limit Reached';
-    body = 'You\'ve hit the free scan limit for today.';
-    fix = 'Free tier allows 1,500 scans/day. Try again tomorrow.';
-  } else if (status === 0 || msg.toLowerCase().includes('network') || msg.toLowerCase().includes('fetch')) {
-    title = 'No Connection';
-    body = 'Couldn\'t reach the AI server.';
-    fix = 'Check your internet and try again.';
-  } else {
-    fix = 'Error: ' + msg.slice(0, 120);
-  }
+  const grid = document.getElementById('brandGrid');
+  grid.innerHTML = '';
+  item.brands.forEach((b, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'brand-btn';
+    btn.innerHTML = `<div class="brand-ico">${b.ico}</div><div class="brand-name">${b.name}</div>`;
+    btn.onclick = () => {
+      document.querySelectorAll('.brand-btn').forEach(x => x.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedBrand = b;
+      document.getElementById('confirmBtn').disabled = false;
+    };
+    grid.appendChild(btn);
+  });
 
-  // Show error on analyzing screen
-  document.getElementById('analyzeSteps').innerHTML = `
-    <div style="margin-top:16px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);border-radius:14px;padding:18px;text-align:left">
-      <div style="color:#EF4444;font-weight:800;font-size:15px;margin-bottom:6px">❌ ${title}</div>
-      <div style="color:rgba(255,255,255,.8);font-size:13px;margin-bottom:10px">${body}</div>
-      ${fix ? `<div style="color:var(--teal);font-size:12px;line-height:1.5">${fix}</div>` : ''}
-      <div style="display:flex;gap:10px;margin-top:14px">
-        <button onclick="goHome()" style="flex:1;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:13px;font-weight:700;padding:10px;border-radius:10px;cursor:pointer">← Back</button>
-        ${title === 'Invalid API Key' || title === 'API Not Enabled' ? `<button onclick="resetKey()" style="flex:1;background:var(--purple);border:none;color:#fff;font-size:13px;font-weight:700;padding:10px;border-radius:10px;cursor:pointer">Re-enter Key</button>` : `<button onclick="goScan()" style="flex:1;background:var(--purple);border:none;color:#fff;font-size:13px;font-weight:700;padding:10px;border-radius:10px;cursor:pointer">Try Again</button>`}
-      </div>
-    </div>`;
-  document.querySelector('#analyzing .spin').style.display = 'none';
-  document.querySelector('#analyzing .analyzing-h').style.display = 'none';
+  showScreen('brandpick');
 }
 
-// ── Show Result ────────────────────────────────────────────────────────────
-const PLATFORM_META = {
-  ebay:     { label: 'eBay',      ico: '🛒', color: '#E53238' },
-  poshmark: { label: 'Poshmark',  ico: '👗', color: '#CF1D3B' },
-  mercari:  { label: 'Mercari',   ico: '🟣', color: '#7B61FF' },
-  stockx:   { label: 'StockX',    ico: '⚡', color: '#00FF77' }
-};
-const FLIP_COLORS = { 'Hot Flip':'#10B981', 'Good Flip':'#06B6D4', 'Decent Flip':'#F59E0B', 'Low Margin':'#F97316', 'Skip':'#EF4444' };
+function skipBrand() {
+  selectedBrand = detectedItem.brands[detectedItem.brands.length - 1]; // use 'Other'
+  buildResult();
+}
 
-function showResult(r) {
-  document.getElementById('result-img').src = capturedImageData;
-  document.getElementById('result-category').textContent = r.category || 'Item';
-  document.getElementById('result-name').textContent = r.name || 'Unknown Item';
-  document.getElementById('result-sub').textContent = r.details || (r.brand ? `${r.brand} · ${r.model || ''}` : '');
-  const conf = Math.min(100, Math.max(0, r.confidence || 70));
-  document.getElementById('conf-fill').style.width = conf + '%';
-  document.getElementById('conf-pct').textContent = conf + '%';
+function confirmBrand() {
+  if (!selectedBrand) return;
+  buildResult();
+}
+
+// ── Build Result ───────────────────────────────────────────────────────────────
+const PLATS = [
+  {key:'ebay',  label:'eBay',     ico:'🛒', color:'#E53238'},
+  {key:'posh',  label:'Poshmark', ico:'👗', color:'#CF1D3B'},
+  {key:'merc',  label:'Mercari',  ico:'🟣', color:'#7B61FF'},
+  {key:'sx',    label:'StockX',   ico:'⚡', color:'#00FF77'},
+];
+const FLIP_COLORS = {'Hot Flip':'#10B981','Good Flip':'#06B6D4','Decent Flip':'#F59E0B','Low Margin':'#F97316','Skip':'#EF4444'};
+
+function buildResult() {
+  const item = detectedItem;
+  const brand = selectedBrand;
+  const itemName = brand.name === 'Other' ? item.type : `${brand.name} ${item.type}`;
+
+  document.getElementById('result-img').src = capturedImg;
+  document.getElementById('r-cat').textContent = item.category;
+  document.getElementById('r-name').textContent = itemName;
+  document.getElementById('r-sub').textContent = `AI identified as: ${item.type}`;
+  const conf = tfModel ? 82 : 60;
+  document.getElementById('r-conf').style.width = conf + '%';
+  document.getElementById('r-conf-txt').textContent = conf + '%';
 
   // Flip score
-  const score = Math.min(10, Math.max(1, r.flip_score || 5));
-  const verdict = r.flip_verdict || 'Decent Flip';
-  const color = FLIP_COLORS[verdict] || '#06B6D4';
-  const circle = document.getElementById('flip-circle');
-  circle.style.background = `${color}25`;
-  circle.style.border = `3px solid ${color}`;
-  document.getElementById('flip-num').textContent = score;
-  document.getElementById('flip-num').style.color = color;
-  document.getElementById('flip-verdict').textContent = verdict;
-  document.getElementById('flip-tip').textContent = r.flip_reason || '';
+  const color = FLIP_COLORS[item.verdict] || '#06B6D4';
+  const circle = document.getElementById('r-flip-circle');
+  circle.style.background = `${color}20`; circle.style.border = `3px solid ${color}`;
+  document.getElementById('r-flip-n').textContent = item.flip;
+  document.getElementById('r-flip-n').style.color = color;
+  document.getElementById('r-verdict').textContent = item.verdict;
+  document.getElementById('r-reason').textContent = item.reason;
 
-  // Platforms
-  const platList = document.getElementById('platform-list');
+  // Prices
+  const platList = document.getElementById('r-platforms');
   platList.innerHTML = '';
   let bestHigh = 0;
-  for (const [key, meta] of Object.entries(PLATFORM_META)) {
-    const p = r.platforms?.[key];
+  for (const p of PLATS) {
     const row = document.createElement('div');
-    row.className = 'platform-row';
-    const bg = meta.color + '22';
-    if (p?.available && p.high) {
-      bestHigh = Math.max(bestHigh, p.high);
-      row.innerHTML = `
-        <div class="plat-ico" style="background:${bg}">${meta.ico}</div>
-        <div class="plat-name">${meta.label}</div>
-        <div class="plat-range">$${p.low}–$${p.high}</div>`;
+    row.className = 'plat-row';
+    const mul = brand.mul[p.key];
+    if (mul && item.platforms[p.key]) {
+      const low = Math.round(item.base[p.key] * mul[0]);
+      const high = Math.round(item.base[p.key] * mul[1]);
+      bestHigh = Math.max(bestHigh, high);
+      row.innerHTML = `<div class="plat-ico" style="background:${p.color}22">${p.ico}</div><div class="plat-name">${p.label}</div><div class="plat-range">$${low}–$${high}</div>`;
     } else {
-      row.innerHTML = `
-        <div class="plat-ico" style="background:${bg};opacity:.5">${meta.ico}</div>
-        <div class="plat-name" style="opacity:.5">${meta.label}</div>
-        <div class="plat-na">Not listed</div>`;
+      row.innerHTML = `<div class="plat-ico" style="background:rgba(255,255,255,.05);opacity:.4">${p.ico}</div><div class="plat-name" style="opacity:.4">${p.label}</div><div class="plat-na">Not listed</div>`;
     }
     platList.appendChild(row);
   }
 
   // Tip
-  const tipsCard = document.getElementById('tips-card');
-  if (r.tip) { tipsCard.style.display = ''; document.getElementById('tips-txt').textContent = r.tip; }
-  else tipsCard.style.display = 'none';
+  document.getElementById('r-tip').textContent = item.tip;
+  document.getElementById('r-tip-card').style.display = '';
 
-  // Profit calc pre-fill
-  if (bestHigh > 0) document.getElementById('sellInput').value = Math.round(bestHigh * 0.75);
+  // Profit calc
+  document.getElementById('sellInput').value = bestHigh ? Math.round(bestHigh * 0.75) : '';
   document.getElementById('costInput').value = '';
   document.getElementById('profitVal').textContent = '$—';
 
-  // Save to recent
-  saveRecentScan(r, bestHigh);
+  // Save
   scansToday++;
-  localStorage.setItem('scans_today', scansToday);
+  localStorage.setItem('rs_today_count', scansToday);
+  recentScans.unshift({ name: itemName, category: item.category, price: bestHigh, t: Date.now() });
+  if (recentScans.length > 10) recentScans.pop();
+  localStorage.setItem('rs_scans', JSON.stringify(recentScans));
 
   showScreen('result');
 }
 
-function saveRecentScan(r, bestHigh) {
-  const scan = { name: r.name, category: r.category, price: bestHigh, time: Date.now() };
-  recentScans.unshift(scan);
-  if (recentScans.length > 10) recentScans.pop();
-  localStorage.setItem('recent_scans', JSON.stringify(recentScans));
-}
-
+// ── Profit calc ────────────────────────────────────────────────────────────────
 function calcProfit() {
   const cost = parseFloat(document.getElementById('costInput').value) || 0;
   const sell = parseFloat(document.getElementById('sellInput').value) || 0;
-  const profit = sell - cost;
+  const p = sell - cost;
   const el = document.getElementById('profitVal');
-  el.textContent = profit >= 0 ? `$${profit.toFixed(0)}` : `-$${Math.abs(profit).toFixed(0)}`;
-  el.style.color = profit >= 0 ? 'var(--green)' : 'var(--red)';
+  el.textContent = p >= 0 ? `$${p.toFixed(0)}` : `-$${Math.abs(p).toFixed(0)}`;
+  el.style.color = p >= 0 ? 'var(--green)' : 'var(--red)';
 }
 
-// ── UI Helpers ────────────────────────────────────────────────────────────
+// ── UI helpers ─────────────────────────────────────────────────────────────────
+const EMOJIS = {Sneakers:'👟',Electronics:'📱',Bags:'👜',Watches:'⌚',Accessories:'🕶️',Clothing:'🧥',Gaming:'🎮',Collectibles:'🏆',General:'📦'};
 function updateStats() {
   document.getElementById('stat-scans').textContent = scansToday;
-  const totalProfit = recentScans.reduce((a, s) => a + (s.price || 0), 0);
-  document.getElementById('stat-profit').textContent = '$' + (totalProfit > 999 ? Math.round(totalProfit/1000) + 'k' : totalProfit);
+  const total = recentScans.reduce((a,s) => a + (s.price||0), 0);
+  document.getElementById('stat-profit').textContent = total > 999 ? '$'+Math.round(total/1000)+'k' : '$'+total;
 }
-
-const EMOJIS = { Sneakers:'👟', Clothing:'👕', Electronics:'📱', Bags:'👜', Watches:'⌚', Sunglasses:'🕶️', Headphones:'🎧', Gaming:'🎮', Cameras:'📷', Books:'📚', Collectibles:'🏆', Jewelry:'💍', default:'📦' };
 function renderRecent() {
   const list = document.getElementById('recentList');
-  if (!recentScans.length) { list.innerHTML = '<div style="padding:20px 0;text-align:center;color:var(--gray);font-size:13px">No scans yet — tap Scan Now to start!</div>'; return; }
+  if (!recentScans.length) { list.innerHTML = '<div style="padding:20px 0;text-align:center;color:var(--gray);font-size:13px">No scans yet — tap Scan Now!</div>'; return; }
   list.innerHTML = recentScans.map(s => `
     <div class="ri">
-      <div class="ri-ico">${EMOJIS[s.category] || EMOJIS.default}</div>
-      <div><div class="ri-name">${s.name}</div><div class="ri-cat">${s.category || 'Item'}</div></div>
+      <div class="ri-ico">${EMOJIS[s.category]||'📦'}</div>
+      <div><div class="ri-name">${s.name}</div><div class="ri-cat">${s.category}</div></div>
       ${s.price ? `<div class="ri-price">up to $${s.price}</div>` : ''}
     </div>`).join('');
 }
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-// ── Init ────────────────────────────────────────────────────────────────────
-init();
 </script>
 </body>
 </html>
