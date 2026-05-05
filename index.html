@@ -272,7 +272,8 @@
       <div class="conf-body">
         <div class="conf-label">What is this item?</div>
         <textarea class="conf-field" id="conf-field" rows="2" placeholder="e.g. Nike Air Jordan 4 Retro Black Cement"></textarea>
-        <div class="conf-note">✏️ AI filled this in — fix it if it's wrong, or type anything to search</div>
+        <div class="conf-note" id="conf-note">✏️ AI filled this in — fix it if it's wrong, or type anything to search</div>
+        <div id="ai-details" style="display:none;margin-top:10px;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.2);border-radius:10px;padding:10px 12px;font-size:11px;color:var(--teal);line-height:1.9"></div>
 
         <div class="conf-cond">
           <div class="conf-label">Condition</div>
@@ -442,47 +443,185 @@ document.getElementById('fileInput').addEventListener('change', function() {
 });
 
 // ─── AI IDENTIFICATION ────────────────────────────────────────────────────────
-async function identifyWithBLIP(blob) {
-  // Try multiple models — first one that responds wins
+
+// Abort-safe timeout helper (works on all browsers)
+function abortAfter(ms) {
+  const ctrl = new AbortController();
+  setTimeout(() => ctrl.abort(), ms);
+  return ctrl.signal;
+}
+
+// Convert blob → base64 string (needed for VQA JSON format)
+function blobToBase64(blob) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(blob);
+  });
+}
+
+// Ask BLIP VQA a single question about the image
+async function askVQA(b64, question) {
+  const vqaEndpoints = [
+    'https://api-inference.huggingface.co/models/Salesforce/blip-vqa-base',
+    'https://api-inference.huggingface.co/models/dandelin/vilt-b32-finetuned-vqa',
+  ];
+  for (const url of vqaEndpoints) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ inputs: { image: b64, question } }),
+          signal: abortAfter(14000)
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          const ans = Array.isArray(data) ? data[0]?.answer : data?.answer;
+          if (ans && ans.length > 1) return ans.trim();
+        }
+        if (resp.status === 503) {
+          const err = await resp.json().catch(() => ({}));
+          await sleep(Math.min((err.estimated_time || 6) * 1000, 10000));
+          continue;
+        }
+        break;
+      } catch(e) { if (attempt < 1) await sleep(1500); }
+    }
+    break; // If first endpoint errored, try second only if it 503'd
+  }
+  return null;
+}
+
+// Run image captioning (binary format — separate from VQA)
+async function runCaption(blob) {
   const endpoints = [
     'https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base',
     'https://api-inference.huggingface.co/models/nlpconnect/vit-gpt2-image-captioning',
     'https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-large',
   ];
-
   for (const url of endpoints) {
-    for (let attempt = 0; attempt < 3; attempt++) {
+    for (let attempt = 0; attempt < 2; attempt++) {
       try {
         const resp = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'image/jpeg' },
           body: blob,
-          signal: AbortSignal.timeout(18000)
+          signal: abortAfter(18000)
         });
-
         if (resp.ok) {
           const data = await resp.json();
           const text = Array.isArray(data) ? data[0]?.generated_text : data?.generated_text;
           if (text && text.length > 4) return text.trim();
-          break; // Got response but no text — try next model
+          break;
         }
-
         if (resp.status === 503) {
-          // Model loading — wait then retry same model
           const err = await resp.json().catch(() => ({}));
-          const wait = Math.min((err.estimated_time || 8) * 1000, 15000);
-          updateIdStep(`⏳ AI waking up, retrying in ${Math.round(wait/1000)}s…`);
-          await sleep(wait);
+          await sleep(Math.min((err.estimated_time || 8) * 1000, 13000));
           continue;
         }
-
-        break; // Non-recoverable error — try next model
-      } catch(e) {
-        if (attempt < 2) await sleep(2000);
-      }
+        break;
+      } catch(e) { if (attempt < 1) await sleep(1500); }
     }
   }
   return null;
+}
+
+// Detect if an AI answer is a useless generic response
+const SKIP_WORDS = new Set(['yes','no','none','unknown','it','this','a','an','the','not sure','unclear','object','thing','item','stuff','something']);
+function isUseless(s) {
+  if (!s) return true;
+  const t = s.toLowerCase().trim();
+  return t.length < 3 || SKIP_WORDS.has(t) || t === 'i don\'t know';
+}
+
+// Combine VQA answers + caption into best possible item description
+// Returns { label, aiDetails } where aiDetails shows what each AI found
+function buildIdentification(brand, product, labelText, caption) {
+  const cleanBrand   = !isUseless(brand)     ? brand.trim()     : null;
+  const cleanProduct = !isUseless(product)   ? product.trim()   : null;
+  const cleanLabel   = !isUseless(labelText) ? labelText.trim() : null;
+
+  // Build AI detail summary for the confirm screen
+  const details = [];
+  if (cleanBrand)   details.push(`Brand: ${cleanBrand}`);
+  if (cleanProduct) details.push(`Item: ${cleanProduct}`);
+  if (cleanLabel)   details.push(`Label text: ${cleanLabel}`);
+
+  // Build best search query: brand + product beats everything
+  let label = null;
+  if (cleanBrand && cleanProduct) {
+    label = cleanProduct.toLowerCase().includes(cleanBrand.toLowerCase())
+      ? cleanProduct
+      : `${cleanBrand} ${cleanProduct}`;
+  } else if (cleanBrand && cleanLabel) {
+    label = `${cleanBrand} ${cleanLabel}`;
+  } else if (cleanBrand) {
+    label = cleanBrand;
+  } else if (cleanProduct) {
+    label = cleanProduct;
+  } else if (cleanLabel && cleanLabel.length > 4) {
+    label = cleanLabel;
+  } else if (caption) {
+    // Clean up caption as last resort
+    label = caption
+      .replace(/^(a |an |the )/i, '')
+      .replace(/ (on (a |an |the |white |black |wooden |concrete |grey ))/i, ' ')
+      .replace(/ (background|surface|table|floor|wall|shelf|counter).*/i, '')
+      .replace(/ (against |with a |sitting |placed |resting |next to |near ).*/i, '')
+      .replace(/\s+/g, ' ').trim();
+  }
+
+  return { label: label ? label.charAt(0).toUpperCase() + label.slice(1) : null, details };
+}
+
+let lastAiDetails = [];
+
+async function identifyWithBLIP(blob) {
+  updateIdStep('🔍 Asking AI: brand? product type? label text?');
+
+  // Convert to base64 for VQA
+  const b64 = await blobToBase64(blob);
+
+  // Run VQA questions + captioning ALL in parallel for speed
+  const [brandR, productR, labelR, captionR] = await Promise.allSettled([
+    askVQA(b64, 'What brand or company made this product?'),
+    askVQA(b64, 'What specific type of product or item is this?'),
+    askVQA(b64, 'What text or words are printed on the label or packaging?'),
+    runCaption(blob),
+  ]);
+
+  const brand   = brandR.status   === 'fulfilled' ? brandR.value   : null;
+  const product = productR.status === 'fulfilled' ? productR.value : null;
+  const label   = labelR.status   === 'fulfilled' ? labelR.value   : null;
+  const caption = captionR.status === 'fulfilled' ? captionR.value : null;
+
+  const result = buildIdentification(brand, product, label, caption);
+  lastAiDetails = result.details;
+
+  // If it looks like clothing, ask extra questions for vintage/no-tag scenarios
+  const itemName = (result.label || caption || '').toLowerCase();
+  if (/cloth|shirt|jacket|hoodie|jean|pant|coat|dress|sweat|top|bottom|wear|apparel|fabric/.test(itemName) && result.details.length < 2) {
+    updateIdStep('👗 Clothing detected — asking style questions…');
+    const [eraR, colorR, styleR] = await Promise.allSettled([
+      askVQA(b64, 'What decade or era does this clothing style look like?'),
+      askVQA(b64, 'What color is this item?'),
+      askVQA(b64, 'What material or fabric is this made of?'),
+    ]);
+    const era   = eraR.status   === 'fulfilled' && !isUseless(eraR.value)   ? eraR.value   : null;
+    const color = colorR.status === 'fulfilled' && !isUseless(colorR.value) ? colorR.value : null;
+    const fabric= styleR.status === 'fulfilled' && !isUseless(styleR.value) ? styleR.value : null;
+    // Rebuild label with vintage context
+    const parts = [color, fabric, result.label, era ? `(${era} style)` : null].filter(Boolean);
+    if (parts.length > 1) {
+      result.label = parts.join(' ');
+      if (era)   lastAiDetails.push(`Era: ${era}`);
+      if (color) lastAiDetails.push(`Color: ${color}`);
+    }
+  }
+
+  return result.label;
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -490,9 +629,9 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 let stepSi = 0;
 const stepMsgs = [
   '🤖 Sending to AI Vision…',
-  '🔍 Analyzing image…',
-  '🏷️ Identifying object…',
-  '📦 Checking details…'
+  '🔍 Reading brand & label text…',
+  '🏷️ Identifying product type…',
+  '📦 Combining results…'
 ];
 function updateIdStep(custom) {
   const el = document.getElementById('id-steps');
@@ -525,23 +664,28 @@ function showConfirm(aiText) {
   else document.getElementById('conf-img').style.display = '';
 
   const field = document.getElementById('conf-field');
+  const detailBox = document.getElementById('ai-details');
+  const note = document.getElementById('conf-note');
+
+  // Show AI details panel if we have them
+  if (lastAiDetails && lastAiDetails.length > 0) {
+    detailBox.style.display = 'block';
+    detailBox.innerHTML = '🤖 AI found:<br>' + lastAiDetails.join(' &nbsp;·&nbsp; ');
+  } else {
+    detailBox.style.display = 'none';
+  }
+
   if (aiText) {
-    // Clean up BLIP output — remove filler phrases and background descriptions
-    let clean = aiText
-      .replace(/^(a |an |the )/i, '')
-      .replace(/ (on (a |an |the |white |black |wooden |concrete |grey |gray )).*$/i, '')
-      .replace(/ (in (a |an |the |front )).*$/i, '')
-      .replace(/ (against |with a |sitting |placed |resting |next to |near |over |under |held |being |displayed ).*$/i, '')
-      .replace(/ (background|surface|table|floor|wall|shelf).*$/i, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-    // Capitalize first letter
-    field.value = clean.charAt(0).toUpperCase() + clean.slice(1);
-    document.getElementById('conf-field').style.borderColor = 'var(--purple)';
+    // The buildIdentification function already cleaned this up
+    field.value = aiText;
+    field.style.borderColor = 'var(--purple)';
+    note.textContent = '✏️ AI identified this — correct it if needed';
   } else {
     field.value = '';
-    field.placeholder = 'AI couldn\'t identify it — type what it is';
-    document.getElementById('conf-field').style.borderColor = 'var(--orange)';
+    field.placeholder = 'AI couldn\'t read it — type the brand + item name';
+    field.style.borderColor = 'var(--orange)';
+    note.textContent = '⚠️ Type what it is, include brand name for best results';
+    detailBox.style.display = 'none';
   }
 
   // Reset condition to Like New
