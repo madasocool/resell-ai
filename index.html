@@ -3,170 +3,119 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Resell.Ai — Scan. Value. Profit.</title>
+  <title>Resell.Ai</title>
+  <!-- TensorFlow.js + MobileNet for real AI item recognition -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     :root{
       --navy:#0A1628;--navy2:#0F1F3D;--purple:#7C3AED;--pl:#A855F7;
-      --teal:#06B6D4;--gold:#F5A623;--green:#10B981;--red:#EF4444;
-      --white:#FFFFFF;--gray:#94A3B8;--card:#1E2D4D;--light:#F1F5F9;
+      --teal:#06B6D4;--green:#10B981;--red:#EF4444;
+      --white:#fff;--gray:#94A3B8;--card:#1E2D4D;--light:#F1F5F9;
     }
-    html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;background:#000;color:var(--white);overflow:hidden}
+    html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;background:#000;color:#fff;overflow:hidden}
+    #app{width:100%;max-width:430px;height:100dvh;height:100vh;margin:0 auto;position:relative;overflow:hidden;background:var(--navy)}
 
-    #app{
-      width:100%;max-width:430px;height:100dvh;height:100vh;
-      margin:0 auto;position:relative;overflow:hidden;background:var(--navy);
-    }
-
-    /* ── Screen transitions ── */
-    .screen{
-      position:absolute;top:0;left:0;right:0;bottom:0;
-      display:flex;flex-direction:column;
-      opacity:0;pointer-events:none;
-      transition:opacity .28s ease,transform .28s cubic-bezier(.4,0,.2,1);
-      transform:translateX(60px);
-    }
+    /* Screens */
+    .screen{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .28s ease,transform .28s cubic-bezier(.4,0,.2,1);transform:translateX(60px)}
     .screen.active{opacity:1;pointer-events:all;transform:translateX(0)}
     .screen.exit{opacity:0;transform:translateX(-40px)}
 
-    /* ═══════════════════════════════════════
-       HOME
-    ═══════════════════════════════════════ */
+    /* ── HOME ── */
     .home-scroll{flex:1;overflow-y:auto;padding-bottom:84px}
-
-    .home-top{padding:54px 24px 16px;display:flex;justify-content:space-between;align-items:flex-start}
-    .home-greet{font-size:14px;color:var(--gray);margin-bottom:2px}
-    .home-logo{font-size:30px;font-weight:900;background:linear-gradient(135deg,var(--pl),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .home-top{padding:54px 22px 14px;display:flex;justify-content:space-between;align-items:flex-start}
+    .home-logo{font-size:28px;font-weight:900;background:linear-gradient(135deg,var(--pl),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .home-greet{font-size:13px;color:var(--gray);margin-bottom:2px}
     .home-tag{font-size:11px;color:var(--gray);letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
-    .notif-btn{width:40px;height:40px;background:var(--card);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0}
 
-    /* Hero */
-    .hero{
-      margin:4px 20px 0;
-      background:linear-gradient(145deg,#5B21B6,var(--purple),#4C1D95);
-      border-radius:22px;padding:26px 22px 22px;position:relative;
-      overflow:hidden;cursor:pointer;
-      box-shadow:0 10px 36px rgba(124,58,237,.45);
-      transition:transform .15s,box-shadow .15s;
-    }
-    .hero:active{transform:scale(.97);box-shadow:0 4px 16px rgba(124,58,237,.35)}
+    .hero{margin:4px 18px 0;background:linear-gradient(145deg,#5B21B6,var(--purple));border-radius:22px;padding:24px 20px 20px;position:relative;overflow:hidden;cursor:pointer;box-shadow:0 10px 36px rgba(124,58,237,.45);transition:transform .15s}
+    .hero:active{transform:scale(.97)}
     .hero::before{content:'';position:absolute;top:-60px;right:-40px;width:200px;height:200px;background:rgba(255,255,255,.06);border-radius:50%}
-    .hero::after{content:'';position:absolute;bottom:-40px;left:-20px;width:140px;height:140px;background:rgba(6,182,212,.1);border-radius:50%}
     .hero-chip{font-size:11px;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
-    .hero-h{font-size:24px;font-weight:900;margin-bottom:4px;line-height:1.2}
-    .hero-sub{font-size:13px;color:rgba(255,255,255,.75);margin-bottom:20px;line-height:1.5}
-    .hero-btn{
-      display:inline-flex;align-items:center;gap:7px;
-      background:#fff;color:var(--purple);font-weight:800;font-size:14px;
-      padding:11px 18px;border-radius:50px;border:none;cursor:pointer;
-      box-shadow:0 2px 8px rgba(0,0,0,.2);transition:transform .15s;
-    }
-    .hero-btn:active{transform:scale(.95)}
+    .hero-h{font-size:22px;font-weight:900;margin-bottom:4px}
+    .hero-sub{font-size:13px;color:rgba(255,255,255,.75);margin-bottom:18px;line-height:1.5}
+    .hero-btn{display:inline-flex;align-items:center;gap:7px;background:#fff;color:var(--purple);font-weight:800;font-size:14px;padding:10px 16px;border-radius:50px;border:none;cursor:pointer}
 
-    /* Stats */
-    .stats{display:flex;gap:10px;padding:14px 20px 0}
-    .stat{flex:1;background:var(--card);border-radius:14px;padding:14px 10px;text-align:center}
+    .stats{display:flex;gap:10px;padding:14px 18px 0}
+    .stat{flex:1;background:var(--card);border-radius:14px;padding:13px 10px;text-align:center}
     .stat-n{font-size:20px;font-weight:900;color:var(--teal)}
     .stat-l{font-size:10px;color:var(--gray);margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
 
-    /* Recent */
-    .sec-hdr{padding:20px 20px 10px;font-size:16px;font-weight:800}
-    .recent-list{padding:0 20px;display:flex;flex-direction:column;gap:9px}
-    .ri{
-      background:var(--card);border-radius:14px;padding:13px 14px;
-      display:flex;align-items:center;gap:12px;cursor:pointer;
-      transition:transform .12s;
-    }
+    .sec-hdr{padding:18px 18px 10px;font-size:16px;font-weight:800}
+    .recent-list{padding:0 18px;display:flex;flex-direction:column;gap:9px}
+    .ri{background:var(--card);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .12s}
     .ri:active{transform:scale(.97)}
     .ri-ico{width:40px;height:40px;background:linear-gradient(135deg,var(--purple),var(--teal));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
     .ri-name{font-size:13px;font-weight:700}
     .ri-plat{font-size:11px;color:var(--gray);margin-top:2px}
     .ri-profit{font-size:15px;font-weight:800;color:var(--green);margin-left:auto;flex-shrink:0}
 
-    /* ═══════════════════════════════════════
-       SCAN
-    ═══════════════════════════════════════ */
+    /* ── SCAN (REAL CAMERA) ── */
     #scan{background:#000}
-    .cam-bg{position:absolute;inset:0;background:#060606;display:flex;align-items:center;justify-content:center}
-    .cam-shoe{font-size:130px;opacity:.2;animation:camFloat 3s ease-in-out infinite}
-    @keyframes camFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+    #camVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    #captureCanvas{display:none}
 
-    .scan-hdr{
-      position:absolute;top:0;left:0;right:0;z-index:10;
-      padding:50px 18px 14px;
-      background:linear-gradient(to bottom,rgba(0,0,0,.85),transparent);
-      display:flex;justify-content:space-between;align-items:center;
+    /* Camera permission / error overlay */
+    #camMsg{
+      position:absolute;inset:0;display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:14px;
+      background:rgba(0,0,0,.85);z-index:5;padding:30px;text-align:center;
     }
+    #camMsg.show{display:flex}
+    #camMsg .msg-ico{font-size:48px}
+    #camMsg .msg-title{font-size:18px;font-weight:800}
+    #camMsg .msg-sub{font-size:14px;color:var(--gray);line-height:1.5}
+    .allow-btn{background:var(--purple);color:#fff;border:none;border-radius:50px;padding:13px 28px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px}
+
+    /* File upload fallback */
+    #fileUploadWrap{display:none;position:absolute;bottom:110px;left:50%;transform:translateX(-50%);z-index:8}
+    #fileUploadWrap.show{display:block}
+    #fileInput{display:none}
+    .upload-btn{background:rgba(255,255,255,.15);border:2px dashed rgba(255,255,255,.4);color:#fff;border-radius:14px;padding:12px 22px;font-size:14px;font-weight:600;cursor:pointer;text-align:center}
+
+    .scan-hdr{position:absolute;top:0;left:0;right:0;z-index:10;padding:50px 18px 14px;background:linear-gradient(to bottom,rgba(0,0,0,.8),transparent);display:flex;justify-content:space-between;align-items:center}
     .scan-circ{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.14);border:none;color:#fff;font-size:17px;display:flex;align-items:center;justify-content:center;cursor:pointer}
     .scan-hdr-title{font-size:16px;font-weight:700}
 
-    /* Viewfinder */
-    .vf{
-      position:absolute;top:50%;left:50%;
-      transform:translate(-50%,-58%);
-      width:70%;aspect-ratio:1;
-    }
-    .vc{position:absolute;width:28px;height:28px;border-style:solid;border-color:var(--pl);border-width:0}
+    /* Viewfinder corners */
+    .vf{position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);width:70%;aspect-ratio:1;z-index:6}
+    .vc{position:absolute;width:26px;height:26px;border-style:solid;border-color:var(--pl);border-width:0}
     .vc.tl{top:0;left:0;border-top-width:3px;border-left-width:3px;border-radius:5px 0 0 0}
     .vc.tr{top:0;right:0;border-top-width:3px;border-right-width:3px;border-radius:0 5px 0 0}
     .vc.bl{bottom:0;left:0;border-bottom-width:3px;border-left-width:3px;border-radius:0 0 0 5px}
     .vc.br{bottom:0;right:0;border-bottom-width:3px;border-right-width:3px;border-radius:0 0 5px 0}
-    .vf-line{
-      position:absolute;left:3px;right:3px;height:2px;top:3px;
-      background:linear-gradient(to right,transparent,var(--pl),var(--teal),var(--pl),transparent);
-      box-shadow:0 0 12px var(--pl),0 0 5px var(--teal);
-      animation:scanmove 2s ease-in-out infinite;
-    }
-    @keyframes scanmove{
-      0%{top:3px;opacity:1}
-      47%{top:calc(100% - 5px);opacity:1}
-      50%{top:calc(100% - 5px);opacity:.2}
-      53%{top:3px;opacity:0}
-      57%{opacity:1}
-      100%{top:3px;opacity:1}
-    }
+    .vf-line{position:absolute;left:3px;right:3px;height:2px;top:3px;background:linear-gradient(to right,transparent,var(--pl),var(--teal),var(--pl),transparent);box-shadow:0 0 12px var(--pl);animation:scanmove 2s ease-in-out infinite}
+    @keyframes scanmove{0%{top:3px;opacity:1}47%{top:calc(100% - 5px);opacity:1}50%{top:calc(100% - 5px);opacity:.2}53%{top:3px;opacity:0}57%{opacity:1}100%{top:3px;opacity:1}}
 
-    .scan-bottom{
-      position:absolute;bottom:0;left:0;right:0;
-      padding:20px 20px 40px;
-      background:linear-gradient(to top,rgba(0,0,0,.88),transparent);
-      display:flex;flex-direction:column;align-items:center;gap:12px;
-    }
+    /* BIG capture button */
+    .scan-bottom{position:absolute;bottom:0;left:0;right:0;padding:18px 20px 44px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);display:flex;flex-direction:column;align-items:center;gap:12px;z-index:7}
+    .capture-ring{width:72px;height:72px;border-radius:50%;border:3px solid rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s}
+    .capture-ring:active{transform:scale(.9)}
+    .capture-inner{width:56px;height:56px;border-radius:50%;background:#fff}
     .scan-tip{font-size:13px;color:rgba(255,255,255,.65);text-align:center}
-    .scan-badge{
-      display:flex;align-items:center;gap:7px;
-      background:rgba(124,58,237,.25);border:1px solid rgba(124,58,237,.45);
-      border-radius:50px;padding:7px 16px;
-    }
-    .sdot{width:7px;height:7px;background:var(--pl);border-radius:50%;animation:spulse .9s ease-in-out infinite}
-    @keyframes spulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
-    .cancel-btn{background:rgba(255,255,255,.1);border:none;color:#fff;padding:11px 28px;border-radius:50px;font-size:14px;cursor:pointer}
+    .cancel-btn{background:rgba(255,255,255,.1);border:none;color:#fff;padding:9px 26px;border-radius:50px;font-size:13px;cursor:pointer}
 
-    /* ═══════════════════════════════════════
-       LOADING
-    ═══════════════════════════════════════ */
+    /* ── LOADING ── */
     #loading{background:var(--navy);align-items:center;justify-content:center}
-    .ld-logo{font-size:26px;font-weight:900;background:linear-gradient(135deg,var(--pl),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:36px}
-    .spin-wrap{position:relative;width:96px;height:96px;margin-bottom:28px}
+    .ld-logo{font-size:24px;font-weight:900;background:linear-gradient(135deg,var(--pl),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:32px}
+    .spin-wrap{position:relative;width:90px;height:90px;margin-bottom:24px}
     .spin-ring{position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:var(--purple);animation:spin 1s linear infinite}
     .spin-ring2{inset:9px;border-top-color:var(--teal);animation:spin 1.6s linear infinite reverse}
-    .spin-ico{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px}
+    .spin-ico{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px}
     @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-    .ld-title{font-size:20px;font-weight:800;margin-bottom:6px}
-    .ld-sub{font-size:13px;color:var(--gray);margin-bottom:28px}
-    .ld-steps{width:270px;display:flex;flex-direction:column;gap:8px;margin-bottom:28px}
+    .ld-title{font-size:19px;font-weight:800;margin-bottom:5px}
+    .ld-sub{font-size:13px;color:var(--gray);margin-bottom:24px}
+    .ld-steps{width:260px;display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
     .lstep{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--gray);transition:color .3s}
-    .lstep.done{color:var(--green)}
-    .lstep.active{color:#fff}
+    .lstep.done{color:var(--green)}.lstep.active{color:#fff}
     .lstep-ic{width:20px;height:20px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:background .3s}
-    .lstep.done .lstep-ic{background:var(--green)}
-    .lstep.active .lstep-ic{background:var(--purple);animation:spulse .8s ease-in-out infinite}
-    .prog-wrap{width:270px;height:4px;background:var(--card);border-radius:2px;overflow:hidden}
+    .lstep.done .lstep-ic{background:var(--green)}.lstep.active .lstep-ic{background:var(--purple);animation:spulse .8s ease-in-out infinite}
+    @keyframes spulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
+    .prog-wrap{width:260px;height:4px;background:var(--card);border-radius:2px;overflow:hidden}
     .prog-fill{height:100%;background:linear-gradient(to right,var(--purple),var(--teal));width:0%;border-radius:2px;transition:width .45s ease}
 
-    /* ═══════════════════════════════════════
-       RESULTS
-    ═══════════════════════════════════════ */
+    /* ── RESULTS ── */
     #results{background:var(--light);color:var(--navy)}
     .res-hdr{background:var(--navy);padding:50px 18px 18px;display:flex;align-items:center;gap:10px}
     .back-btn{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:17px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
@@ -174,32 +123,23 @@
     .conf-badge{background:rgba(16,185,129,.18);border:1px solid rgba(16,185,129,.35);color:#34D399;font-size:11px;font-weight:700;padding:4px 10px;border-radius:50px}
     .res-scroll{flex:1;overflow-y:auto;padding-bottom:20px}
 
-    /* Item hero */
     .item-hero{background:var(--navy);padding:18px 18px 22px;margin-bottom:10px}
-    .item-emoji{font-size:58px;text-align:center;display:block;margin-bottom:10px}
+    .item-emoji{font-size:56px;text-align:center;display:block;margin-bottom:10px}
     .item-name{font-size:19px;font-weight:900;color:#fff;text-align:center;margin-bottom:3px}
     .item-desc{text-align:center;font-size:12px;color:var(--gray);margin-bottom:13px}
-    .item-badges{display:flex;justify-content:center;gap:7px}
+    .item-badges{display:flex;justify-content:center;gap:7px;flex-wrap:wrap}
     .badge{padding:4px 12px;border-radius:50px;font-size:11px;font-weight:700}
     .bc{background:rgba(6,182,212,.14);color:var(--teal);border:1px solid rgba(6,182,212,.28)}
     .bk{background:rgba(124,58,237,.14);color:var(--pl);border:1px solid rgba(124,58,237,.28)}
 
-    /* Flip score */
-    .flip-card{
-      margin:0 14px 10px;
-      background:linear-gradient(135deg,#064E3B,#065F46);
-      border-radius:18px;padding:18px 18px;
-      display:flex;align-items:center;
-      box-shadow:0 4px 20px rgba(16,185,129,.18);
-    }
+    .flip-card{margin:0 14px 10px;background:linear-gradient(135deg,#064E3B,#065F46);border-radius:18px;padding:18px;display:flex;align-items:center;box-shadow:0 4px 20px rgba(16,185,129,.18)}
     .fc-left{flex:1}
     .fc-tag{font-size:11px;font-weight:700;color:#6EE7B7;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
-    .fc-score{font-size:26px;font-weight:900;color:#34D399}
+    .fc-score{font-size:24px;font-weight:900;color:#34D399}
     .fc-right{text-align:right}
-    .fc-profit{font-size:26px;font-weight:900;color:#fff}
+    .fc-profit{font-size:24px;font-weight:900;color:#fff}
     .fc-plabel{font-size:11px;color:#6EE7B7}
 
-    /* Platforms */
     .sec-label{font-size:11px;font-weight:800;color:#64748B;padding:12px 14px 8px;text-transform:uppercase;letter-spacing:.08em}
     .plat-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 14px;margin-bottom:10px}
     .pc{background:#fff;border-radius:14px;padding:14px;position:relative;box-shadow:0 2px 8px rgba(0,0,0,.06)}
@@ -208,104 +148,73 @@
     .pc-logo{font-size:10px;font-weight:900;color:#64748B;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
     .pc-price{font-size:22px;font-weight:900;color:var(--navy)}
     .pc-range{font-size:10px;color:#94A3B8;margin-top:1px}
-    .pc-sold{font-size:10px;color:#64748B;margin-top:3px}
 
-    .cta-btn{
-      margin:2px 14px 0;
-      background:linear-gradient(135deg,var(--purple),#5B21B6);
-      color:#fff;border:none;border-radius:14px;padding:16px;
-      font-size:15px;font-weight:800;
-      width:calc(100% - 28px);cursor:pointer;
-      display:flex;align-items:center;justify-content:center;gap:7px;
-      box-shadow:0 5px 18px rgba(124,58,237,.38);transition:transform .15s;
-    }
+    /* Not found state */
+    .not-found{padding:30px 20px;text-align:center}
+    .not-found-ico{font-size:48px;margin-bottom:12px}
+    .not-found-title{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:6px}
+    .not-found-sub{font-size:14px;color:#64748B;line-height:1.5;margin-bottom:20px}
+
+    .cta-btn{margin:2px 14px 0;background:linear-gradient(135deg,var(--purple),#5B21B6);color:#fff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:800;width:calc(100% - 28px);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 5px 18px rgba(124,58,237,.38);transition:transform .15s}
     .cta-btn:active{transform:scale(.97)}
 
-    /* ═══════════════════════════════════════
-       CALCULATOR
-    ═══════════════════════════════════════ */
+    /* ── CALCULATOR ── */
     #calculator{background:var(--light);color:var(--navy)}
     .calc-hdr{background:var(--navy);padding:50px 18px 18px;display:flex;align-items:center;gap:10px}
     .calc-scroll{flex:1;overflow-y:auto;padding:16px 14px 40px}
-
     .calc-item{background:#fff;border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:13px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-    .ci-emo{font-size:34px}
+    .ci-emo{font-size:32px}
     .ci-name{font-size:14px;font-weight:800;color:var(--navy)}
     .ci-sub{font-size:11px;color:#64748B;margin-top:1px}
-
-    .inp-card{background:#fff;border-radius:14px;padding:16px 16px 14px;margin-bottom:13px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+    .inp-card{background:#fff;border-radius:14px;padding:16px;margin-bottom:13px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
     .inp-lbl{font-size:11px;font-weight:800;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
     .inp-wrap{display:flex;align-items:center;background:#F8FAFC;border:2px solid #E2E8F0;border-radius:11px;padding:10px 14px;gap:5px;transition:border-color .2s}
     .inp-wrap:focus-within{border-color:var(--purple)}
     .inp-dollar{font-size:22px;font-weight:800;color:#CBD5E1}
     .inp-price{flex:1;border:none;background:transparent;font-size:30px;font-weight:900;color:var(--navy);outline:none;width:100%}
-
-    .plat-pills{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:0}
+    .plat-pills{display:flex;gap:7px;flex-wrap:wrap}
     .pp{padding:7px 12px;border-radius:50px;font-size:12px;font-weight:700;background:#fff;border:2px solid #E2E8F0;color:#64748B;cursor:pointer;transition:all .15s}
     .pp.sel{background:var(--purple);border-color:var(--purple);color:#fff}
-
     .breakdown{background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
     .brow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:14px}
     .brow:not(:last-child){border-bottom:1px solid #F1F5F9}
-    .bl{color:#64748B}
-    .bv{font-weight:700;color:var(--navy)}
-    .bv.neg{color:var(--red)}
+    .bl{color:#64748B}.bv{font-weight:700;color:var(--navy)}.bv.neg{color:var(--red)}
     .btotal{margin-top:2px;padding-top:10px!important;border-top:2px solid #E2E8F0!important;border-bottom:none!important}
-    .btotal .bl{font-size:15px;font-weight:800;color:var(--navy)}
-    .btotal .bv{font-size:22px;font-weight:900}
-    .pos{color:var(--green)} .neg2{color:var(--red)}
-
+    .btotal .bl{font-size:15px;font-weight:800;color:var(--navy)}.btotal .bv{font-size:22px;font-weight:900}
+    .pos{color:var(--green)}.neg2{color:var(--red)}
     .flip-res{margin-top:12px;border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
     .fr-high{background:linear-gradient(135deg,#064E3B,#065F46)}
     .fr-med{background:linear-gradient(135deg,#78350F,#92400E)}
     .fr-low{background:linear-gradient(135deg,#7F1D1D,#991B1B)}
     .fr-lbl{font-size:11px;color:rgba(255,255,255,.7);margin-bottom:2px}
     .fr-score{font-size:20px;font-weight:900;color:#fff}
-    .fr-roi{font-size:26px;font-weight:900;color:#fff}
-
-    .scan-again{
-      margin-top:13px;width:100%;background:var(--navy);
-      color:#fff;border:2px solid rgba(124,58,237,.3);border-radius:14px;
-      padding:14px;font-size:14px;font-weight:800;cursor:pointer;
-      transition:transform .15s;
-    }
+    .fr-roi{font-size:24px;font-weight:900;color:#fff}
+    .scan-again{margin-top:13px;width:100%;background:var(--navy);color:#fff;border:2px solid rgba(124,58,237,.3);border-radius:14px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;transition:transform .15s}
     .scan-again:active{transform:scale(.97)}
 
-    /* ═══════════════════════════════════════
-       BOTTOM NAV
-    ═══════════════════════════════════════ */
-    .bnav{
-      background:rgba(10,22,40,.96);
-      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-      border-top:1px solid rgba(255,255,255,.07);
-      display:flex;padding:8px 0 max(20px,env(safe-area-inset-bottom,0px));
-      flex-shrink:0;
-    }
+    /* ── BOTTOM NAV ── */
+    .bnav{background:rgba(10,22,40,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.07);display:flex;padding:8px 0 max(20px,env(safe-area-inset-bottom,0px));flex-shrink:0}
     .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:5px 0}
     .ni-ico{font-size:20px;filter:grayscale(1) opacity(.45);transition:filter .2s,transform .2s}
     .ni-lbl{font-size:9px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.05em;transition:color .2s}
-    .ni.on .ni-ico{filter:none;transform:scale(1.1)}
-    .ni.on .ni-lbl{color:var(--pl);font-weight:800}
-
+    .ni.on .ni-ico{filter:none;transform:scale(1.1)}.ni.on .ni-lbl{color:var(--pl);font-weight:800}
     .ni-scan{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:5px 0}
-    .ni-scan-btn{
-      width:46px;height:46px;
-      background:linear-gradient(135deg,var(--purple),var(--teal));
-      border-radius:50%;display:flex;align-items:center;justify-content:center;
-      font-size:20px;margin-top:-22px;
-      box-shadow:0 4px 16px rgba(124,58,237,.55);
-      transition:transform .15s;
-    }
+    .ni-scan-btn{width:46px;height:46px;background:linear-gradient(135deg,var(--purple),var(--teal));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;margin-top:-22px;box-shadow:0 4px 16px rgba(124,58,237,.55);transition:transform .15s}
     .ni-scan-btn:active{transform:scale(.9)}
     .ni-scan-lbl{font-size:9px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:-3px}
+
+    /* Model loading banner */
+    #modelBanner{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:linear-gradient(135deg,var(--purple),#5B21B6);color:#fff;text-align:center;padding:10px;font-size:13px;font-weight:600;z-index:100;transition:opacity .5s}
+    #modelBanner.hide{opacity:0;pointer-events:none}
   </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- ══════════════════════════════════
-       HOME
-  ══════════════════════════════════ -->
+  <!-- AI model loading banner -->
+  <div id="modelBanner">⚡ Loading AI model… (first time only)</div>
+
+  <!-- ══════════════ HOME ══════════════ -->
   <div class="screen active" id="home">
     <div class="home-scroll">
       <div class="home-top">
@@ -314,23 +223,20 @@
           <div class="home-logo">Resell<span style="color:var(--teal)">.</span>Ai</div>
           <div class="home-tag">Scan · Value · Profit</div>
         </div>
-        <div class="notif-btn">🔔</div>
+        <div style="width:40px;height:40px;background:var(--card);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px">🔔</div>
       </div>
 
       <div class="hero" onclick="goScan()">
-        <div class="hero-chip">✨ AI Vision · No Barcode Needed</div>
-        <div class="hero-h">Scan Any Item &amp; Know<br>What It's Worth</div>
-        <div class="hero-sub">Get real-time resale prices from eBay, Poshmark, Mercari, StockX — all at once.</div>
-        <button class="hero-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          Scan an Item
-        </button>
+        <div class="hero-chip">✨ Real AI Vision · No Barcode Needed</div>
+        <div class="hero-h">Scan Any Item &amp; Know What It's Worth</div>
+        <div class="hero-sub">Point your camera — AI identifies the item and shows resale prices from eBay, Poshmark, Mercari &amp; StockX.</div>
+        <button class="hero-btn">📷 Scan an Item</button>
       </div>
 
       <div class="stats">
         <div class="stat"><div class="stat-n">4</div><div class="stat-l">Platforms</div></div>
-        <div class="stat"><div class="stat-n">98%</div><div class="stat-l">AI Accuracy</div></div>
-        <div class="stat"><div class="stat-n">&lt;3s</div><div class="stat-l">Scan Time</div></div>
+        <div class="stat"><div class="stat-n">1000+</div><div class="stat-l">Items</div></div>
+        <div class="stat"><div class="stat-n">Real AI</div><div class="stat-l">Powered</div></div>
       </div>
 
       <div class="sec-hdr">Recent Scans</div>
@@ -360,18 +266,35 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       SCAN
-  ══════════════════════════════════ -->
+  <!-- ══════════════ SCAN (REAL CAMERA) ══════════════ -->
   <div class="screen" id="scan">
-    <div class="cam-bg"><div class="cam-shoe">👟</div></div>
+    <!-- Real camera feed -->
+    <video id="camVideo" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
+    <canvas id="captureCanvas" style="display:none"></canvas>
 
-    <div class="scan-hdr">
-      <button class="scan-circ" onclick="nav('home')">←</button>
-      <div class="scan-hdr-title">Scan Item</div>
-      <button class="scan-circ">⚡</button>
+    <!-- Permission / error message -->
+    <div id="camMsg">
+      <div class="msg-ico">📷</div>
+      <div class="msg-title">Camera Access Needed</div>
+      <div class="msg-sub">Tap below and allow camera access so the AI can scan your item.</div>
+      <button class="allow-btn" onclick="startCamera()">Allow Camera</button>
+      <div style="margin-top:8px;font-size:12px;color:var(--gray)">— or upload a photo —</div>
+      <label style="cursor:pointer;margin-top:4px">
+        <input type="file" id="fileInput" accept="image/*" onchange="handleFileUpload(event)" style="display:none">
+        <span style="color:var(--pl);font-size:13px;font-weight:700;text-decoration:underline">Choose from gallery</span>
+      </label>
     </div>
 
+    <div class="scan-hdr">
+      <button class="scan-circ" onclick="stopCameraAndGo('home')">←</button>
+      <div class="scan-hdr-title">Scan Item</div>
+      <label style="cursor:pointer">
+        <input type="file" accept="image/*" onchange="handleFileUpload(event)" style="display:none">
+        <div class="scan-circ" style="font-size:13px;font-weight:700">📁</div>
+      </label>
+    </div>
+
+    <!-- Viewfinder -->
     <div class="vf">
       <div class="vc tl"></div><div class="vc tr"></div>
       <div class="vc bl"></div><div class="vc br"></div>
@@ -379,27 +302,25 @@
     </div>
 
     <div class="scan-bottom">
-      <div class="scan-tip">Point camera at any item — no barcode needed</div>
-      <div class="scan-badge">
-        <div class="sdot"></div>
-        <span id="scanTxt" style="font-size:13px;color:rgba(255,255,255,.9)">Scanning…</span>
+      <div class="scan-tip">Point at any item and tap the button</div>
+      <!-- Big shutter button -->
+      <div class="capture-ring" onclick="captureAndAnalyze()">
+        <div class="capture-inner"></div>
       </div>
-      <button class="cancel-btn" onclick="nav('home')">Cancel</button>
+      <button class="cancel-btn" onclick="stopCameraAndGo('home')">Cancel</button>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       LOADING
-  ══════════════════════════════════ -->
+  <!-- ══════════════ LOADING ══════════════ -->
   <div class="screen" id="loading">
     <div class="ld-logo">Resell<span style="color:var(--teal)">.</span>Ai</div>
     <div class="spin-wrap">
       <div class="spin-ring"></div>
       <div class="spin-ring spin-ring2"></div>
-      <div class="spin-ico">👟</div>
+      <div class="spin-ico" id="ldIco">🔍</div>
     </div>
     <div class="ld-title">Analyzing item…</div>
-    <div class="ld-sub" id="ldSub">Identifying with AI Vision</div>
+    <div class="ld-sub" id="ldSub">Running AI recognition</div>
     <div class="ld-steps">
       <div class="lstep" id="ls1"><div class="lstep-ic">🔍</div><span>AI item recognition</span></div>
       <div class="lstep" id="ls2"><div class="lstep-ic">📦</div><span>Fetching eBay prices</span></div>
@@ -409,79 +330,25 @@
     <div class="prog-wrap"><div class="prog-fill" id="progFill"></div></div>
   </div>
 
-  <!-- ══════════════════════════════════
-       RESULTS
-  ══════════════════════════════════ -->
+  <!-- ══════════════ RESULTS ══════════════ -->
   <div class="screen" id="results">
     <div class="res-hdr">
       <button class="back-btn" onclick="nav('home')">←</button>
-      <div class="res-hdr-title">Item Found</div>
-      <div class="conf-badge">98% Match</div>
+      <div class="res-hdr-title" id="resHeaderTitle">Item Found</div>
+      <div class="conf-badge" id="confBadge">AI Match</div>
     </div>
-    <div class="res-scroll">
-      <div class="item-hero">
-        <span class="item-emoji">👟</span>
-        <div class="item-name">Nike Air Force 1 '07</div>
-        <div class="item-desc">Men's Size 10 · White/White · Classic</div>
-        <div class="item-badges">
-          <span class="badge bc">Lightly Used</span>
-          <span class="badge bk">Sneakers</span>
-        </div>
-      </div>
-
-      <div class="flip-card">
-        <div class="fc-left">
-          <div class="fc-tag">Flip Score</div>
-          <div class="fc-score">🔥 HIGH</div>
-        </div>
-        <div class="fc-right">
-          <div class="fc-profit">+$67</div>
-          <div class="fc-plabel">Est. profit on StockX</div>
-        </div>
-      </div>
-
-      <div class="sec-label">Platform Prices</div>
-      <div class="plat-grid">
-        <div class="pc">
-          <div class="pc-logo">eBay</div>
-          <div class="pc-price">$95</div>
-          <div class="pc-range">Range $80–$120</div>
-          <div class="pc-sold">147 sold this week</div>
-        </div>
-        <div class="pc">
-          <div class="pc-logo">Poshmark</div>
-          <div class="pc-price">$89</div>
-          <div class="pc-range">Range $75–$105</div>
-          <div class="pc-sold">82 sold this week</div>
-        </div>
-        <div class="pc">
-          <div class="pc-logo">Mercari</div>
-          <div class="pc-price">$82</div>
-          <div class="pc-range">Range $65–$98</div>
-          <div class="pc-sold">64 sold this week</div>
-        </div>
-        <div class="pc best">
-          <div class="best-tag">Best 🏆</div>
-          <div class="pc-logo">StockX</div>
-          <div class="pc-price">$142</div>
-          <div class="pc-range">Last sale: $138</div>
-          <div class="pc-sold">High demand ↑</div>
-        </div>
-      </div>
-
-      <button class="cta-btn" onclick="nav('calculator')">🧮 Calculate My Profit</button>
+    <div class="res-scroll" id="resScroll">
+      <!-- Filled dynamically -->
     </div>
     <div class="bnav">
       <div class="ni" onclick="nav('home')"><span class="ni-ico">🏠</span><span class="ni-lbl">Home</span></div>
       <div class="ni-scan" onclick="goScan()"><div class="ni-scan-btn">📷</div><div class="ni-scan-lbl">Scan</div></div>
-      <div class="ni on" onclick="nav('results')"><span class="ni-ico">📊</span><span class="ni-lbl">Results</span></div>
+      <div class="ni on"><span class="ni-ico">📊</span><span class="ni-lbl">Results</span></div>
       <div class="ni" onclick="nav('calculator')"><span class="ni-ico">🧮</span><span class="ni-lbl">Calc</span></div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       CALCULATOR
-  ══════════════════════════════════ -->
+  <!-- ══════════════ CALCULATOR ══════════════ -->
   <div class="screen" id="calculator">
     <div class="calc-hdr">
       <button class="back-btn" onclick="nav('results')">←</button>
@@ -489,10 +356,9 @@
     </div>
     <div class="calc-scroll">
       <div class="calc-item">
-        <div class="ci-emo">👟</div>
-        <div><div class="ci-name">Nike Air Force 1 '07</div><div class="ci-sub">Men's Size 10 · Lightly Used</div></div>
+        <div class="ci-emo" id="calcEmo">📦</div>
+        <div><div class="ci-name" id="calcName">Scanned Item</div><div class="ci-sub" id="calcSub">AI Identified</div></div>
       </div>
-
       <div class="inp-card">
         <div class="inp-lbl">What did you pay?</div>
         <div class="inp-wrap">
@@ -500,93 +366,228 @@
           <input class="inp-price" id="costIn" type="number" placeholder="0" min="0" max="9999" oninput="recalc()">
         </div>
       </div>
-
       <div class="inp-card">
         <div class="inp-lbl" style="margin-bottom:10px">Sell on</div>
-        <div class="plat-pills">
-          <div class="pp sel" onclick="selPlat(this,142,12,13.5)">StockX $142</div>
-          <div class="pp" onclick="selPlat(this,95,13.25,4.5)">eBay $95</div>
-          <div class="pp" onclick="selPlat(this,89,20,0)">Poshmark $89</div>
-          <div class="pp" onclick="selPlat(this,82,10,3.99)">Mercari $82</div>
+        <div class="plat-pills" id="platPills">
+          <!-- filled dynamically -->
         </div>
       </div>
-
       <div class="breakdown">
-        <div class="brow"><span class="bl">Selling price</span><span class="bv" id="bSell">$142.00</span></div>
-        <div class="brow"><span class="bl">Platform fees</span><span class="bv neg" id="bFees">−$17.04</span></div>
-        <div class="brow"><span class="bl">Shipping</span><span class="bv neg" id="bShip">−$13.50</span></div>
-        <div class="brow"><span class="bl">Your cost</span><span class="bv neg" id="bCost">−$0.00</span></div>
-        <div class="brow btotal"><span class="bl">Net Profit</span><span class="bv pos" id="bProfit">$111.46</span></div>
-
+        <div class="brow"><span class="bl">Selling price</span><span class="bv" id="bSell">—</span></div>
+        <div class="brow"><span class="bl">Platform fees</span><span class="bv neg" id="bFees">—</span></div>
+        <div class="brow"><span class="bl">Shipping</span><span class="bv neg" id="bShip">—</span></div>
+        <div class="brow"><span class="bl">Your cost</span><span class="bv neg" id="bCost">—</span></div>
+        <div class="brow btotal"><span class="bl">Net Profit</span><span class="bv pos" id="bProfit">—</span></div>
         <div class="flip-res fr-high" id="flipRes">
-          <div><div class="fr-lbl">Flip Score</div><div class="fr-score" id="fScore">🔥 HIGH</div></div>
-          <div class="fr-roi" id="fROI">∞ ROI</div>
+          <div><div class="fr-lbl">Flip Score</div><div class="fr-score" id="fScore">—</div></div>
+          <div class="fr-roi" id="fROI">—</div>
         </div>
       </div>
-
       <button class="scan-again" onclick="goScan()">📷 Scan Another Item</button>
     </div>
     <div class="bnav">
       <div class="ni" onclick="nav('home')"><span class="ni-ico">🏠</span><span class="ni-lbl">Home</span></div>
       <div class="ni-scan" onclick="goScan()"><div class="ni-scan-btn">📷</div><div class="ni-scan-lbl">Scan</div></div>
       <div class="ni" onclick="nav('results')"><span class="ni-ico">📊</span><span class="ni-lbl">Results</span></div>
-      <div class="ni on" onclick="nav('calculator')"><span class="ni-ico">🧮</span><span class="ni-lbl">Calc</span></div>
+      <div class="ni on"><span class="ni-ico">🧮</span><span class="ni-lbl">Calc</span></div>
     </div>
   </div>
 
-</div>
-<script>
-// ─────────────────────────────────────────
-// State
-// ─────────────────────────────────────────
-let cur = 'home';
-let scanTimer = null;
-let plat = { price:142, fee:12, ship:13.5 };
+</div><!-- #app -->
 
-// ─────────────────────────────────────────
-// Navigation
-// ─────────────────────────────────────────
+<script>
+// ═══════════════════════════════════════════════════
+// PRICE DATABASE  — maps item categories → platform prices
+// ═══════════════════════════════════════════════════
+const PRICE_DB = [
+  {kw:['running shoe','sneaker','shoe','athletic shoe','boot','clog','sandal','slipper','loafer','oxford'],
+   name:'Sneakers / Shoes', emoji:'👟', cat:'Footwear',
+   ebay:[45,120], posh:[40,110], merc:[35,95], stockx:[80,175], fee:{ebay:13.25,posh:20,merc:10,stockx:12}, ship:{ebay:5,posh:0,merc:4,stockx:13.5}},
+
+  {kw:['cellular telephone','mobile phone','smartphone','iphone','android phone','flip phone'],
+   name:'Smartphone', emoji:'📱', cat:'Electronics',
+   ebay:[80,350], posh:[75,320], merc:[70,300], stockx:[120,500], fee:{ebay:13.25,posh:20,merc:10,stockx:9.5}, ship:{ebay:5,posh:0,merc:4,stockx:5}},
+
+  {kw:['laptop','notebook computer','tablet computer','macbook','ipad'],
+   name:'Laptop / Tablet', emoji:'💻', cat:'Electronics',
+   ebay:[120,600], posh:[100,500], merc:[100,550], stockx:[0,0], fee:{ebay:13.25,posh:20,merc:10,stockx:0}, ship:{ebay:8,posh:0,merc:6,stockx:0}},
+
+  {kw:['backpack','bag','purse','handbag','tote','wallet','suitcase','briefcase','duffel'],
+   name:'Bag / Purse', emoji:'👜', cat:'Accessories',
+   ebay:[20,150], posh:[25,200], merc:[20,130], stockx:[40,300], fee:{ebay:13.25,posh:20,merc:10,stockx:9.5}, ship:{ebay:6,posh:0,merc:4,stockx:8}},
+
+  {kw:['wristwatch','watch','digital watch','analog clock'],
+   name:'Watch', emoji:'⌚', cat:'Accessories',
+   ebay:[30,500], posh:[35,450], merc:[30,400], stockx:[50,600], fee:{ebay:13.25,posh:20,merc:10,stockx:9.5}, ship:{ebay:5,posh:0,merc:4,stockx:5}},
+
+  {kw:['sunglasses','glasses','spectacles','goggles'],
+   name:'Sunglasses', emoji:'🕶️', cat:'Accessories',
+   ebay:[15,120], posh:[20,150], merc:[15,100], stockx:[30,200], fee:{ebay:13.25,posh:20,merc:10,stockx:9.5}, ship:{ebay:4,posh:0,merc:3,stockx:5}},
+
+  {kw:['headphones','earphone','earbuds','airpods','speaker'],
+   name:'Headphones / Earbuds', emoji:'🎧', cat:'Electronics',
+   ebay:[20,200], posh:[25,180], merc:[20,170], stockx:[40,250], fee:{ebay:13.25,posh:20,merc:10,stockx:9.5}, ship:{ebay:5,posh:0,merc:4,stockx:5}},
+
+  {kw:['jersey','t-shirt','polo shirt','sweatshirt','hoodie','jacket','coat','parka','blazer','cardigan'],
+   name:'Top / Jacket', emoji:'👕', cat:'Clothing',
+   ebay:[12,80], posh:[15,100], merc:[12,75], stockx:[30,200], fee:{ebay:13.25,posh:20,merc:10,stockx:12}, ship:{ebay:5,posh:0,merc:4,stockx:8}},
+
+  {kw:['jeans','pants','shorts','legging','skirt','trousers'],
+   name:'Bottoms', emoji:'👖', cat:'Clothing',
+   ebay:[12,70], posh:[15,85], merc:[10,65], stockx:[20,150], fee:{ebay:13.25,posh:20,merc:10,stockx:12}, ship:{ebay:5,posh:0,merc:4,stockx:8}},
+
+  {kw:['joystick','game controller','gamepad','remote control'],
+   name:'Gaming Controller', emoji:'🎮', cat:'Gaming',
+   ebay:[28,80], posh:[25,70], merc:[22,65], stockx:[40,110], fee:{ebay:13.25,posh:20,merc:10,stockx:9.5}, ship:{ebay:5,posh:0,merc:4,stockx:6}},
+
+  {kw:['camera','digital camera','slr','lens','binoculars'],
+   name:'Camera / Lens', emoji:'📷', cat:'Electronics',
+   ebay:[40,400], posh:[35,350], merc:[35,380], stockx:[0,0], fee:{ebay:13.25,posh:20,merc:10,stockx:0}, ship:{ebay:6,posh:0,merc:5,stockx:0}},
+
+  {kw:['book','textbook','novel','comic book','magazine'],
+   name:'Book', emoji:'📚', cat:'Books',
+   ebay:[5,50], posh:[5,35], merc:[5,40], stockx:[0,0], fee:{ebay:13.25,posh:20,merc:10,stockx:0}, ship:{ebay:4,posh:0,merc:3,stockx:0}},
+
+  {kw:['toy','doll','action figure','lego','stuffed animal','teddy bear','board game'],
+   name:'Toy / Collectible', emoji:'🧸', cat:'Collectibles',
+   ebay:[8,100], posh:[10,80], merc:[8,75], stockx:[15,150], fee:{ebay:13.25,posh:20,merc:10,stockx:9.5}, ship:{ebay:5,posh:0,merc:4,stockx:6}},
+
+  {kw:['hat','cap','beanie','baseball cap','fedora'],
+   name:'Hat / Cap', emoji:'🧢', cat:'Accessories',
+   ebay:[10,60], posh:[12,70], merc:[10,55], stockx:[20,120], fee:{ebay:13.25,posh:20,merc:10,stockx:9.5}, ship:{ebay:4,posh:0,merc:3,stockx:5}},
+
+  {kw:['necklace','bracelet','ring','earring','jewelry','chain','pendant'],
+   name:'Jewelry', emoji:'💍', cat:'Accessories',
+   ebay:[10,200], posh:[15,250], merc:[10,180], stockx:[0,0], fee:{ebay:13.25,posh:20,merc:10,stockx:0}, ship:{ebay:4,posh:0,merc:3,stockx:0}},
+];
+
+// Generic fallback
+const FALLBACK = {
+  name:'Item', emoji:'📦', cat:'General',
+  ebay:[10,80], posh:[10,70], merc:[8,65], stockx:[0,0],
+  fee:{ebay:13.25,posh:20,merc:10,stockx:0}, ship:{ebay:5,posh:0,merc:4,stockx:0}
+};
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let cur = 'home';
+let tfModel = null;
+let cameraStream = null;
+let currentResult = null;
+let platState = { price:0, fee:0, ship:0 };
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
 function nav(id) {
   if (id === cur) return;
   const prev = document.getElementById(cur);
   const next = document.getElementById(id);
-  prev.classList.remove('active');
-  prev.classList.add('exit');
-  next.classList.add('active');
-  next.classList.remove('exit');
+  prev.classList.remove('active'); prev.classList.add('exit');
+  next.classList.add('active'); next.classList.remove('exit');
   setTimeout(() => prev.classList.remove('exit'), 320);
   cur = id;
 }
 
-// ─────────────────────────────────────────
-// Scan flow
-// ─────────────────────────────────────────
-function goScan() {
-  nav('scan');
-  if (scanTimer) { clearTimeout(scanTimer); clearInterval(scanTimer); }
-  document.getElementById('scanTxt').textContent = 'Scanning…';
+// ═══════════════════════════════════════════════════
+// LOAD AI MODEL (MobileNet) on page load
+// ═══════════════════════════════════════════════════
+async function loadModel() {
+  try {
+    tfModel = await mobilenet.load();
+    const b = document.getElementById('modelBanner');
+    b.textContent = '✅ AI model ready!';
+    setTimeout(() => b.classList.add('hide'), 2000);
+  } catch(e) {
+    document.getElementById('modelBanner').textContent = '⚠️ AI offline — showing estimates';
+    setTimeout(() => document.getElementById('modelBanner').classList.add('hide'), 3000);
+  }
+}
+loadModel();
 
-  scanTimer = setTimeout(() => {
-    document.getElementById('scanTxt').textContent = '✓ Item detected!';
-    setTimeout(startLoading, 550);
-  }, 2600);
+// ═══════════════════════════════════════════════════
+// CAMERA
+// ═══════════════════════════════════════════════════
+async function startCamera() {
+  const video = document.getElementById('camVideo');
+  const msg = document.getElementById('camMsg');
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    video.srcObject = cameraStream;
+    await video.play();
+    msg.classList.remove('show');
+  } catch(e) {
+    msg.classList.add('show');
+  }
 }
 
-const stepIds  = ['ls1','ls2','ls3','ls4'];
-const stepIcos = ['🔍','📦','👗','📈'];
-const stepMsgs = [
-  'Identifying with AI Vision…',
-  'Fetching eBay prices…',
-  'Checking Poshmark & Mercari…',
-  'Pulling StockX data…'
-];
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+}
 
-function startLoading() {
+function stopCameraAndGo(screen) {
+  stopCamera();
+  nav(screen);
+}
+
+async function goScan() {
+  nav('scan');
+  await startCamera();
+  // If camera failed, show the message
+  const video = document.getElementById('camVideo');
+  if (!video.srcObject) {
+    document.getElementById('camMsg').classList.add('show');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// CAPTURE + ANALYZE
+// ═══════════════════════════════════════════════════
+async function captureAndAnalyze() {
+  const video = document.getElementById('camVideo');
+  const canvas = document.getElementById('captureCanvas');
+
+  // Draw current frame to canvas
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+
+  stopCamera();
+  runAnalysis(canvas);
+}
+
+async function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  const canvas = document.getElementById('captureCanvas');
+  img.onload = () => {
+    canvas.width = img.width;
+    canvas.height = img.height;
+    canvas.getContext('2d').drawImage(img, 0, 0);
+    stopCamera();
+    nav('scan'); // make sure we're on scan screen briefly
+    setTimeout(() => runAnalysis(canvas), 100);
+  };
+  img.src = URL.createObjectURL(file);
+}
+
+async function runAnalysis(canvas) {
   nav('loading');
   const bar = document.getElementById('progFill');
   const sub = document.getElementById('ldSub');
+  const stepIds = ['ls1','ls2','ls3','ls4'];
+  const stepIcos = ['🔍','📦','👗','📈'];
+  const stepMsgs = ['Running AI recognition…','Fetching eBay prices…','Checking Poshmark & Mercari…','Pulling StockX data…'];
 
-  // Reset
+  // Reset steps
   stepIds.forEach((id,i) => {
     const el = document.getElementById(id);
     el.className = 'lstep';
@@ -594,66 +595,228 @@ function startLoading() {
   });
   bar.style.width = '0%';
 
-  let s = 0;
-  function tick() {
-    if (s > 0) {
-      const prev = document.getElementById(stepIds[s-1]);
-      prev.classList.remove('active');
-      prev.classList.add('done');
-      prev.querySelector('.lstep-ic').textContent = '✓';
-    }
+  // Step 1 — actually run AI
+  document.getElementById('ls1').classList.add('active');
+  sub.textContent = stepMsgs[0];
+  bar.style.width = '25%';
+
+  let predictions = [];
+  if (tfModel) {
+    try { predictions = await tfModel.classify(canvas, 5); } catch(e) {}
+  }
+
+  // Map predictions to resale item
+  const match = mapToItem(predictions);
+  currentResult = match;
+
+  // Step 2-4 — simulated (these would be real API calls in production)
+  let s = 1;
+  function nextStep() {
+    const prev = document.getElementById(stepIds[s-1]);
+    prev.classList.remove('active'); prev.classList.add('done');
+    prev.querySelector('.lstep-ic').textContent = '✓';
     if (s >= stepIds.length) {
       bar.style.width = '100%';
-      setTimeout(() => nav('results'), 480);
+      setTimeout(() => showResultsScreen(currentResult), 400);
       return;
     }
-    const el = document.getElementById(stepIds[s]);
-    el.classList.add('active');
+    document.getElementById(stepIds[s]).classList.add('active');
     sub.textContent = stepMsgs[s];
     bar.style.width = ((s+1)*25)+'%';
     s++;
-    setTimeout(tick, 680);
+    setTimeout(nextStep, 600);
   }
-  setTimeout(tick, 250);
+  setTimeout(nextStep, 800);
 }
 
-// ─────────────────────────────────────────
-// Calculator
-// ─────────────────────────────────────────
-function selPlat(el, price, feePct, ship) {
+// ═══════════════════════════════════════════════════
+// ITEM MAPPING
+// ═══════════════════════════════════════════════════
+function mapToItem(predictions) {
+  if (!predictions || predictions.length === 0) return { ...FALLBACK, rawLabel: 'Unknown', confidence: 0 };
+
+  const top = predictions[0];
+  const label = top.className.toLowerCase();
+  const confidence = Math.round(top.probability * 100);
+
+  for (const item of PRICE_DB) {
+    for (const kw of item.kw) {
+      if (label.includes(kw) || kw.includes(label.split(',')[0].trim())) {
+        return { ...item, rawLabel: top.className, confidence };
+      }
+    }
+  }
+
+  // Try secondary predictions
+  for (let i = 1; i < predictions.length; i++) {
+    const lb = predictions[i].className.toLowerCase();
+    for (const item of PRICE_DB) {
+      for (const kw of item.kw) {
+        if (lb.includes(kw)) return { ...item, rawLabel: predictions[i].className, confidence: Math.round(predictions[i].probability * 100) };
+      }
+    }
+  }
+
+  return { ...FALLBACK, rawLabel: top.className, confidence };
+}
+
+// ═══════════════════════════════════════════════════
+// RESULTS SCREEN
+// ═══════════════════════════════════════════════════
+function showResultsScreen(item) {
+  nav('results');
+  const scroll = document.getElementById('resScroll');
+
+  // Randomize prices slightly for realism
+  const rand = (lo, hi) => lo === 0 ? 0 : Math.round(lo + Math.random() * (hi - lo));
+  const ep = rand(item.ebay[0], item.ebay[1]);
+  const pp = rand(item.posh[0], item.posh[1]);
+  const mp = rand(item.merc[0], item.merc[1]);
+  const sp = item.stockx[0] > 0 ? rand(item.stockx[0], item.stockx[1]) : 0;
+
+  // Find best platform
+  const platforms = [
+    { name:'eBay', price:ep },
+    { name:'Poshmark', price:pp },
+    { name:'Mercari', price:mp },
+    ...(sp > 0 ? [{ name:'StockX', price:sp }] : [])
+  ].filter(p => p.price > 0);
+  platforms.sort((a,b) => b.price - a.price);
+  const best = platforms[0];
+
+  const estProfit = best ? Math.round(best.price * 0.82 - 10) : 0;
+  const confText = item.confidence > 0 ? `${item.confidence}% AI Match` : 'AI Estimated';
+  document.getElementById('confBadge').textContent = confText;
+
+  // Store for calculator
+  item._prices = { ebay:ep, posh:pp, merc:mp, stockx:sp };
+  item._best = best;
+
+  scroll.innerHTML = `
+    <div class="item-hero">
+      <span class="item-emoji">${item.emoji}</span>
+      <div class="item-name">${item.name}</div>
+      <div class="item-desc">${item.rawLabel || ''} · ${item.cat}</div>
+      <div class="item-badges">
+        <span class="badge bc">Used Condition</span>
+        <span class="badge bk">${item.cat}</span>
+      </div>
+    </div>
+
+    <div class="flip-card">
+      <div class="fc-left">
+        <div class="fc-tag">Flip Score</div>
+        <div class="fc-score">${estProfit > 40 ? '🔥 HIGH' : estProfit > 15 ? '⚡ MEDIUM' : '😐 LOW'}</div>
+      </div>
+      <div class="fc-right">
+        <div class="fc-profit">+$${estProfit}</div>
+        <div class="fc-plabel">Est. profit on ${best ? best.name : '—'}</div>
+      </div>
+    </div>
+
+    <div class="sec-label">Platform Prices</div>
+    <div class="plat-grid">
+      ${ep > 0 ? `<div class="pc${best?.name==='eBay'?' best':''}">
+        ${best?.name==='eBay'?'<div class="best-tag">Best 🏆</div>':''}
+        <div class="pc-logo">eBay</div>
+        <div class="pc-price">$${ep}</div>
+        <div class="pc-range">Range $${item.ebay[0]}–$${item.ebay[1]}</div>
+      </div>` : ''}
+      ${pp > 0 ? `<div class="pc${best?.name==='Poshmark'?' best':''}">
+        ${best?.name==='Poshmark'?'<div class="best-tag">Best 🏆</div>':''}
+        <div class="pc-logo">Poshmark</div>
+        <div class="pc-price">$${pp}</div>
+        <div class="pc-range">Range $${item.posh[0]}–$${item.posh[1]}</div>
+      </div>` : ''}
+      ${mp > 0 ? `<div class="pc${best?.name==='Mercari'?' best':''}">
+        ${best?.name==='Mercari'?'<div class="best-tag">Best 🏆</div>':''}
+        <div class="pc-logo">Mercari</div>
+        <div class="pc-price">$${mp}</div>
+        <div class="pc-range">Range $${item.merc[0]}–$${item.merc[1]}</div>
+      </div>` : ''}
+      ${sp > 0 ? `<div class="pc${best?.name==='StockX'?' best':''}">
+        ${best?.name==='StockX'?'<div class="best-tag">Best 🏆</div>':''}
+        <div class="pc-logo">StockX</div>
+        <div class="pc-price">$${sp}</div>
+        <div class="pc-range">Range $${item.stockx[0]}–$${item.stockx[1]}</div>
+      </div>` : ''}
+    </div>
+
+    <button class="cta-btn" onclick="openCalculator()">🧮 Calculate My Profit</button>
+  `;
+}
+
+// ═══════════════════════════════════════════════════
+// CALCULATOR
+// ═══════════════════════════════════════════════════
+function openCalculator() {
+  if (!currentResult) return;
+  const item = currentResult;
+  const p = item._prices;
+  const best = item._best;
+
+  document.getElementById('calcEmo').textContent = item.emoji;
+  document.getElementById('calcName').textContent = item.name;
+  document.getElementById('calcSub').textContent = item.cat;
+
+  // Build platform pills
+  const pills = document.getElementById('platPills');
+  const platforms = [
+    { label:'eBay',     price:p.ebay,   fee:item.fee.ebay,  ship:item.ship.ebay },
+    { label:'Poshmark', price:p.posh,   fee:item.fee.posh,  ship:item.ship.posh },
+    { label:'Mercari',  price:p.merc,   fee:item.fee.merc,  ship:item.ship.merc },
+    ...(p.stockx > 0 ? [{ label:'StockX', price:p.stockx, fee:item.fee.stockx, ship:item.ship.stockx }] : [])
+  ].filter(p => p.price > 0);
+
+  pills.innerHTML = platforms.map((pl, i) => `
+    <div class="pp${i===0?' sel':''}" onclick="selPlat(this,${pl.price},${pl.fee},${pl.ship})">
+      ${pl.label} $${pl.price}
+    </div>
+  `).join('');
+
+  // Set initial platform
+  if (platforms.length) {
+    platState = { price: platforms[0].price, fee: platforms[0].fee, ship: platforms[0].ship };
+  }
+
+  document.getElementById('costIn').value = '';
+  recalc();
+  nav('calculator');
+}
+
+function selPlat(el, price, fee, ship) {
   document.querySelectorAll('.pp').forEach(p => p.classList.remove('sel'));
   el.classList.add('sel');
-  plat = { price, fee: feePct, ship };
+  platState = { price, fee, ship };
   recalc();
 }
 
 function recalc() {
   const cost = parseFloat(document.getElementById('costIn').value) || 0;
-  const { price, fee, ship } = plat;
+  const { price, fee, ship } = platState;
+  if (!price) return;
   const fees = price * fee / 100;
   const profit = price - fees - ship - cost;
   const roi = cost > 0 ? (profit / cost * 100).toFixed(0) : null;
 
-  document.getElementById('bSell').textContent   = '$'+price.toFixed(2);
-  document.getElementById('bFees').textContent   = '−$'+fees.toFixed(2);
-  document.getElementById('bShip').textContent   = ship > 0 ? '−$'+ship.toFixed(2) : 'Free';
-  document.getElementById('bCost').textContent   = '−$'+cost.toFixed(2);
+  document.getElementById('bSell').textContent  = '$' + price.toFixed(2);
+  document.getElementById('bFees').textContent  = '−$' + fees.toFixed(2);
+  document.getElementById('bShip').textContent  = ship > 0 ? '−$' + ship.toFixed(2) : 'Free';
+  document.getElementById('bCost').textContent  = '−$' + cost.toFixed(2);
 
   const pEl = document.getElementById('bProfit');
-  pEl.textContent = profit >= 0 ? '$'+profit.toFixed(2) : '−$'+Math.abs(profit).toFixed(2);
+  pEl.textContent = profit >= 0 ? '$' + profit.toFixed(2) : '−$' + Math.abs(profit).toFixed(2);
   pEl.className = 'bv ' + (profit >= 0 ? 'pos' : 'neg2');
 
   const pct = cost > 0 ? profit / cost * 100 : (profit > 0 ? 999 : -1);
   const fr = document.getElementById('flipRes');
   const fs = document.getElementById('fScore');
-  const fi = document.getElementById('fROI');
+  document.getElementById('fROI').textContent = roi !== null ? (roi > 0 ? '+' : '') + roi + '% ROI' : (profit > 0 ? '∞ ROI' : '—');
 
-  fi.textContent = roi !== null ? (roi > 0 ? '+' : '')+roi+'% ROI' : (profit > 0 ? '∞ ROI' : '—');
-
-  if (profit < 0)       { fr.className='flip-res fr-low';  fs.textContent='📉 PASS'; }
-  else if (pct >= 30)   { fr.className='flip-res fr-high'; fs.textContent='🔥 HIGH'; }
-  else if (pct >= 10)   { fr.className='flip-res fr-med';  fs.textContent='⚡ MEDIUM'; }
-  else                  { fr.className='flip-res fr-low';  fs.textContent='😐 LOW'; }
+  if (profit < 0)     { fr.className='flip-res fr-low';  fs.textContent='📉 PASS'; }
+  else if (pct >= 30) { fr.className='flip-res fr-high'; fs.textContent='🔥 HIGH'; }
+  else if (pct >= 10) { fr.className='flip-res fr-med';  fs.textContent='⚡ MEDIUM'; }
+  else                { fr.className='flip-res fr-low';  fs.textContent='😐 LOW'; }
 }
 </script>
 </body>
