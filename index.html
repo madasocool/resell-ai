@@ -122,6 +122,24 @@
     .pname{font-size:13px;font-weight:700;flex:1}
     .prange{font-size:13px;font-weight:900;color:var(--green)}
     .pna{font-size:12px;color:var(--gray)}
+    .live-card{margin:0 18px 14px;background:var(--card);border:1.5px solid rgba(239,68,68,.35);border-radius:18px;padding:16px}
+    .live-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+    .live-title{font-size:14px;font-weight:800;margin-bottom:3px}
+    .live-sub{font-size:11px;color:var(--gray)}
+    .live-badge{background:var(--red);color:#fff;font-size:9px;font-weight:900;padding:3px 7px;border-radius:6px;letter-spacing:.08em;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+    .live-loading{display:flex;align-items:center;gap:10px;padding:4px 0}
+    .live-spin{width:18px;height:18px;border:2px solid rgba(239,68,68,.2);border-top-color:var(--red);border-radius:50%;animation:spin 1s linear infinite;flex-shrink:0}
+    .live-stat{display:flex;gap:10px;margin-bottom:12px}
+    .live-stat-box{flex:1;background:rgba(255,255,255,.05);border-radius:12px;padding:10px;text-align:center}
+    .live-stat-n{font-size:18px;font-weight:900}
+    .live-stat-l{font-size:10px;color:var(--gray);margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
+    .live-bar{margin-bottom:10px}
+    .live-bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--gray);margin-bottom:5px}
+    .live-bar-track{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+    .live-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--purple),var(--green))}
+    .live-samples{font-size:11px;color:var(--gray);margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06)}
+    .live-err{font-size:12px;color:var(--gray);padding:4px 0}
     .ebay-link{margin:0 18px 14px;background:rgba(233,100,0,.12);border:1px solid rgba(233,100,0,.3);border-radius:18px;padding:15px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;text-decoration:none}
     .ebay-link:active{opacity:.8}
     .ebay-txt h4{font-size:14px;font-weight:800;margin-bottom:2px}
@@ -328,11 +346,28 @@
         <div id="r-plats"></div>
       </div>
 
+      <!-- LIVE PRICES CARD -->
+      <div class="live-card" id="live-card">
+        <div class="live-header">
+          <div>
+            <div class="live-title">🔴 Live eBay Sold Prices</div>
+            <div class="live-sub" id="live-sub">Fetching real sold data…</div>
+          </div>
+          <div class="live-badge" id="live-badge">LIVE</div>
+        </div>
+        <div id="live-body">
+          <div class="live-loading">
+            <div class="live-spin"></div>
+            <div style="font-size:12px;color:var(--gray)">Pulling recent eBay sales…</div>
+          </div>
+        </div>
+      </div>
+
       <a class="ebay-link" id="ebay-link" href="#" target="_blank" rel="noopener">
         <div style="font-size:28px">🔍</div>
         <div class="ebay-txt">
-          <h4>View Real Sold Listings</h4>
-          <p>See actual recent eBay sold prices for this item</p>
+          <h4>Browse All Sold Listings</h4>
+          <p>See every recent eBay sale for this item</p>
         </div>
         <div style="margin-left:auto;font-size:18px">→</div>
       </a>
@@ -926,7 +961,20 @@ function buildResult() {
   if (recentScans.length>10) recentScans.pop();
   localStorage.setItem('rs_v2', JSON.stringify(recentScans));
 
+  // Reset live card to loading state
+  document.getElementById('live-sub').textContent = 'Fetching real sold data…';
+  document.getElementById('live-badge').style.background = 'var(--red)';
+  document.getElementById('live-badge').style.animation = 'pulse 2s infinite';
+  document.getElementById('live-body').innerHTML = `
+    <div class="live-loading">
+      <div class="live-spin"></div>
+      <div style="font-size:12px;color:var(--gray)">Pulling recent eBay sales…</div>
+    </div>`;
+
   showScreen('result');
+
+  // Fetch real prices in background (non-blocking)
+  fetchRealPrices(itemName, condition).then(data => showLivePrices(data, itemName));
 }
 
 // ─── SEARCH ───────────────────────────────────────────────────────────────────
@@ -967,6 +1015,92 @@ function doSearch() {
   const q = document.getElementById('searchInput').value.trim();
   if (!q) return;
   filterSearch(q);
+}
+
+// ─── LIVE EBAY PRICE FETCH ────────────────────────────────────────────────────
+async function fetchRealPrices(itemName, conditionMul) {
+  const condStr = conditionMul <= 0.45 ? 'fair condition' : conditionMul <= 0.65 ? 'good condition' : conditionMul <= 0.85 ? 'like new' : '';
+  const query = `${itemName} ${condStr}`.trim();
+  const ebayUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(query)}&LH_Sold=1&LH_Complete=1&_sop=13`;
+
+  // Try two CORS proxies in sequence
+  const proxies = [
+    () => fetch(`https://corsproxy.io/?${encodeURIComponent(ebayUrl)}`, { signal: AbortSignal.timeout(9000) })
+          .then(r => r.ok ? r.text() : Promise.reject()),
+    () => fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(ebayUrl)}`, { signal: AbortSignal.timeout(9000) })
+          .then(r => r.ok ? r.json().then(d => d.contents) : Promise.reject())
+  ];
+
+  for (const proxyFn of proxies) {
+    try {
+      const html = await proxyFn();
+      if (!html) continue;
+
+      // Extract sold prices — eBay wraps them in s-item__price spans
+      const raw = [];
+      const re = /s-item__price[^>]*>[^$]*\$([\d,]+(?:\.\d{2})?)/g;
+      let m;
+      while ((m = re.exec(html)) !== null) {
+        const n = parseFloat(m[1].replace(/,/g, ''));
+        if (n > 1 && n < 500000) raw.push(n);
+      }
+      if (raw.length < 3) continue;
+
+      raw.sort((a, b) => a - b);
+      // Remove top/bottom 10% outliers
+      const trim = Math.floor(raw.length * 0.1);
+      const clean = raw.slice(trim, raw.length - trim);
+      const avg = Math.round(clean.reduce((a, b) => a + b, 0) / clean.length);
+      const low = Math.round(clean[0]);
+      const high = Math.round(clean[clean.length - 1]);
+      const median = Math.round(clean[Math.floor(clean.length / 2)]);
+
+      return { avg, low, high, median, count: clean.length, query };
+    } catch(e) { continue; }
+  }
+  return null;
+}
+
+function showLivePrices(data, itemName) {
+  const body = document.getElementById('live-body');
+  const sub  = document.getElementById('live-sub');
+
+  if (!data) {
+    body.innerHTML = `<div class="live-err">⚠️ Couldn't fetch live data right now — try the eBay link below for real prices.</div>`;
+    sub.textContent = 'Live fetch unavailable';
+    document.getElementById('live-badge').style.background = 'var(--gray)';
+    document.getElementById('live-badge').style.animation = 'none';
+    return;
+  }
+
+  sub.textContent = `${data.count} recent sales · "${data.query}"`;
+
+  // Update profit calculator sell price with real median
+  document.getElementById('sellIn').value = data.median;
+  calcP();
+
+  const pct = Math.min(100, Math.round(((data.median - data.low) / (data.high - data.low || 1)) * 100));
+
+  body.innerHTML = `
+    <div class="live-stat">
+      <div class="live-stat-box">
+        <div class="live-stat-n" style="color:var(--green)">$${data.low}</div>
+        <div class="live-stat-l">Low</div>
+      </div>
+      <div class="live-stat-box">
+        <div class="live-stat-n" style="color:var(--teal)">$${data.median}</div>
+        <div class="live-stat-l">Median</div>
+      </div>
+      <div class="live-stat-box">
+        <div class="live-stat-n" style="color:var(--pl)">$${data.high}</div>
+        <div class="live-stat-l">High</div>
+      </div>
+    </div>
+    <div class="live-bar">
+      <div class="live-bar-label"><span>$${data.low}</span><span>avg $${data.avg}</span><span>$${data.high}</span></div>
+      <div class="live-bar-track"><div class="live-bar-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="live-samples">Based on ${data.count} actual sold listings from eBay · prices update each scan</div>`;
 }
 
 // ─── PROFIT CALC ──────────────────────────────────────────────────────────────
