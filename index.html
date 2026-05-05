@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Resell.Ai</title>
+  <!-- Tesseract.js: reads text directly off labels / packaging -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     :root{--bg:#080F1E;--card:#0F1E35;--card2:#162540;--purple:#7C3AED;--pl:#A855F7;--teal:#06B6D4;--green:#10B981;--red:#EF4444;--orange:#F59E0B;--gray:#64748B;--gray2:#94A3B8;--white:#F1F5F9}
@@ -442,186 +444,264 @@ document.getElementById('fileInput').addEventListener('change', function() {
   img.src = url; this.value = '';
 });
 
-// ─── AI IDENTIFICATION ────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// IDENTIFICATION ENGINE
+// Three parallel tracks:
+//   1. OCR  — Tesseract.js reads text directly off labels (best for brands)
+//   2. VQA  — BLIP visual Q&A: "what brand?" "what type of product?"
+//   3. Caption — BLIP description fallback for unbranded/no-label items
+// ═══════════════════════════════════════════════════════════════════════════
 
-// Abort-safe timeout helper (works on all browsers)
+// ── Utilities ──────────────────────────────────────────────────────────────
 function abortAfter(ms) {
   const ctrl = new AbortController();
   setTimeout(() => ctrl.abort(), ms);
   return ctrl.signal;
 }
-
-// Convert blob → base64 string (needed for VQA JSON format)
-function blobToBase64(blob) {
+function blobToDataUrl(blob) {
   return new Promise((res, rej) => {
     const r = new FileReader();
-    r.onload = () => res(r.result.split(',')[1]);
+    r.onload = () => res(r.result);
     r.onerror = rej;
     r.readAsDataURL(blob);
   });
 }
+const JUNK = new Set(['yes','no','none','unknown','unclear','object','thing','item','stuff','something','product','i don\'t know','cannot determine','n/a','na','nothing']);
+function junk(s) {
+  if (!s) return true;
+  const t = s.toLowerCase().trim();
+  return t.length < 2 || JUNK.has(t);
+}
+function cap1(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
-// Ask BLIP VQA a single question about the image
+// ── Track 1: OCR — reads actual text off labels ────────────────────────────
+let _tWorker = null;
+async function getTesseract() {
+  if (!window.Tesseract) return null;
+  if (!_tWorker) _tWorker = await Tesseract.createWorker('eng');
+  return _tWorker;
+}
+
+// Pre-warm Tesseract after page loads (so first scan is faster)
+window.addEventListener('load', () => setTimeout(() => getTesseract().catch(() => {}), 3000));
+
+async function runOCR(dataUrl) {
+  try {
+    const w = await getTesseract();
+    if (!w) return null;
+    const { data } = await w.recognize(dataUrl);
+    return { text: data.text || '', words: data.words || [] };
+  } catch(e) { return null; }
+}
+
+// Noise words that appear on every label but are NOT brand/product names
+const OCR_STOP = new Set(
+  'the and of for with is are was be to a an in on at by as or but if not from this that it its '+
+  'your our you we me my have has can will do does made use used good great new old get set made '+
+  'net oz ml g mg fl per serving ingredients directions warnings caution keep out reach children '+
+  'distributed manufactured imported usa america canada distributed by inc llc ltd corp co '+
+  'www http https com net org store shop buy free delivery returns policy privacy terms '+
+  'do not shake well before refrigerate store below above apply gently rub rinse repeat '+
+  'if irritation occurs discontinue contact doctor physician professional advice '+
+  'flammable fragrance free paraben sulfate cruelty vegan organic natural artificial '.split(' ')
+);
+
+function parseOCR(ocr) {
+  if (!ocr || !ocr.text.trim()) return { brand: null, productWords: [], rawLines: [] };
+
+  // Split into lines — first lines usually contain brand/product name
+  const lines = ocr.text.split('\n')
+    .map(l => l.trim())
+    .filter(l => l.length >= 2);
+
+  // High-confidence meaningful words
+  const goodWords = (ocr.words || [])
+    .filter(w => w.confidence > 50 && w.text && /^[A-Za-z&'/.-]{2,22}$/.test(w.text.trim()))
+    .map(w => w.text.trim())
+    .filter(w => !OCR_STOP.has(w.toLowerCase()) && isNaN(w));
+
+  // ALL-CAPS words = strongest brand signal (OWALA, PURELL, SUPREME, LEVI'S)
+  const caps = goodWords.filter(w => w === w.toUpperCase() && w.length >= 3 && w.length <= 16);
+
+  // Proper-case words (Nike, Adidas, Metallica)
+  const proper = goodWords.filter(w => /^[A-Z][a-z]{1,}/.test(w) && !caps.includes(w) && w.length >= 3);
+
+  // Pick brand: 1-3 ALLCAPS words first, then proper-case
+  let brand = null;
+  if (caps.length >= 2) {
+    brand = caps.slice(0, 2).join(' ');
+  } else if (caps.length === 1) {
+    // Short all-caps = keep as-is (OWALA → OWALA). Long = title-case.
+    brand = caps[0].length <= 8 ? caps[0] : cap1(caps[0].toLowerCase());
+  } else if (proper.length) {
+    brand = proper.slice(0, 2).join(' ');
+  }
+
+  // Product-type keywords found anywhere in the OCR text
+  const text = ocr.text.toLowerCase();
+  const PRODUCT_KWORDS = [
+    'water bottle','hand sanitizer','sanitizer','shampoo','conditioner','lotion',
+    'moisturizer','sunscreen','cologne','perfume','deodorant','toothpaste',
+    'sneaker','shoe','boot','jacket','hoodie','shirt','jeans','shorts','dress',
+    'watch','bag','backpack','wallet','purse','headphones','earbuds','speaker',
+    'phone case','charger','keyboard','mouse','monitor','laptop','tablet',
+    'protein powder','supplement','vitamin','energy drink','coffee','tea',
+  ];
+  const foundProduct = PRODUCT_KWORDS.find(p => text.includes(p)) || null;
+
+  return { brand, productWords: caps.concat(proper).slice(0, 6), rawLines: lines.slice(0, 3), foundProduct };
+}
+
+// ── Track 2: VQA — ask AI specific questions ───────────────────────────────
 async function askVQA(b64, question) {
-  const vqaEndpoints = [
+  const urls = [
     'https://api-inference.huggingface.co/models/Salesforce/blip-vqa-base',
     'https://api-inference.huggingface.co/models/dandelin/vilt-b32-finetuned-vqa',
   ];
-  for (const url of vqaEndpoints) {
-    for (let attempt = 0; attempt < 2; attempt++) {
+  for (const url of urls) {
+    for (let t = 0; t < 2; t++) {
       try {
-        const resp = await fetch(url, {
+        const r = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ inputs: { image: b64, question } }),
-          signal: abortAfter(14000)
+          signal: abortAfter(13000)
         });
-        if (resp.ok) {
-          const data = await resp.json();
-          const ans = Array.isArray(data) ? data[0]?.answer : data?.answer;
-          if (ans && ans.length > 1) return ans.trim();
+        if (r.ok) {
+          const d = await r.json();
+          const ans = Array.isArray(d) ? d[0]?.answer : d?.answer;
+          if (ans && ans.trim().length > 1) return ans.trim();
+          break;
         }
-        if (resp.status === 503) {
-          const err = await resp.json().catch(() => ({}));
-          await sleep(Math.min((err.estimated_time || 6) * 1000, 10000));
+        if (r.status === 503) {
+          const e = await r.json().catch(() => ({}));
+          await sleep(Math.min((e.estimated_time || 7) * 1000, 11000));
           continue;
         }
         break;
-      } catch(e) { if (attempt < 1) await sleep(1500); }
+      } catch(e) { if (t < 1) await sleep(1500); }
     }
-    break; // If first endpoint errored, try second only if it 503'd
   }
   return null;
 }
 
-// Run image captioning (binary format — separate from VQA)
+// ── Track 3: Caption — visual description fallback ─────────────────────────
 async function runCaption(blob) {
-  const endpoints = [
+  const urls = [
     'https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base',
     'https://api-inference.huggingface.co/models/nlpconnect/vit-gpt2-image-captioning',
     'https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-large',
   ];
-  for (const url of endpoints) {
-    for (let attempt = 0; attempt < 2; attempt++) {
+  for (const url of urls) {
+    for (let t = 0; t < 2; t++) {
       try {
-        const resp = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'image/jpeg' },
-          body: blob,
+        const r = await fetch(url, {
+          method: 'POST', headers: { 'Content-Type': 'image/jpeg' }, body: blob,
           signal: abortAfter(18000)
         });
-        if (resp.ok) {
-          const data = await resp.json();
-          const text = Array.isArray(data) ? data[0]?.generated_text : data?.generated_text;
-          if (text && text.length > 4) return text.trim();
+        if (r.ok) {
+          const d = await r.json();
+          const tx = Array.isArray(d) ? d[0]?.generated_text : d?.generated_text;
+          if (tx && tx.length > 4) return tx.trim();
           break;
         }
-        if (resp.status === 503) {
-          const err = await resp.json().catch(() => ({}));
-          await sleep(Math.min((err.estimated_time || 8) * 1000, 13000));
+        if (r.status === 503) {
+          const e = await r.json().catch(() => ({}));
+          await sleep(Math.min((e.estimated_time || 8) * 1000, 12000));
           continue;
         }
         break;
-      } catch(e) { if (attempt < 1) await sleep(1500); }
+      } catch(e) { if (t < 1) await sleep(1500); }
     }
   }
   return null;
 }
 
-// Detect if an AI answer is a useless generic response
-const SKIP_WORDS = new Set(['yes','no','none','unknown','it','this','a','an','the','not sure','unclear','object','thing','item','stuff','something']);
-function isUseless(s) {
-  if (!s) return true;
-  const t = s.toLowerCase().trim();
-  return t.length < 3 || SKIP_WORDS.has(t) || t === 'i don\'t know';
+function cleanCaption(c) {
+  return c
+    .replace(/^(a |an |the )/i, '')
+    .replace(/ on (a |an |the |white |black |wooden |concrete |grey |gray |blue )\S*/i, '')
+    .replace(/ (against|with a|sitting|placed|resting|next to|near|over|under|held|displayed).*/i, '')
+    .replace(/ (background|surface|table|floor|wall|shelf|counter).*/i, '')
+    .replace(/\s+/g, ' ').trim();
 }
 
-// Combine VQA answers + caption into best possible item description
-// Returns { label, aiDetails } where aiDetails shows what each AI found
-function buildIdentification(brand, product, labelText, caption) {
-  const cleanBrand   = !isUseless(brand)     ? brand.trim()     : null;
-  const cleanProduct = !isUseless(product)   ? product.trim()   : null;
-  const cleanLabel   = !isUseless(labelText) ? labelText.trim() : null;
-
-  // Build AI detail summary for the confirm screen
-  const details = [];
-  if (cleanBrand)   details.push(`Brand: ${cleanBrand}`);
-  if (cleanProduct) details.push(`Item: ${cleanProduct}`);
-  if (cleanLabel)   details.push(`Label text: ${cleanLabel}`);
-
-  // Build best search query: brand + product beats everything
-  let label = null;
-  if (cleanBrand && cleanProduct) {
-    label = cleanProduct.toLowerCase().includes(cleanBrand.toLowerCase())
-      ? cleanProduct
-      : `${cleanBrand} ${cleanProduct}`;
-  } else if (cleanBrand && cleanLabel) {
-    label = `${cleanBrand} ${cleanLabel}`;
-  } else if (cleanBrand) {
-    label = cleanBrand;
-  } else if (cleanProduct) {
-    label = cleanProduct;
-  } else if (cleanLabel && cleanLabel.length > 4) {
-    label = cleanLabel;
-  } else if (caption) {
-    // Clean up caption as last resort
-    label = caption
-      .replace(/^(a |an |the )/i, '')
-      .replace(/ (on (a |an |the |white |black |wooden |concrete |grey ))/i, ' ')
-      .replace(/ (background|surface|table|floor|wall|shelf|counter).*/i, '')
-      .replace(/ (against |with a |sitting |placed |resting |next to |near ).*/i, '')
-      .replace(/\s+/g, ' ').trim();
-  }
-
-  return { label: label ? label.charAt(0).toUpperCase() + label.slice(1) : null, details };
-}
-
+// ── Combine all three tracks into the best search query ───────────────────
 let lastAiDetails = [];
 
 async function identifyWithBLIP(blob) {
-  updateIdStep('🔍 Asking AI: brand? product type? label text?');
+  updateIdStep('📖 Reading label text + asking AI…');
 
-  // Convert to base64 for VQA
-  const b64 = await blobToBase64(blob);
+  const dataUrl = await blobToDataUrl(blob);
+  const b64 = dataUrl.split(',')[1];
 
-  // Run VQA questions + captioning ALL in parallel for speed
-  const [brandR, productR, labelR, captionR] = await Promise.allSettled([
-    askVQA(b64, 'What brand or company made this product?'),
+  // Fire all three tracks at the same time
+  const [ocrR, brandVqaR, typeVqaR, captionR] = await Promise.allSettled([
+    runOCR(dataUrl),
+    askVQA(b64, 'What brand or company name is shown on this product?'),
     askVQA(b64, 'What specific type of product or item is this?'),
-    askVQA(b64, 'What text or words are printed on the label or packaging?'),
     runCaption(blob),
   ]);
 
-  const brand   = brandR.status   === 'fulfilled' ? brandR.value   : null;
-  const product = productR.status === 'fulfilled' ? productR.value : null;
-  const label   = labelR.status   === 'fulfilled' ? labelR.value   : null;
-  const caption = captionR.status === 'fulfilled' ? captionR.value : null;
+  const ocrRaw   = ocrR.status      === 'fulfilled' ? ocrR.value      : null;
+  const vqaBrand = brandVqaR.status === 'fulfilled' ? brandVqaR.value : null;
+  const vqaType  = typeVqaR.status  === 'fulfilled' ? typeVqaR.value  : null;
+  const caption  = captionR.status  === 'fulfilled' ? captionR.value  : null;
 
-  const result = buildIdentification(brand, product, label, caption);
-  lastAiDetails = result.details;
+  const ocr = parseOCR(ocrRaw);
+  lastAiDetails = [];
 
-  // If it looks like clothing, ask extra questions for vintage/no-tag scenarios
-  const itemName = (result.label || caption || '').toLowerCase();
-  if (/cloth|shirt|jacket|hoodie|jean|pant|coat|dress|sweat|top|bottom|wear|apparel|fabric/.test(itemName) && result.details.length < 2) {
-    updateIdStep('👗 Clothing detected — asking style questions…');
-    const [eraR, colorR, styleR] = await Promise.allSettled([
+  // Pick brand: OCR wins (actual text on label) over VQA guess
+  const ocrBrand = !junk(ocr.brand) ? ocr.brand : null;
+  const aiBrand  = !junk(vqaBrand)  ? vqaBrand  : null;
+  const brand = ocrBrand || aiBrand;
+
+  // Pick product type: VQA answer or OCR keyword
+  const type = (!junk(vqaType) ? vqaType : null) || ocr.foundProduct || null;
+
+  // Build confirm details panel
+  if (ocrBrand) lastAiDetails.push(`📖 Label: ${ocrBrand}`);
+  if (aiBrand && aiBrand.toLowerCase() !== (ocrBrand||'').toLowerCase()) lastAiDetails.push(`🤖 AI brand: ${aiBrand}`);
+  if (type)     lastAiDetails.push(`📦 Type: ${type}`);
+  if (caption && !brand && !type) lastAiDetails.push(`👁 Sees: ${cleanCaption(caption)}`);
+
+  // Compose final label
+  let label = null;
+  if (brand && type) {
+    // Don't double-write brand if it's already in the type string
+    label = type.toLowerCase().includes(brand.toLowerCase()) ? type : `${brand} ${type}`;
+  } else if (brand && ocr.foundProduct) {
+    label = `${brand} ${ocr.foundProduct}`;
+  } else if (brand) {
+    label = brand;
+  } else if (type) {
+    label = type;
+  } else if (caption) {
+    label = cleanCaption(caption);
+  }
+
+  // ── Clothing without a readable brand → ask style/era questions ──────────
+  const isClothing = /cloth|shirt|jacket|hoodie|jean|pant|coat|dress|sweat|top|apparel|wear|blouse|skirt|tee|sweater|vest|cardigan/.test((label||'').toLowerCase() + (caption||'').toLowerCase());
+  if (isClothing && !brand) {
+    updateIdStep('👗 Clothing — getting color, material & era…');
+    const [eraR, colorR, matR] = await Promise.allSettled([
       askVQA(b64, 'What decade or era does this clothing style look like?'),
-      askVQA(b64, 'What color is this item?'),
+      askVQA(b64, 'What is the main color of this clothing?'),
       askVQA(b64, 'What material or fabric is this made of?'),
     ]);
-    const era   = eraR.status   === 'fulfilled' && !isUseless(eraR.value)   ? eraR.value   : null;
-    const color = colorR.status === 'fulfilled' && !isUseless(colorR.value) ? colorR.value : null;
-    const fabric= styleR.status === 'fulfilled' && !isUseless(styleR.value) ? styleR.value : null;
-    // Rebuild label with vintage context
-    const parts = [color, fabric, result.label, era ? `(${era} style)` : null].filter(Boolean);
+    const era   = eraR.status   === 'fulfilled' && !junk(eraR.value)   ? eraR.value   : null;
+    const color = colorR.status === 'fulfilled' && !junk(colorR.value) ? colorR.value : null;
+    const mat   = matR.status   === 'fulfilled' && !junk(matR.value)   ? matR.value   : null;
+    const parts = [color, mat, label||type, era].filter(Boolean);
     if (parts.length > 1) {
-      result.label = parts.join(' ');
-      if (era)   lastAiDetails.push(`Era: ${era}`);
-      if (color) lastAiDetails.push(`Color: ${color}`);
+      label = parts.join(' ');
+      if (color) lastAiDetails.push(`🎨 Color: ${color}`);
+      if (mat)   lastAiDetails.push(`🧵 Material: ${mat}`);
+      if (era)   lastAiDetails.push(`📅 Era: ${era}`);
     }
   }
 
-  return result.label;
+  return label ? cap1(label) : null;
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
