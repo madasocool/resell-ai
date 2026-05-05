@@ -8,11 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    :root{
-      --navy:#0A1628;--purple:#7C3AED;--pl:#A855F7;
-      --teal:#06B6D4;--green:#10B981;--red:#EF4444;
-      --gray:#94A3B8;--card:#1E2D4D;
-    }
+    :root{--navy:#0A1628;--purple:#7C3AED;--pl:#A855F7;--teal:#06B6D4;--green:#10B981;--red:#EF4444;--gray:#94A3B8;--card:#1E2D4D}
     html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;background:#000;color:#fff;overflow:hidden}
     #app{width:100%;max-width:430px;height:100dvh;height:100vh;margin:0 auto;position:relative;overflow:hidden;background:var(--navy)}
     .screen{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s cubic-bezier(.4,0,.2,1);transform:translateX(40px)}
@@ -20,23 +16,26 @@
     .screen.exit{opacity:0;transform:translateX(-30px)}
 
     /* HOME */
-    .home-scroll{flex:1;overflow-y:auto;padding-bottom:90px}
-    .home-top{padding:56px 22px 10px;display:flex;justify-content:space-between;align-items:flex-start}
-    .home-logo{font-size:26px;font-weight:900;background:linear-gradient(135deg,var(--pl),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .ai-badge{font-size:11px;color:var(--green);background:rgba(16,185,129,.15);padding:4px 9px;border-radius:20px;font-weight:700}
-    .hero{margin:8px 18px 0;background:linear-gradient(145deg,#5B21B6,var(--purple));border-radius:22px;padding:24px 20px 20px;position:relative;overflow:hidden;cursor:pointer;box-shadow:0 10px 36px rgba(124,58,237,.45);transition:transform .15s}
+    .hscroll{flex:1;overflow-y:auto;padding-bottom:88px}
+    .htop{padding:56px 20px 10px;display:flex;justify-content:space-between;align-items:flex-start}
+    .logo{font-size:26px;font-weight:900;background:linear-gradient(135deg,var(--pl),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero{margin:10px 18px 0;background:linear-gradient(145deg,#5B21B6,var(--purple));border-radius:22px;padding:22px 20px 20px;cursor:pointer;box-shadow:0 10px 36px rgba(124,58,237,.45);transition:transform .15s;overflow:hidden;position:relative}
     .hero:active{transform:scale(.97)}
-    .hero::before{content:'';position:absolute;top:-60px;right:-40px;width:200px;height:200px;background:rgba(255,255,255,.06);border-radius:50%}
+    .hero::before{content:'';position:absolute;top:-60px;right:-40px;width:200px;height:200px;background:rgba(255,255,255,.05);border-radius:50%}
     .hero-chip{font-size:11px;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
-    .hero-h{font-size:22px;font-weight:900;margin-bottom:4px}
-    .hero-sub{font-size:13px;color:rgba(255,255,255,.75);margin-bottom:18px;line-height:1.5}
-    .hero-btn{display:inline-flex;align-items:center;gap:7px;background:#fff;color:var(--purple);font-weight:800;font-size:14px;padding:10px 16px;border-radius:50px;border:none;cursor:pointer}
-    .stats{display:flex;gap:10px;padding:14px 18px 0}
-    .stat{flex:1;background:var(--card);border-radius:14px;padding:13px 10px;text-align:center}
+    .hero-h{font-size:21px;font-weight:900;margin-bottom:4px}
+    .hero-sub{font-size:13px;color:rgba(255,255,255,.75);margin-bottom:16px;line-height:1.5}
+    .hero-btn{display:inline-flex;align-items:center;gap:7px;background:#fff;color:var(--purple);font-weight:800;font-size:14px;padding:9px 16px;border-radius:50px;border:none;cursor:pointer}
+    .search-box{margin:14px 18px 0;background:var(--card);border-radius:14px;display:flex;align-items:center;padding:0 14px;border:1.5px solid rgba(255,255,255,.08)}
+    .search-box input{flex:1;background:none;border:none;color:#fff;font-size:14px;padding:13px 0;outline:none}
+    .search-box input::placeholder{color:var(--gray)}
+    .search-box button{background:var(--purple);border:none;color:#fff;font-size:13px;font-weight:700;padding:7px 14px;border-radius:10px;cursor:pointer}
+    .stats{display:flex;gap:10px;padding:12px 18px 0}
+    .stat{flex:1;background:var(--card);border-radius:14px;padding:12px 10px;text-align:center}
     .stat-n{font-size:20px;font-weight:900;color:var(--teal)}
     .stat-l{font-size:10px;color:var(--gray);margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
-    .sec-hdr{padding:18px 18px 10px;font-size:16px;font-weight:800}
-    .recent-list{padding:0 18px;display:flex;flex-direction:column;gap:9px}
+    .sec-hdr{padding:16px 18px 10px;font-size:16px;font-weight:800}
+    .rlist{padding:0 18px;display:flex;flex-direction:column;gap:9px}
     .ri{background:var(--card);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:12px}
     .ri-ico{width:40px;height:40px;background:linear-gradient(135deg,var(--purple),var(--teal));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
     .ri-name{font-size:13px;font-weight:700}
@@ -45,99 +44,107 @@
 
     /* SCAN */
     #scan{background:#000}
-    .scan-header{position:absolute;top:0;left:0;right:0;z-index:10;padding:52px 20px 14px;display:flex;align-items:center;gap:12px;background:linear-gradient(#000a,transparent)}
+    .scan-hdr{position:absolute;top:0;left:0;right:0;z-index:10;padding:52px 20px 14px;display:flex;align-items:center;gap:12px;background:linear-gradient(#000a,transparent)}
     .back-btn{width:38px;height:38px;background:rgba(255,255,255,.15);border-radius:50%;border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-    .scan-title{font-size:18px;font-weight:800}
-    #video{width:100%;height:100%;object-fit:cover;display:block}
-    .cam-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);width:260px;height:260px;pointer-events:none}
-    .cam-frame::before,.cam-frame::after{content:'';position:absolute;width:50px;height:50px;border-color:rgba(255,255,255,.9);border-style:solid}
-    .cam-frame::before{top:0;left:0;border-width:3px 0 0 3px;border-radius:8px 0 0 0}
-    .cam-frame::after{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 8px 0}
-    .cam-br{position:absolute;bottom:0;left:0;width:50px;height:50px;border:3px solid rgba(255,255,255,.9);border-width:0 0 3px 3px;border-radius:0 0 0 8px}
-    .cam-tr{position:absolute;top:0;right:0;width:50px;height:50px;border:3px solid rgba(255,255,255,.9);border-width:3px 3px 0 0;border-radius:0 8px 0 0}
-    .scan-bottom{position:absolute;bottom:0;left:0;right:0;z-index:10;padding:20px 24px 44px;background:linear-gradient(transparent,#000d)}
-    .scan-hint{font-size:13px;color:rgba(255,255,255,.65);text-align:center;margin-bottom:18px}
-    .scan-row{display:flex;align-items:center;justify-content:center;gap:20px}
+    #video{width:100%;height:100%;object-fit:cover}
+    .cam-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);width:250px;height:250px;pointer-events:none}
+    .cam-frame::before,.cam-frame::after{content:'';position:absolute;width:48px;height:48px;border-color:rgba(255,255,255,.9);border-style:solid}
+    .cam-frame::before{top:0;left:0;border-width:3px 0 0 3px;border-radius:7px 0 0 0}
+    .cam-frame::after{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 7px 0}
+    .cam-br{position:absolute;bottom:0;left:0;width:48px;height:48px;border:3px solid rgba(255,255,255,.9);border-width:0 0 3px 3px;border-radius:0 0 0 7px}
+    .cam-tr{position:absolute;top:0;right:0;width:48px;height:48px;border:3px solid rgba(255,255,255,.9);border-width:3px 3px 0 0;border-radius:0 7px 0 0}
+    .scan-bot{position:absolute;bottom:0;left:0;right:0;z-index:10;padding:18px 24px 42px;background:linear-gradient(transparent,#000d)}
+    .scan-hint{font-size:13px;color:rgba(255,255,255,.6);text-align:center;margin-bottom:16px}
+    .scan-row{display:flex;align-items:center;justify-content:center;gap:22px}
     .upload-btn{width:48px;height:48px;background:rgba(255,255,255,.12);border-radius:50%;border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-    .capture-btn{width:74px;height:74px;background:#fff;border-radius:50%;border:5px solid rgba(255,255,255,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .12s;box-shadow:0 0 0 2px #fff}
-    .capture-btn:active{transform:scale(.93)}
+    .cap-btn{width:74px;height:74px;background:#fff;border-radius:50%;border:5px solid rgba(255,255,255,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .12s;box-shadow:0 0 0 2px #fff}
+    .cap-btn:active{transform:scale(.93)}
     .cap-inner{width:56px;height:56px;background:var(--purple);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px}
     #fileInput{display:none}
     #canvas{display:none}
 
     /* ANALYZING */
-    #analyzing{background:var(--navy);align-items:center;justify-content:center;text-align:center;padding:40px 30px}
-    #preview-img{width:200px;height:200px;border-radius:20px;object-fit:cover;margin-bottom:28px;box-shadow:0 16px 48px rgba(0,0,0,.5)}
-    .spin{width:44px;height:44px;border:4px solid rgba(168,85,247,.25);border-top-color:var(--pl);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 14px}
+    #analyzing{background:var(--navy);align-items:center;justify-content:center;text-align:center;padding:36px 28px}
+    #prev-img{width:190px;height:190px;border-radius:18px;object-fit:cover;margin-bottom:26px;box-shadow:0 16px 40px rgba(0,0,0,.5)}
+    .spin{width:42px;height:42px;border:4px solid rgba(168,85,247,.2);border-top-color:var(--pl);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 12px}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .analyzing-h{font-size:19px;font-weight:800;margin-bottom:8px}
-    #analyzeSteps{font-size:13px;color:var(--gray);line-height:2}
-    .step-done{color:var(--green)}
-    .step-active{color:var(--teal);font-weight:700}
+    .anlyz-h{font-size:18px;font-weight:800;margin-bottom:8px}
+    #anlyz-steps{font-size:13px;color:var(--gray);line-height:2}
+    .sdone{color:var(--green)}.sact{color:var(--teal);font-weight:700}
 
-    /* BRAND PICKER */
-    #brandpick{background:var(--navy)}
-    .brand-scroll{flex:1;overflow-y:auto;padding:56px 20px 100px}
-    .brand-preview{width:160px;height:160px;border-radius:18px;object-fit:cover;margin:0 auto 20px;display:block;box-shadow:0 12px 36px rgba(0,0,0,.5)}
-    .detected-chip{background:rgba(124,58,237,.25);border:1px solid rgba(124,58,237,.5);border-radius:20px;font-size:12px;font-weight:700;padding:5px 14px;display:inline-block;margin-bottom:6px;color:var(--pl)}
-    .brand-h{font-size:20px;font-weight:900;margin-bottom:4px;text-align:center}
-    .brand-sub{font-size:13px;color:var(--gray);text-align:center;margin-bottom:22px;line-height:1.5}
-    .brand-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-    .brand-btn{background:var(--card);border:1.5px solid rgba(255,255,255,.08);border-radius:14px;padding:13px 8px;text-align:center;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:5px}
-    .brand-btn:active,.brand-btn.selected{background:rgba(124,58,237,.3);border-color:var(--purple)}
-    .brand-ico{font-size:22px}
-    .brand-name{font-size:12px;font-weight:700}
-    .skip-btn{width:100%;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.1);border-radius:14px;color:var(--gray);font-size:14px;font-weight:600;padding:13px;cursor:pointer;margin-bottom:10px}
-    .confirm-btn{width:100%;background:linear-gradient(135deg,var(--purple),var(--teal));border:none;color:#fff;font-size:15px;font-weight:800;padding:15px;border-radius:14px;cursor:pointer;transition:opacity .15s}
-    .confirm-btn:active{opacity:.85}
-    .confirm-btn:disabled{opacity:.4;cursor:not-allowed}
+    /* SHARED PICKER STYLES */
+    .pick-screen{background:var(--navy)}
+    .pick-scroll{flex:1;overflow-y:auto;padding:0 18px 100px}
+    .pick-hdr{padding:52px 18px 0;display:flex;align-items:center;gap:12px;margin-bottom:18px}
+    .pick-preview{width:130px;height:130px;border-radius:16px;object-fit:cover;margin:0 auto 16px;display:block;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+    .pick-chip{background:rgba(124,58,237,.25);border:1px solid rgba(124,58,237,.5);border-radius:20px;font-size:11px;font-weight:700;padding:4px 12px;display:inline-block;margin-bottom:8px;color:var(--pl)}
+    .pick-h{font-size:19px;font-weight:900;text-align:center;margin-bottom:4px}
+    .pick-sub{font-size:13px;color:var(--gray);text-align:center;margin-bottom:18px;line-height:1.5}
+    .pick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+    .pick-btn{background:var(--card);border:1.5px solid rgba(255,255,255,.08);border-radius:14px;padding:13px 8px;text-align:center;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:4px}
+    .pick-btn:active,.pick-btn.sel{background:rgba(124,58,237,.3);border-color:var(--purple)}
+    .pick-ico{font-size:22px}
+    .pick-name{font-size:11px;font-weight:700;line-height:1.3}
+    .skip-btn{width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);border-radius:14px;color:var(--gray);font-size:13px;font-weight:600;padding:12px;cursor:pointer;margin-bottom:10px}
+    .next-btn{width:100%;background:linear-gradient(135deg,var(--purple),var(--teal));border:none;color:#fff;font-size:15px;font-weight:800;padding:14px;border-radius:14px;cursor:pointer;transition:opacity .15s}
+    .next-btn:disabled{opacity:.35;cursor:not-allowed}
+    .next-btn:not(:disabled):active{opacity:.85}
+
+    /* CONDITION */
+    .cond-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+    .cond-btn{background:var(--card);border:1.5px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 12px;cursor:pointer;transition:all .15s}
+    .cond-btn:active,.cond-btn.sel{background:rgba(124,58,237,.3);border-color:var(--purple)}
+    .cond-name{font-size:14px;font-weight:800;margin-bottom:3px}
+    .cond-desc{font-size:11px;color:var(--gray);line-height:1.4}
 
     /* RESULT */
     #result{background:var(--navy)}
-    .result-scroll{flex:1;overflow-y:auto;padding-bottom:90px}
-    .result-header{padding:52px 20px 16px;display:flex;align-items:center;gap:12px}
-    .item-card{margin:0 18px 16px;background:var(--card);border-radius:22px;overflow:hidden}
-    #result-img{width:100%;height:200px;object-fit:cover;display:block}
-    .item-info{padding:18px}
-    .item-category{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--pl);font-weight:800;margin-bottom:6px}
-    .item-name{font-size:20px;font-weight:900;line-height:1.3;margin-bottom:4px}
-    .item-sub{font-size:13px;color:var(--gray);margin-bottom:14px}
+    .rscroll{flex:1;overflow-y:auto;padding-bottom:90px}
+    .rhdr{padding:52px 20px 16px;display:flex;align-items:center;gap:12px}
+    .icard{margin:0 18px 14px;background:var(--card);border-radius:22px;overflow:hidden}
+    #r-img{width:100%;height:190px;object-fit:cover;display:block}
+    .iinfo{padding:16px}
+    .icat{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--pl);font-weight:800;margin-bottom:5px}
+    .iname{font-size:20px;font-weight:900;line-height:1.3;margin-bottom:3px}
+    .isub{font-size:13px;color:var(--gray);margin-bottom:12px}
     .conf-row{display:flex;align-items:center;gap:8px}
-    .conf-lbl{font-size:11px;color:var(--gray)}
     .conf-bar{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
     .conf-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--purple),var(--teal))}
-    .flip-card{margin:0 18px 16px;background:var(--card);border-radius:18px;padding:18px;display:flex;align-items:center;gap:16px}
-    .flip-circle{width:70px;height:70px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;font-weight:900}
-    .flip-n{font-size:26px;line-height:1}
-    .flip-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
-    .prices-card{margin:0 18px 16px;background:var(--card);border-radius:18px;padding:18px}
-    .prices-title{font-size:14px;font-weight:800;margin-bottom:14px}
-    .plat-row{display:flex;align-items:center;margin-bottom:10px}
-    .plat-row:last-child{margin-bottom:0}
-    .plat-ico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;margin-right:10px}
-    .plat-name{font-size:13px;font-weight:700;flex:1}
-    .plat-range{font-size:13px;font-weight:900;color:var(--green)}
-    .plat-na{font-size:12px;color:var(--gray)}
-    .tip-card{margin:0 18px 16px;background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(6,182,212,.1));border:1px solid rgba(124,58,237,.3);border-radius:18px;padding:18px}
-    .tip-h{font-size:13px;font-weight:800;margin-bottom:8px}
-    .tip-txt{font-size:13px;color:rgba(255,255,255,.8);line-height:1.6}
-    .calc-card{margin:0 18px 16px;background:var(--card);border-radius:18px;padding:18px}
-    .calc-title{font-size:14px;font-weight:800;margin-bottom:14px}
-    .calc-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-    .calc-lbl{font-size:13px;color:var(--gray);width:80px;flex-shrink:0}
-    .calc-input{flex:1;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;font-size:15px;font-weight:700;padding:9px 12px;outline:none;text-align:right}
-    .calc-input:focus{border-color:var(--purple)}
-    .calc-result{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:10px}
-    .profit-val{font-size:22px;font-weight:900;color:var(--green)}
+    .fcard{margin:0 18px 14px;background:var(--card);border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px}
+    .fcircle{width:66px;height:66px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;font-weight:900}
+    .fn{font-size:24px;line-height:1}
+    .fl{font-size:9px;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+    .pcard{margin:0 18px 14px;background:var(--card);border-radius:18px;padding:16px}
+    .ptitle{font-size:14px;font-weight:800;margin-bottom:12px}
+    .prow{display:flex;align-items:center;margin-bottom:9px}
+    .prow:last-child{margin-bottom:0}
+    .pico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-right:10px}
+    .pname{font-size:13px;font-weight:700;flex:1}
+    .prange{font-size:13px;font-weight:900;color:var(--green)}
+    .pna{font-size:12px;color:var(--gray)}
+    .ebay-link{margin:0 18px 14px;background:rgba(233,100,0,.12);border:1px solid rgba(233,100,0,.3);border-radius:18px;padding:15px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;text-decoration:none}
+    .ebay-link:active{opacity:.8}
+    .ebay-txt h4{font-size:14px;font-weight:800;margin-bottom:2px}
+    .ebay-txt p{font-size:12px;color:var(--gray)}
+    .tipcard{margin:0 18px 14px;background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(6,182,212,.1));border:1px solid rgba(124,58,237,.3);border-radius:18px;padding:16px}
+    .tiptitle{font-size:13px;font-weight:800;margin-bottom:7px}
+    .tiptxt{font-size:13px;color:rgba(255,255,255,.8);line-height:1.6}
+    .calc-card{margin:0 18px 14px;background:var(--card);border-radius:18px;padding:16px}
+    .ctitle{font-size:14px;font-weight:800;margin-bottom:12px}
+    .crow{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+    .clbl{font-size:13px;color:var(--gray);width:76px;flex-shrink:0}
+    .cinput{flex:1;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;font-size:15px;font-weight:700;padding:9px 12px;outline:none;text-align:right}
+    .cinput:focus{border-color:var(--purple)}
+    .cresult{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:11px 13px;display:flex;justify-content:space-between;align-items:center;margin-top:9px}
+    .pval{font-size:22px;font-weight:900;color:var(--green)}
 
     /* NAV */
     .nav{position:absolute;bottom:0;left:0;right:0;background:rgba(10,22,40,.95);backdrop-filter:blur(12px);display:flex;padding:10px 0 28px;border-top:1px solid rgba(255,255,255,.07)}
-    .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px 0}
-    .nav-ico{font-size:22px}
-    .nav-lbl{font-size:10px;color:var(--gray)}
-    .nav-item.active .nav-lbl{color:var(--pl)}
+    .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px 0}
+    .ni-ico{font-size:22px}
+    .ni-lbl{font-size:10px;color:var(--gray)}
+    .ni.act .ni-lbl{color:var(--pl)}
 
-    /* MODEL LOADING BANNER */
     #modelBanner{position:absolute;top:0;left:0;right:0;background:rgba(124,58,237,.9);font-size:12px;font-weight:700;text-align:center;padding:10px;z-index:100;transition:opacity .5s}
   </style>
 </head>
@@ -147,54 +154,56 @@
 
   <!-- HOME -->
   <div class="screen" id="home">
-    <div class="home-scroll">
-      <div class="home-top">
-        <div>
-          <div class="home-logo">Resell.Ai</div>
-          <div style="font-size:12px;color:var(--gray);margin-top:3px">AI Item Scanner</div>
-        </div>
-        <div class="ai-badge">No signup needed</div>
+    <div class="hscroll">
+      <div class="htop">
+        <div><div class="logo">Resell.Ai</div><div style="font-size:12px;color:var(--gray);margin-top:3px">AI Resale Scanner</div></div>
+        <div style="font-size:11px;color:var(--green);background:rgba(16,185,129,.15);padding:4px 9px;border-radius:20px;font-weight:700">No signup</div>
       </div>
 
       <div class="hero" onclick="goScan()">
-        <div class="hero-chip">✦ On-Device AI + Smart Pricing</div>
-        <div class="hero-h">Scan Any Item</div>
-        <div class="hero-sub">Point your camera, pick the brand, and get real resale prices across eBay, Poshmark, Mercari & StockX</div>
-        <button class="hero-btn">📷 &nbsp;Scan Now</button>
+        <div class="hero-chip">✦ Scan · Identify · Price</div>
+        <div class="hero-h">What's It Worth?</div>
+        <div class="hero-sub">Scan any item to get specific resale prices across eBay, Poshmark, Mercari & StockX</div>
+        <button class="hero-btn">📷 &nbsp;Scan Item</button>
       </div>
 
+      <!-- Search by name -->
+      <div class="search-box" style="margin-top:14px">
+        <input id="searchInput" type="text" placeholder="Or type item name... (e.g. Jordan 4 Bred)" oninput="filterSearch(this.value)">
+        <button onclick="doSearch()">Search</button>
+      </div>
+      <div id="searchResults" style="padding:0 18px;margin-top:8px;display:none"></div>
+
       <div class="stats">
-        <div class="stat"><div class="stat-n" id="stat-scans">0</div><div class="stat-l">Scans</div></div>
-        <div class="stat"><div class="stat-n" id="stat-profit">$0</div><div class="stat-l">Potential</div></div>
+        <div class="stat"><div class="stat-n" id="s-scans">0</div><div class="stat-l">Scans</div></div>
+        <div class="stat"><div class="stat-n" id="s-profit">$0</div><div class="stat-l">Potential</div></div>
         <div class="stat"><div class="stat-n">4</div><div class="stat-l">Platforms</div></div>
       </div>
 
       <div class="sec-hdr">Recent Scans</div>
-      <div class="recent-list" id="recentList">
-        <div style="padding:20px 0;text-align:center;color:var(--gray);font-size:13px">No scans yet — tap Scan Now!</div>
-      </div>
+      <div class="rlist" id="recentList"><div style="padding:18px 0;text-align:center;color:var(--gray);font-size:13px">No scans yet — tap Scan Item to start!</div></div>
     </div>
     <nav class="nav">
-      <div class="nav-item active"><div class="nav-ico">🏠</div><div class="nav-lbl">Home</div></div>
-      <div class="nav-item" onclick="goScan()"><div class="nav-ico">📷</div><div class="nav-lbl">Scan</div></div>
-      <div class="nav-item"><div class="nav-ico">📈</div><div class="nav-lbl">Trends</div></div>
-      <div class="nav-item"><div class="nav-ico">👤</div><div class="nav-lbl">Profile</div></div>
+      <div class="ni act"><div class="ni-ico">🏠</div><div class="ni-lbl">Home</div></div>
+      <div class="ni" onclick="goScan()"><div class="ni-ico">📷</div><div class="ni-lbl">Scan</div></div>
+      <div class="ni"><div class="ni-ico">📈</div><div class="ni-lbl">Trends</div></div>
+      <div class="ni"><div class="ni-ico">👤</div><div class="ni-lbl">Profile</div></div>
     </nav>
   </div>
 
   <!-- SCAN -->
   <div class="screen" id="scan">
-    <div class="scan-header">
+    <div class="scan-hdr">
       <button class="back-btn" onclick="goHome()">←</button>
-      <div class="scan-title">Point at Item</div>
+      <div style="font-size:18px;font-weight:800">Scan Item</div>
     </div>
     <video id="video" autoplay playsinline muted></video>
     <div class="cam-frame"><div class="cam-br"></div><div class="cam-tr"></div></div>
-    <div class="scan-bottom">
-      <div class="scan-hint">Center item in frame, then tap scan</div>
+    <div class="scan-bot">
+      <div class="scan-hint">Center the item and tap the button</div>
       <div class="scan-row">
-        <button class="upload-btn" onclick="document.getElementById('fileInput').click()" title="Upload photo">🖼</button>
-        <div class="capture-btn" onclick="capturePhoto()"><div class="cap-inner">📷</div></div>
+        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">🖼</button>
+        <div class="cap-btn" onclick="capturePhoto()"><div class="cap-inner">📷</div></div>
         <div style="width:48px"></div>
       </div>
     </div>
@@ -204,537 +213,786 @@
 
   <!-- ANALYZING -->
   <div class="screen" id="analyzing">
-    <img id="preview-img" src="" alt="">
+    <img id="prev-img" src="" alt="">
     <div class="spin"></div>
-    <div class="analyzing-h">Identifying Item…</div>
-    <div id="analyzeSteps">
-      <div class="step-active">🔍 Analyzing image…</div>
-    </div>
+    <div class="anlyz-h">Identifying Item…</div>
+    <div id="anlyz-steps"><div class="sact">🔍 Scanning image…</div></div>
   </div>
 
   <!-- BRAND PICKER -->
-  <div class="screen" id="brandpick">
-    <div class="brand-scroll">
-      <img class="brand-preview" id="brand-preview" src="" alt="">
+  <div class="screen pick-screen" id="brandpick">
+    <div class="pick-hdr">
+      <button class="back-btn" onclick="goScan()">←</button>
+      <div style="font-size:16px;font-weight:800">Step 1 of 3 — Brand</div>
+    </div>
+    <div class="pick-scroll">
+      <img class="pick-preview" id="bp-img" src="" alt="">
       <div style="text-align:center">
-        <div class="detected-chip" id="detected-chip">Detected: Sneakers</div>
+        <div class="pick-chip" id="bp-chip">Detected: Item</div>
       </div>
-      <div class="brand-h" id="brand-h">Who made it?</div>
-      <div class="brand-sub" id="brand-sub">Select the brand to get accurate resale prices</div>
-      <div class="brand-grid" id="brandGrid"></div>
-      <button class="skip-btn" onclick="skipBrand()">Skip — show general prices</button>
-      <button class="confirm-btn" id="confirmBtn" onclick="confirmBrand()" disabled>Get Prices →</button>
+      <div class="pick-h">Select the brand</div>
+      <div class="pick-sub" id="bp-sub">This lets us show accurate model-specific prices</div>
+      <div class="pick-grid" id="brandGrid"></div>
+      <button class="skip-btn" onclick="skipBrand()">Not sure — show general prices</button>
+      <button class="next-btn" id="brandNextBtn" onclick="goToModel()" disabled>Next: Select Model →</button>
+    </div>
+  </div>
+
+  <!-- MODEL PICKER -->
+  <div class="screen pick-screen" id="modelpick">
+    <div class="pick-hdr">
+      <button class="back-btn" onclick="showScreen('brandpick')">←</button>
+      <div style="font-size:16px;font-weight:800">Step 2 of 3 — Model</div>
+    </div>
+    <div class="pick-scroll">
+      <img class="pick-preview" id="mp-img" src="" alt="">
+      <div style="text-align:center">
+        <div class="pick-chip" id="mp-chip">Brand selected</div>
+      </div>
+      <div class="pick-h" id="mp-h">Which model?</div>
+      <div class="pick-sub">Specific model = specific prices</div>
+      <div class="pick-grid" id="modelGrid"></div>
+      <button class="skip-btn" onclick="skipModel()">Not sure — use brand average</button>
+      <button class="next-btn" id="modelNextBtn" onclick="goToCondition()" disabled>Next: Condition →</button>
+    </div>
+  </div>
+
+  <!-- CONDITION PICKER -->
+  <div class="screen pick-screen" id="condpick">
+    <div class="pick-hdr">
+      <button class="back-btn" onclick="showScreen('modelpick')">←</button>
+      <div style="font-size:16px;font-weight:800">Step 3 of 3 — Condition</div>
+    </div>
+    <div class="pick-scroll">
+      <img class="pick-preview" id="cp-img" src="" alt="">
+      <div class="pick-h">What's the condition?</div>
+      <div class="pick-sub" style="margin-bottom:16px">Condition changes resale value by up to 50%</div>
+      <div class="cond-grid">
+        <div class="cond-btn" onclick="pickCond(this,'new',1.0)">
+          <div class="cond-name">🆕 New</div>
+          <div class="cond-desc">Unworn/unused, original packaging</div>
+        </div>
+        <div class="cond-btn" onclick="pickCond(this,'likenew',0.85)">
+          <div class="cond-name">✨ Like New</div>
+          <div class="cond-desc">Barely used, no visible wear</div>
+        </div>
+        <div class="cond-btn" onclick="pickCond(this,'good',0.65)">
+          <div class="cond-name">👍 Good</div>
+          <div class="cond-desc">Light wear, fully functional</div>
+        </div>
+        <div class="cond-btn" onclick="pickCond(this,'fair',0.45)">
+          <div class="cond-name">⚠️ Fair</div>
+          <div class="cond-desc">Visible wear, works fine</div>
+        </div>
+      </div>
+      <button class="next-btn" id="condNextBtn" onclick="buildResult()" disabled>See Prices →</button>
     </div>
   </div>
 
   <!-- RESULT -->
   <div class="screen" id="result">
-    <div class="result-scroll">
-      <div class="result-header">
+    <div class="rscroll">
+      <div class="rhdr">
         <button class="back-btn" onclick="goHome()">←</button>
         <div style="font-size:17px;font-weight:800">Scan Result</div>
-        <button onclick="goScan()" style="margin-left:auto;background:var(--purple);border:none;color:#fff;font-size:13px;font-weight:700;padding:7px 14px;border-radius:20px;cursor:pointer">Scan Again</button>
+        <button onclick="goScan()" style="margin-left:auto;background:var(--purple);border:none;color:#fff;font-size:12px;font-weight:700;padding:7px 13px;border-radius:20px;cursor:pointer">Scan Again</button>
       </div>
 
-      <div class="item-card">
-        <img id="result-img" src="" alt="">
-        <div class="item-info">
-          <div class="item-category" id="r-cat">Category</div>
-          <div class="item-name" id="r-name">Item</div>
-          <div class="item-sub" id="r-sub">Details</div>
+      <div class="icard">
+        <img id="r-img" src="" alt="">
+        <div class="iinfo">
+          <div class="icat" id="r-cat"></div>
+          <div class="iname" id="r-name"></div>
+          <div class="isub" id="r-sub"></div>
           <div class="conf-row">
-            <div class="conf-lbl">AI Confidence</div>
+            <div style="font-size:11px;color:var(--gray)">Confidence</div>
             <div class="conf-bar"><div class="conf-fill" id="r-conf" style="width:0%"></div></div>
-            <div style="font-size:11px;color:var(--gray)" id="r-conf-txt">0%</div>
+            <div style="font-size:11px;color:var(--gray)" id="r-conf-t">0%</div>
           </div>
         </div>
       </div>
 
-      <div class="flip-card">
-        <div class="flip-circle" id="r-flip-circle">
-          <div class="flip-n" id="r-flip-n">–</div>
-          <div class="flip-lbl">FLIP</div>
+      <div class="fcard">
+        <div class="fcircle" id="r-fc">
+          <div class="fn" id="r-fn">–</div>
+          <div class="fl">FLIP</div>
         </div>
         <div>
-          <div style="font-size:15px;font-weight:800" id="r-verdict">–</div>
-          <div style="font-size:12px;color:var(--gray);margin-top:4px;line-height:1.5" id="r-reason">–</div>
+          <div style="font-size:15px;font-weight:800" id="r-verdict"></div>
+          <div style="font-size:12px;color:var(--gray);margin-top:4px;line-height:1.5" id="r-reason"></div>
         </div>
       </div>
 
-      <div class="prices-card">
-        <div class="prices-title">📊 Resale Prices</div>
-        <div id="r-platforms"></div>
+      <div class="pcard">
+        <div class="ptitle">📊 Resale Prices</div>
+        <div id="r-plats"></div>
       </div>
 
-      <div class="tip-card" id="r-tip-card">
-        <div class="tip-h">💡 Selling Tip</div>
-        <div class="tip-txt" id="r-tip"></div>
+      <a class="ebay-link" id="ebay-link" href="#" target="_blank" rel="noopener">
+        <div style="font-size:28px">🔍</div>
+        <div class="ebay-txt">
+          <h4>View Real Sold Listings</h4>
+          <p>See actual recent eBay sold prices for this item</p>
+        </div>
+        <div style="margin-left:auto;font-size:18px">→</div>
+      </a>
+
+      <div class="tipcard">
+        <div class="tiptitle">💡 Selling Tip</div>
+        <div class="tiptxt" id="r-tip"></div>
       </div>
 
       <div class="calc-card">
-        <div class="calc-title">💰 Profit Calculator</div>
-        <div class="calc-row">
-          <div class="calc-lbl">You paid</div>
-          <input class="calc-input" id="costInput" type="number" placeholder="$0" oninput="calcProfit()">
+        <div class="ctitle">💰 Profit Calculator</div>
+        <div class="crow">
+          <div class="clbl">You paid</div>
+          <input class="cinput" id="costIn" type="number" placeholder="$0" oninput="calcP()">
         </div>
-        <div class="calc-row">
-          <div class="calc-lbl">Sell for</div>
-          <input class="calc-input" id="sellInput" type="number" placeholder="$0" oninput="calcProfit()">
+        <div class="crow">
+          <div class="clbl">Sell for</div>
+          <input class="cinput" id="sellIn" type="number" placeholder="$0" oninput="calcP()">
         </div>
-        <div class="calc-result">
+        <div class="cresult">
           <div style="font-size:13px;font-weight:700">Your profit</div>
-          <div class="profit-val" id="profitVal">$—</div>
+          <div class="pval" id="pval">$—</div>
         </div>
       </div>
     </div>
     <nav class="nav">
-      <div class="nav-item" onclick="goHome()"><div class="nav-ico">🏠</div><div class="nav-lbl">Home</div></div>
-      <div class="nav-item active"><div class="nav-ico">📷</div><div class="nav-lbl">Scan</div></div>
-      <div class="nav-item"><div class="nav-ico">📈</div><div class="nav-lbl">Trends</div></div>
-      <div class="nav-item"><div class="nav-ico">👤</div><div class="nav-lbl">Profile</div></div>
+      <div class="ni" onclick="goHome()"><div class="ni-ico">🏠</div><div class="ni-lbl">Home</div></div>
+      <div class="ni act"><div class="ni-ico">📷</div><div class="ni-lbl">Scan</div></div>
+      <div class="ni"><div class="ni-ico">📈</div><div class="ni-lbl">Trends</div></div>
+      <div class="ni"><div class="ni-ico">👤</div><div class="ni-lbl">Profile</div></div>
     </nav>
   </div>
 </div>
 
 <script>
-// ── Item Database ─────────────────────────────────────────────────────────────
-// Each entry: keywords MobileNet might return, brands to show, base prices per brand
-const ITEMS = [
-  {
-    type: 'Sneakers', emoji: '👟', category: 'Sneakers',
-    keys: ['sneaker','running shoe','loafer','boot','clog','shoe','sandal','moccasin','oxford','tennis shoe'],
-    brands: [
-      {name:'Nike',     ico:'✔️', mul:{ebay:[1.2,1.8],posh:[1.0,1.5],merc:[1.1,1.6],sx:[1.3,2.0]}},
-      {name:'Jordan',   ico:'🏀', mul:{ebay:[1.8,3.2],posh:[1.5,2.8],merc:[1.6,2.9],sx:[2.0,4.0]}},
-      {name:'Adidas',   ico:'🔵', mul:{ebay:[1.1,1.6],posh:[0.9,1.4],merc:[1.0,1.5],sx:[1.2,1.8]}},
-      {name:'Yeezy',    ico:'⭐', mul:{ebay:[2.0,4.0],posh:[1.8,3.5],merc:[1.9,3.8],sx:[2.2,5.0]}},
-      {name:'New Balance',ico:'🟡',mul:{ebay:[1.0,1.5],posh:[0.9,1.3],merc:[1.0,1.4],sx:[1.1,1.7]}},
-      {name:'ASICS',    ico:'🟢', mul:{ebay:[0.8,1.2],posh:[0.7,1.0],merc:[0.8,1.1],sx:null}},
-      {name:'Puma',     ico:'🐾', mul:{ebay:[0.7,1.1],posh:[0.6,1.0],merc:[0.7,1.1],sx:null}},
-      {name:'Reebok',   ico:'🔷', mul:{ebay:[0.8,1.2],posh:[0.7,1.0],merc:[0.8,1.1],sx:[0.9,1.3]}},
-      {name:'Other',    ico:'📦', mul:{ebay:[0.5,0.9],posh:[0.4,0.8],merc:[0.5,0.9],sx:null}},
+// ─── ITEM DATABASE ────────────────────────────────────────────────────────────
+const DB = [
+  { type:'Sneakers', emoji:'👟', cat:'Sneakers',
+    keys:['sneaker','shoe','boot','loafer','sandal','clog','slipper','moccasin','oxford'],
+    searchTerms:['sneakers','shoes','kicks'],
+    brands:[
+      { name:'Nike', ico:'✔️',
+        models:[
+          {name:'Air Force 1',    ico:'⬜', prices:{ebay:[80,130],  posh:[65,110],  merc:[70,120],  sx:[75,125]},  flip:6, tip:'White colorways sell fastest. Clean before listing.'},
+          {name:'Dunk Low',       ico:'🟫', prices:{ebay:[100,180], posh:[85,155],  merc:[90,165],  sx:[95,200]},  flip:8, tip:'Dunks are on fire right now — sell on StockX for max margin.'},
+          {name:'Dunk High',      ico:'🟤', prices:{ebay:[90,160],  posh:[75,140],  merc:[80,150],  sx:[85,175]},  flip:7, tip:'High tops move slower — price competitively on eBay.'},
+          {name:'Air Max 90',     ico:'🔵', prices:{ebay:[75,130],  posh:[60,110],  merc:[65,120],  sx:null},      flip:6, tip:'Retro colorways like "Infrared" carry a huge premium.'},
+          {name:'Air Max 97',     ico:'🔴', prices:{ebay:[80,140],  posh:[65,120],  merc:[70,130],  sx:null},      flip:6, tip:'Silver Bullet OG colorway is the most sought-after.'},
+          {name:'Blazer',         ico:'🟠', prices:{ebay:[60,100],  posh:[50,85],   merc:[55,90],   sx:null},      flip:5, tip:'Mid and Low both sell — good budget flip option.'},
+        ]},
+      { name:'Jordan', ico:'🏀',
+        models:[
+          {name:'Jordan 1 High',  ico:'🔴', prices:{ebay:[150,350], posh:[130,300], merc:[140,320], sx:[160,500]}, flip:9, tip:'Deadstock condition with receipt can fetch 3x retail on StockX.'},
+          {name:'Jordan 1 Mid',   ico:'🟥', prices:{ebay:[90,150],  posh:[75,130],  merc:[80,140],  sx:null},      flip:6, tip:'Mids don\'t hit StockX — sell on eBay for best reach.'},
+          {name:'Jordan 1 Low',   ico:'🟧', prices:{ebay:[80,140],  posh:[65,120],  merc:[70,130],  sx:[75,160]},  flip:6, tip:'Lows are underrated — collab pairs sell well.'},
+          {name:'Jordan 3',       ico:'🐘', prices:{ebay:[160,280], posh:[140,250], merc:[150,265], sx:[170,320]}, flip:8, tip:'Fire Red and Black Cement are the most valuable colorways.'},
+          {name:'Jordan 4',       ico:'💎', prices:{ebay:[180,380], posh:[155,330], merc:[165,355], sx:[190,500]}, flip:9, tip:'Bred, Military Blue, and White Cement are HG. Keep box pristine.'},
+          {name:'Jordan 11',      ico:'⭐', prices:{ebay:[200,400], posh:[175,355], merc:[185,375], sx:[210,500]}, flip:9, tip:'Concord and Bred 11s are the most coveted — sell unopened.'},
+          {name:'Jordan 12',      ico:'🌹', prices:{ebay:[140,260], posh:[120,225], merc:[130,240], sx:[145,300]}, flip:7, tip:'Flu Game and Taxi are the key colorways to know.'},
+        ]},
+      { name:'Adidas', ico:'🔵',
+        models:[
+          {name:'Yeezy 350 V2',   ico:'⭐', prices:{ebay:[200,450], posh:[175,400], merc:[185,420], sx:[210,500]}, flip:9, tip:'Zebra, Butter, and Beluga are the most flippable Yeezys.'},
+          {name:'Yeezy 700',      ico:'🌊', prices:{ebay:[160,300], posh:[140,265], merc:[150,280], sx:[165,330]}, flip:7, tip:'Wave Runner is the OG — very consistent resale.'},
+          {name:'Yeezy Slide',    ico:'🩴', prices:{ebay:[60,120],  posh:[50,100],  merc:[55,110],  sx:[65,130]},  flip:7, tip:'Easy to ship, high demand — quick flip.'},
+          {name:'Stan Smith',     ico:'🟢', prices:{ebay:[50,90],   posh:[40,75],   merc:[45,80],   sx:null},      flip:4, tip:'Collab editions with Pharrell or Prada spike value.'},
+          {name:'Samba',          ico:'⚽', prices:{ebay:[80,150],  posh:[65,130],  merc:[70,140],  sx:[75,165]},  flip:7, tip:'Sambas are trending heavily in 2024 — great buy-low opportunity.'},
+          {name:'Forum',          ico:'🔷', prices:{ebay:[70,130],  posh:[55,110],  merc:[60,120],  sx:[65,140]},  flip:6, tip:'Bap collab editions are the most valuable Forums.'},
+        ]},
+      { name:'New Balance', ico:'🟡',
+        models:[
+          {name:'550',            ico:'🏀', prices:{ebay:[80,160],  posh:[65,140],  merc:[70,150],  sx:[75,180]},  flip:8, tip:'Aime Leon Dore collabs are worth holding — prices keep rising.'},
+          {name:'990v5',          ico:'🩶', prices:{ebay:[100,180], posh:[85,155],  merc:[90,165],  sx:[95,200]},  flip:7, tip:'Grey is the most in-demand colorway — buy low at outlets.'},
+          {name:'2002R',          ico:'🔶', prices:{ebay:[80,150],  posh:[65,130],  merc:[70,140],  sx:[75,165]},  flip:7, tip:'Protection pack colorways sell fastest.'},
+          {name:'1906R',          ico:'🌫️', prices:{ebay:[70,130],  posh:[55,110],  merc:[60,120],  sx:[65,140]},  flip:6, tip:'Metallic/pearl colorways are the rarest and most valuable.'},
+        ]},
+      { name:'Other', ico:'📦',
+        models:[
+          {name:'General Sneaker',ico:'👟', prices:{ebay:[40,80],   posh:[30,65],   merc:[35,75],   sx:null},      flip:3, tip:'Research sold listings before pricing — brand matters most.'},
+        ]},
     ],
-    base:{ebay:80, posh:65, merc:70, sx:90},
-    flip:7, verdict:'Good Flip', reason:'Sneaker resale is strong on all platforms',
-    tip:'Clean the soles and include original box — can add 30–50% value on StockX.',
-    platforms:{ebay:true,posh:true,merc:true,sx:true}
+    tip:'Clean shoes thoroughly and list with original box for max price.',
+    flip:7
   },
-  {
-    type: 'Smartphone', emoji: '📱', category: 'Electronics',
-    keys: ['phone','cellular','mobile','smartphone','iphone','android','pixel'],
-    brands: [
-      {name:'iPhone 15',  ico:'🍎', mul:{ebay:[3.5,5.0],posh:[3.0,4.5],merc:[3.2,4.8],sx:null}},
-      {name:'iPhone 14',  ico:'🍎', mul:{ebay:[2.5,3.8],posh:[2.2,3.5],merc:[2.3,3.6],sx:null}},
-      {name:'iPhone 13',  ico:'🍎', mul:{ebay:[1.8,2.8],posh:[1.6,2.5],merc:[1.7,2.6],sx:null}},
-      {name:'iPhone 12',  ico:'🍎', mul:{ebay:[1.2,1.9],posh:[1.0,1.7],merc:[1.1,1.8],sx:null}},
-      {name:'Samsung S24',ico:'🌀', mul:{ebay:[2.8,4.0],posh:[2.5,3.6],merc:[2.6,3.8],sx:null}},
-      {name:'Samsung S23',ico:'🌀', mul:{ebay:[2.0,3.0],posh:[1.8,2.7],merc:[1.9,2.8],sx:null}},
-      {name:'Google Pixel',ico:'🎯',mul:{ebay:[1.5,2.5],posh:[1.3,2.2],merc:[1.4,2.3],sx:null}},
-      {name:'Other',      ico:'📱', mul:{ebay:[0.8,1.5],posh:[0.7,1.3],merc:[0.8,1.4],sx:null}},
+  { type:'Smartphone', emoji:'📱', cat:'Electronics',
+    keys:['phone','cellular','mobile','smartphone'],
+    searchTerms:['iphone','samsung phone','google pixel','smartphone'],
+    brands:[
+      { name:'Apple', ico:'🍎',
+        models:[
+          {name:'iPhone 15 Pro Max',ico:'🏆', prices:{ebay:[850,1100],posh:[780,1020],merc:[800,1050],sx:null}, flip:6, tip:'Titanium finish scratches — price accordingly.'},
+          {name:'iPhone 15 Pro',    ico:'⚙️', prices:{ebay:[700,950], posh:[640,880], merc:[660,910], sx:null}, flip:6, tip:'256GB+ models command strong premiums.'},
+          {name:'iPhone 15',        ico:'📱', prices:{ebay:[550,750], posh:[500,690], merc:[520,720], sx:null}, flip:5, tip:'Pink and yellow are the most popular colors.'},
+          {name:'iPhone 14 Pro Max',ico:'💜', prices:{ebay:[550,780], posh:[500,720], merc:[520,750], sx:null}, flip:5, tip:'Deep Purple is the most demanded color.'},
+          {name:'iPhone 14 Pro',    ico:'💫', prices:{ebay:[450,680], posh:[410,625], merc:[420,650], sx:null}, flip:5, tip:'Confirm Face ID works before listing.'},
+          {name:'iPhone 14',        ico:'📘', prices:{ebay:[350,520], posh:[315,475], merc:[325,495], sx:null}, flip:4, tip:'Factory unlocked models sell 20% faster.'},
+          {name:'iPhone 13',        ico:'📗', prices:{ebay:[280,420], posh:[250,385], merc:[260,400], sx:null}, flip:4, tip:'Still strong demand — good budget option for buyers.'},
+          {name:'iPhone 12',        ico:'📙', prices:{ebay:[180,300], posh:[155,270], merc:[165,285], sx:null}, flip:3, tip:'Market is saturating — sell now before further drops.'},
+        ]},
+      { name:'Samsung', ico:'🌀',
+        models:[
+          {name:'Galaxy S24 Ultra',ico:'🔺', prices:{ebay:[850,1100],posh:[780,1020],merc:[800,1050],sx:null}, flip:5, tip:'Titanium Black is most in-demand color.'},
+          {name:'Galaxy S24+',     ico:'🟣', prices:{ebay:[600,820], posh:[545,755], merc:[560,780], sx:null}, flip:5, tip:'Strong with Android loyalists — good eBay flip.'},
+          {name:'Galaxy S24',      ico:'🔵', prices:{ebay:[450,640], posh:[410,585], merc:[420,610], sx:null}, flip:4, tip:'Confirm no bloatware resets needed.'},
+          {name:'Galaxy S23 Ultra',ico:'🟡', prices:{ebay:[550,780], posh:[500,715], merc:[515,745], sx:null}, flip:5, tip:'Galaxy AI features make this still relevant.'},
+          {name:'Galaxy Z Fold',   ico:'📂', prices:{ebay:[700,1100],posh:[640,1020],merc:[660,1060],sx:null}, flip:6, tip:'Foldables are niche but dedicated buyers pay premium.'},
+          {name:'Galaxy Z Flip',   ico:'🌀', prices:{ebay:[350,600], posh:[315,550], merc:[325,570], sx:null}, flip:5, tip:'Lavender and Cream colors hold value better.'},
+        ]},
+      { name:'Google', ico:'🎯',
+        models:[
+          {name:'Pixel 8 Pro',     ico:'🔮', prices:{ebay:[550,750], posh:[500,690], merc:[520,720], sx:null}, flip:5, tip:'Pixel camera reputation drives strong demand.'},
+          {name:'Pixel 8',         ico:'🟢', prices:{ebay:[380,560], posh:[345,510], merc:[355,535], sx:null}, flip:4, tip:'Hazel color is most unique and in-demand.'},
+          {name:'Pixel 7 Pro',     ico:'🔵', prices:{ebay:[320,480], posh:[285,435], merc:[295,455], sx:null}, flip:4, tip:'Good budget option — still very capable.'},
+        ]},
+      { name:'Other', ico:'📦',
+        models:[{name:'Other Phone',ico:'📱', prices:{ebay:[80,200],posh:[65,175],merc:[70,185],sx:null}, flip:3, tip:'Research brand model carefully before pricing.'}]},
     ],
-    base:{ebay:100, posh:85, merc:90, sx:0},
-    flip:6, verdict:'Good Flip', reason:'Phones sell fast — check for iCloud lock first',
-    tip:'List as "factory unlocked" if applicable — adds significant buyer demand.',
-    platforms:{ebay:true,posh:true,merc:true,sx:false}
+    tip:'Factory reset and test all functions. List as "factory unlocked" if applicable.',
+    flip:5
   },
-  {
-    type: 'Laptop', emoji: '💻', category: 'Electronics',
-    keys: ['laptop','notebook','macbook','computer','pc'],
-    brands: [
-      {name:'MacBook Pro', ico:'🍎', mul:{ebay:[4.0,7.0],posh:[3.5,6.0],merc:[3.8,6.5],sx:null}},
-      {name:'MacBook Air', ico:'🍎', mul:{ebay:[2.5,4.5],posh:[2.2,4.0],merc:[2.3,4.2],sx:null}},
-      {name:'Dell XPS',    ico:'💻', mul:{ebay:[2.0,3.5],posh:[1.8,3.0],merc:[1.9,3.2],sx:null}},
-      {name:'HP',          ico:'🖥', mul:{ebay:[1.2,2.0],posh:[1.0,1.8],merc:[1.1,1.9],sx:null}},
-      {name:'Lenovo',      ico:'🔲', mul:{ebay:[1.3,2.2],posh:[1.1,1.9],merc:[1.2,2.0],sx:null}},
-      {name:'Other',       ico:'💻', mul:{ebay:[0.8,1.5],posh:[0.7,1.3],merc:[0.8,1.4],sx:null}},
+  { type:'Bag / Purse', emoji:'👜', cat:'Bags',
+    keys:['bag','purse','handbag','backpack','tote','wallet','briefcase','satchel'],
+    searchTerms:['designer bag','handbag','purse','louis vuitton bag'],
+    brands:[
+      { name:'Louis Vuitton', ico:'👑',
+        models:[
+          {name:'Neverfull MM',   ico:'👜', prices:{ebay:[900,1400], posh:[820,1280], merc:[850,1320], sx:null}, flip:8, tip:'Monogram canvas is most recognizable — high demand always.'},
+          {name:'Speedy 30',      ico:'💼', prices:{ebay:[700,1100], posh:[640,1010], merc:[660,1050], sx:null}, flip:8, tip:'Damier Ebene pattern resells almost as well as Monogram.'},
+          {name:'Pochette',       ico:'👝', prices:{ebay:[800,1200], posh:[730,1100], merc:[750,1150], sx:null}, flip:9, tip:'Pochette Accessoires has insane demand — sells within days.'},
+          {name:'Bumbag',         ico:'🎒', prices:{ebay:[600,950],  posh:[545,870],  merc:[565,905],  sx:null}, flip:7, tip:'Monogram canvas holds value extremely well.'},
+        ]},
+      { name:'Gucci', ico:'🌿',
+        models:[
+          {name:'Dionysus',       ico:'🐍', prices:{ebay:[800,1300], posh:[730,1195], merc:[755,1240], sx:null}, flip:8, tip:'GG Supreme canvas is most collectible — keep hardware polished.'},
+          {name:'Marmont',        ico:'🔗', prices:{ebay:[700,1100], posh:[640,1010], merc:[660,1050], sx:null}, flip:7, tip:'Matelassé quilted leather — check for corner wear.'},
+          {name:'GG Tote',        ico:'🛍️', prices:{ebay:[500,900],  posh:[455,825],  merc:[470,855],  sx:null}, flip:6, tip:'Totes have more supply — price aggressively to move quickly.'},
+        ]},
+      { name:'Coach', ico:'🏇',
+        models:[
+          {name:'Tabby',          ico:'🐱', prices:{ebay:[150,300],  posh:[130,270],  merc:[140,285],  sx:null}, flip:6, tip:'Tabby bag in quilted leather sells fastest.'},
+          {name:'Willow',         ico:'🌿', prices:{ebay:[120,250],  posh:[105,225],  merc:[110,238],  sx:null}, flip:5, tip:'Good entry-level designer — huge audience on Poshmark.'},
+          {name:'Signature Tote', ico:'📋', prices:{ebay:[80,180],   posh:[70,160],   merc:[75,170],   sx:null}, flip:4, tip:'Classic C canvas is recognizable — list with clear logo shots.'},
+        ]},
+      { name:'Michael Kors', ico:'💼',
+        models:[
+          {name:'Jet Set',        ico:'✈️', prices:{ebay:[80,180],   posh:[70,160],   merc:[75,170],   sx:null}, flip:4, tip:'One of the most recognizable MK bags — very liquid.'},
+          {name:'Hamilton',       ico:'🔒', prices:{ebay:[90,200],   posh:[80,180],   merc:[85,190],   sx:null}, flip:5, tip:'Saffiano leather holds up well — commands premium.'},
+        ]},
+      { name:'Supreme', ico:'🔴',
+        models:[
+          {name:'Backpack',       ico:'🎒', prices:{ebay:[150,350],  posh:[130,315],  merc:[140,335],  sx:[160,400]}, flip:8, tip:'Box logo items have the strongest resale — never wash.'},
+          {name:'Side Bag',       ico:'🧳', prices:{ebay:[120,300],  posh:[105,270],  merc:[110,285],  sx:[125,330]}, flip:7, tip:'Deadstock with tags can 2x retail easily.'},
+        ]},
+      { name:'Other', ico:'📦',
+        models:[{name:'Other Bag',ico:'👜', prices:{ebay:[30,90],posh:[25,80],merc:[28,85],sx:null}, flip:3, tip:'Photograph the interior, lining, and any hardware clearly.'}]},
     ],
-    base:{ebay:300, posh:250, merc:270, sx:0},
-    flip:5, verdict:'Decent Flip', reason:'Electronics need testing before listing',
-    tip:'List with specs (RAM, storage, processor) and include charger.',
-    platforms:{ebay:true,posh:true,merc:true,sx:false}
+    tip:'Photograph all corners, hardware, interior, and any authentication cards.',
+    flip:7
   },
-  {
-    type: 'Bag / Purse', emoji: '👜', category: 'Bags',
-    keys: ['bag','purse','handbag','backpack','tote','wallet','briefcase','satchel'],
-    brands: [
-      {name:'Louis Vuitton',ico:'👑', mul:{ebay:[5.0,12.0],posh:[4.5,11.0],merc:[5.0,10.0],sx:null}},
-      {name:'Gucci',        ico:'🌿', mul:{ebay:[4.0,9.0], posh:[3.5,8.0], merc:[4.0,8.5], sx:null}},
-      {name:'Coach',        ico:'🏇', mul:{ebay:[1.5,3.5], posh:[1.3,3.0], merc:[1.4,3.2], sx:null}},
-      {name:'Michael Kors', ico:'💼', mul:{ebay:[1.0,2.5], posh:[0.9,2.2], merc:[1.0,2.3], sx:null}},
-      {name:'Kate Spade',   ico:'♠️', mul:{ebay:[1.2,2.8], posh:[1.0,2.5], merc:[1.1,2.6], sx:null}},
-      {name:'Supreme',      ico:'🔴', mul:{ebay:[2.0,4.0], posh:[1.8,3.5], merc:[1.9,3.7], sx:[2.2,5.0]}},
-      {name:'Nike/Adidas',  ico:'🎒', mul:{ebay:[0.8,1.5], posh:[0.7,1.3], merc:[0.8,1.4], sx:null}},
-      {name:'Other',        ico:'👜', mul:{ebay:[0.5,1.0], posh:[0.4,0.9], merc:[0.5,1.0], sx:null}},
+  { type:'Headphones', emoji:'🎧', cat:'Electronics',
+    keys:['headphone','earphone','earbuds','headset','airpod'],
+    searchTerms:['airpods','headphones','earbuds','sony headphones'],
+    brands:[
+      { name:'Apple', ico:'🍎',
+        models:[
+          {name:'AirPods Pro 2',  ico:'🎧', prices:{ebay:[150,220],posh:[130,200],merc:[140,210],sx:null}, flip:6, tip:'USB-C version commands a premium over Lightning version.'},
+          {name:'AirPods Pro 1',  ico:'🎵', prices:{ebay:[100,160],posh:[85,140], merc:[90,150], sx:null}, flip:5, tip:'Test ANC and transparency mode before listing.'},
+          {name:'AirPods 3',      ico:'🎶', prices:{ebay:[80,130], posh:[65,115], merc:[70,120], sx:null}, flip:5, tip:'Good demand — bundle with case for better price.'},
+          {name:'AirPods Max',    ico:'🎼', prices:{ebay:[280,420],posh:[250,385],merc:[260,400],sx:null}, flip:6, tip:'Sky Blue and Green colors hold value best.'},
+        ]},
+      { name:'Sony', ico:'🎵',
+        models:[
+          {name:'WH-1000XM5',     ico:'🔊', prices:{ebay:[180,280],posh:[160,255],merc:[165,265],sx:null}, flip:6, tip:'Industry-leading ANC — mention this prominently.'},
+          {name:'WH-1000XM4',     ico:'🎧', prices:{ebay:[140,220],posh:[120,200],merc:[125,210],sx:null}, flip:5, tip:'Still very popular — good budget option buyers love.'},
+          {name:'WF-1000XM5',     ico:'🟡', prices:{ebay:[150,250],posh:[130,225],merc:[135,235],sx:null}, flip:6, tip:'Flagship earbuds — compete with AirPods Pro.'},
+        ]},
+      { name:'Bose', ico:'🔷',
+        models:[
+          {name:'QC45',           ico:'🎧', prices:{ebay:[150,240],posh:[130,218],merc:[135,228],sx:null}, flip:5, tip:'Known for comfort — mention battery life in listing.'},
+          {name:'QC Earbuds II',  ico:'🎵', prices:{ebay:[130,210],posh:[115,190],merc:[120,200],sx:null}, flip:5, tip:'Bose loyalists pay premium — target on eBay.'},
+        ]},
+      { name:'Beats', ico:'🎧',
+        models:[
+          {name:'Studio Pro',     ico:'⚫', prices:{ebay:[150,250],posh:[130,225],merc:[135,235],sx:null}, flip:5, tip:'Apple integration appeals to iPhone users.'},
+          {name:'Fit Pro',        ico:'🏃', prices:{ebay:[100,180],posh:[85,160], merc:[90,170], sx:null}, flip:5, tip:'Sports earbuds — great for active buyers.'},
+          {name:'Powerbeats Pro', ico:'💪', prices:{ebay:[120,200],posh:[105,180],merc:[110,190],sx:null}, flip:5, tip:'No replacement announced — current models hold value.'},
+        ]},
+      { name:'Other', ico:'📦',
+        models:[{name:'Other Headphones',ico:'🎧', prices:{ebay:[25,80],posh:[20,65],merc:[22,72],sx:null}, flip:3, tip:'Test battery life and all functions before listing.'}]},
     ],
-    base:{ebay:60, posh:50, merc:55, sx:0},
-    flip:7, verdict:'Good Flip', reason:'Designer bags hold value extremely well',
-    tip:'Photograph the logo, hardware, and serial number — buyers need authentication proof.',
-    platforms:{ebay:true,posh:true,merc:true,sx:false}
+    tip:'Test battery, ANC, and pairing before listing. Include all original accessories.',
+    flip:5
   },
-  {
-    type: 'Watch', emoji: '⌚', category: 'Watches',
-    keys: ['watch','wristwatch','timepiece','clock','smartwatch'],
-    brands: [
-      {name:'Rolex',       ico:'👑', mul:{ebay:[20,50],posh:[18,45],merc:[19,48],sx:null}},
-      {name:'Apple Watch', ico:'🍎', mul:{ebay:[2.0,3.5],posh:[1.8,3.0],merc:[1.9,3.2],sx:null}},
-      {name:'Casio G-Shock',ico:'💪',mul:{ebay:[1.5,3.0],posh:[1.3,2.5],merc:[1.4,2.8],sx:null}},
-      {name:'Fossil',      ico:'🦴', mul:{ebay:[0.8,1.5],posh:[0.7,1.3],merc:[0.8,1.4],sx:null}},
-      {name:'Michael Kors',ico:'💼', mul:{ebay:[0.9,1.8],posh:[0.8,1.6],merc:[0.9,1.7],sx:null}},
-      {name:'Other',       ico:'⌚', mul:{ebay:[0.5,1.0],posh:[0.4,0.9],merc:[0.5,1.0],sx:null}},
+  { type:'Watch', emoji:'⌚', cat:'Watches',
+    keys:['watch','wristwatch','timepiece','smartwatch','wrist'],
+    searchTerms:['watch','rolex','apple watch','casio'],
+    brands:[
+      { name:'Apple', ico:'🍎',
+        models:[
+          {name:'Apple Watch Ultra 2',ico:'🟡', prices:{ebay:[650,900],posh:[590,825],merc:[610,855],sx:null}, flip:6, tip:'Trail Loop band adds value — include all original bands.'},
+          {name:'Apple Watch S9',     ico:'⌚', prices:{ebay:[280,420],posh:[250,385],merc:[260,400],sx:null}, flip:5, tip:'Pink/Starlight are most in-demand colors.'},
+          {name:'Apple Watch S8',     ico:'🔵', prices:{ebay:[200,330],posh:[180,300],merc:[185,315],sx:null}, flip:4, tip:'Still a great seller — test all health features.'},
+          {name:'Apple Watch SE',     ico:'⬜', prices:{ebay:[130,220],posh:[115,200],merc:[120,210],sx:null}, flip:4, tip:'Budget Apple Watch — great entry point for buyers.'},
+        ]},
+      { name:'Casio', ico:'💪',
+        models:[
+          {name:'G-Shock GA-2100',    ico:'⬛', prices:{ebay:[80,160], posh:[65,140], merc:[70,150], sx:null}, flip:7, tip:'"CasiOak" — wildly popular, great resale.'},
+          {name:'G-Shock DW-5600',    ico:'⬜', prices:{ebay:[60,130], posh:[50,115], merc:[55,120], sx:null}, flip:6, tip:'Classic square G-Shock — collab versions 3x value.'},
+          {name:'G-Shock GMW-B5000',  ico:'🥇', prices:{ebay:[200,380],posh:[175,345],merc:[180,360],sx:null}, flip:8, tip:'Full metal — limited stock makes this a great long-term hold.'},
+          {name:'A168W',              ico:'💎', prices:{ebay:[25,60],  posh:[20,50],  merc:[22,55],  sx:null}, flip:4, tip:'Vintage Casio A168W sells well as a fashion piece.'},
+        ]},
+      { name:'Rolex', ico:'👑',
+        models:[
+          {name:'Submariner',         ico:'🌊', prices:{ebay:[8000,15000],posh:[7200,13800],merc:[7500,14500],sx:null}, flip:9, tip:'ONLY buy from authorized dealers with papers — fakes are everywhere.'},
+          {name:'Datejust',           ico:'📅', prices:{ebay:[5000,12000],posh:[4500,11000],merc:[4700,11500],sx:null}, flip:8, tip:'Box and papers can add $2000+ to value.'},
+          {name:'GMT-Master II',      ico:'🌍', prices:{ebay:[12000,25000],posh:[11000,23000],merc:[11500,24000],sx:null}, flip:9, tip:'Batman and Pepsi bezels command the highest premiums.'},
+        ]},
+      { name:'Other', ico:'📦',
+        models:[{name:'Other Watch',  ico:'⌚', prices:{ebay:[20,80],posh:[15,65],merc:[18,72],sx:null}, flip:3, tip:'Research brand value carefully — market varies widely.'}]},
     ],
-    base:{ebay:100, posh:85, merc:90, sx:0},
-    flip:7, verdict:'Good Flip', reason:'Watches are one of the best resale categories',
-    tip:'Include original box and papers — doubles the value for luxury brands.',
-    platforms:{ebay:true,posh:true,merc:true,sx:false}
+    tip:'Include box, papers, and any extra links. Photograph from multiple angles.',
+    flip:7
   },
-  {
-    type: 'Sunglasses', emoji: '🕶️', category: 'Accessories',
-    keys: ['sunglasses','sunglass','glasses','spectacles','goggles'],
-    brands: [
-      {name:'Ray-Ban',  ico:'🕶️', mul:{ebay:[1.5,2.5],posh:[1.3,2.2],merc:[1.4,2.3],sx:null}},
-      {name:'Oakley',   ico:'🔆', mul:{ebay:[1.2,2.0],posh:[1.0,1.8],merc:[1.1,1.9],sx:null}},
-      {name:'Gucci',    ico:'🌿', mul:{ebay:[2.5,5.0],posh:[2.2,4.5],merc:[2.3,4.8],sx:null}},
-      {name:'Versace',  ico:'🦋', mul:{ebay:[2.0,4.0],posh:[1.8,3.5],merc:[1.9,3.8],sx:null}},
-      {name:'Prada',    ico:'🔺', mul:{ebay:[2.5,5.5],posh:[2.2,5.0],merc:[2.3,5.2],sx:null}},
-      {name:'Other',    ico:'🕶️', mul:{ebay:[0.4,0.9],posh:[0.3,0.8],merc:[0.4,0.9],sx:null}},
+  { type:'Laptop', emoji:'💻', cat:'Electronics',
+    keys:['laptop','notebook','macbook','computer'],
+    searchTerms:['macbook','laptop','dell xps','hp laptop'],
+    brands:[
+      { name:'Apple', ico:'🍎',
+        models:[
+          {name:'MacBook Pro 16" M3',ico:'💻', prices:{ebay:[1800,2600],posh:[1640,2380],merc:[1700,2470],sx:null}, flip:5, tip:'M3 Max chip commands $300+ premium over M3.'},
+          {name:'MacBook Pro 14" M3',ico:'💻', prices:{ebay:[1400,2100],posh:[1270,1920],merc:[1320,2000],sx:null}, flip:5, tip:'Space Black color holds slightly higher resale.'},
+          {name:'MacBook Air 15" M3',ico:'💻', prices:{ebay:[1000,1500],posh:[905,1375],merc:[940,1430],sx:null}, flip:5, tip:'Midnight and Starlight are most popular.'},
+          {name:'MacBook Air 13" M2',ico:'💻', prices:{ebay:[750,1100], posh:[680,1010],merc:[705,1050],sx:null}, flip:4, tip:'Best-selling Mac — very liquid, sells fast.'},
+          {name:'MacBook Air 13" M1',ico:'💻', prices:{ebay:[550,850],  posh:[500,780],  merc:[520,810],  sx:null}, flip:4, tip:'M1 still extremely capable — strong budget market.'},
+        ]},
+      { name:'Dell', ico:'💻',
+        models:[
+          {name:'XPS 15',           ico:'⬛', prices:{ebay:[800,1400],posh:[725,1280],merc:[750,1330],sx:null}, flip:4, tip:'OLED display models command significant premium.'},
+          {name:'XPS 13',           ico:'⬜', prices:{ebay:[600,1000],posh:[545,915], merc:[565,950], sx:null}, flip:4, tip:'Include original charger — buyers expect it.'},
+          {name:'Alienware m18',    ico:'🎮', prices:{ebay:[1800,2800],posh:[1640,2560],merc:[1700,2660],sx:null}, flip:5, tip:'Gaming laptops sell well in August before school season.'},
+        ]},
+      { name:'Other', ico:'📦',
+        models:[{name:'Other Laptop',ico:'💻', prices:{ebay:[200,600],posh:[175,545],merc:[182,570],sx:null}, flip:3, tip:'Include full specs (RAM, storage, chip) in the listing title.'}]},
     ],
-    base:{ebay:40, posh:35, merc:38, sx:0},
-    flip:6, verdict:'Decent Flip', reason:'Authentic designer eyewear is in high demand',
-    tip:'Post on Poshmark — fashion buyers pay premium for authenticated eyewear.',
-    platforms:{ebay:true,posh:true,merc:true,sx:false}
+    tip:'List exact specs: chip, RAM, storage size. Buyers filter by specs.',
+    flip:4
   },
-  {
-    type: 'Headphones', emoji: '🎧', category: 'Electronics',
-    keys: ['headphone','earphone','earbuds','headset','airpod','speaker'],
-    brands: [
-      {name:'AirPods Pro', ico:'🍎', mul:{ebay:[1.5,2.2],posh:[1.3,2.0],merc:[1.4,2.1],sx:null}},
-      {name:'AirPods Max', ico:'🍎', mul:{ebay:[2.5,3.8],posh:[2.2,3.5],merc:[2.3,3.6],sx:null}},
-      {name:'Sony WH-1000X',ico:'🎵',mul:{ebay:[1.3,2.0],posh:[1.1,1.8],merc:[1.2,1.9],sx:null}},
-      {name:'Bose QC45',  ico:'🔊', mul:{ebay:[1.2,1.9],posh:[1.0,1.7],merc:[1.1,1.8],sx:null}},
-      {name:'Beats',      ico:'🎧', mul:{ebay:[1.0,1.6],posh:[0.9,1.4],merc:[1.0,1.5],sx:null}},
-      {name:'Other',      ico:'🎧', mul:{ebay:[0.5,0.9],posh:[0.4,0.8],merc:[0.5,0.9],sx:null}},
+  { type:'Gaming', emoji:'🎮', cat:'Gaming',
+    keys:['controller','gamepad','console','playstation','xbox','nintendo','game'],
+    searchTerms:['ps5','xbox series x','nintendo switch','gaming console'],
+    brands:[
+      { name:'Sony', ico:'🎮',
+        models:[
+          {name:'PS5 Console',      ico:'🎮', prices:{ebay:[380,500], posh:[345,455], merc:[360,475], sx:[370,490]}, flip:4, tip:'Slim model has slightly lower resale than original.'},
+          {name:'PS5 Digital',      ico:'💿', prices:{ebay:[320,440], posh:[290,400], merc:[300,420], sx:[310,430]}, flip:4, tip:'Digital edition appeals to Game Pass-style buyers.'},
+          {name:'DualSense Controller',ico:'🎮', prices:{ebay:[45,80], posh:[38,70], merc:[40,75], sx:null}, flip:5, tip:'Limited colors like Cosmic Red sell for $20+ over standard.'},
+          {name:'PS4 Console',      ico:'🕹️', prices:{ebay:[150,250], posh:[135,225], merc:[140,235], sx:null}, flip:4, tip:'Bundle with games and extra controller for $50+ premium.'},
+        ]},
+      { name:'Microsoft', ico:'🟩',
+        models:[
+          {name:'Xbox Series X',    ico:'🟩', prices:{ebay:[370,480], posh:[335,435], merc:[350,455], sx:[360,470]}, flip:4, tip:'Halo and Forza limited editions command $100+ premium.'},
+          {name:'Xbox Series S',    ico:'⬜', prices:{ebay:[220,300], posh:[200,272], merc:[207,285], sx:[213,293]}, flip:4, tip:'Carbon Black S has better resale than original white.'},
+          {name:'Xbox Controller',  ico:'🎮', prices:{ebay:[35,70],   posh:[30,62],   merc:[32,66],   sx:null}, flip:4, tip:'Custom Design Lab controllers resell above retail.'},
+        ]},
+      { name:'Nintendo', ico:'🔴',
+        models:[
+          {name:'Switch OLED',      ico:'🎮', prices:{ebay:[280,380], posh:[255,345], merc:[264,358], sx:[271,369]}, flip:5, tip:'Splatoon 3 and Zelda editions are the most valuable.'},
+          {name:'Switch V2',        ico:'🔴', prices:{ebay:[200,300], posh:[180,272], merc:[187,285], sx:[193,294]}, flip:4, tip:'Comes with improved battery — mention this in listing.'},
+          {name:'Switch Lite',      ico:'🟡', prices:{ebay:[130,200], posh:[117,181], merc:[122,189], sx:[126,195]}, flip:3, tip:'Coral and turquoise colors are most popular.'},
+        ]},
+      { name:'Other', ico:'📦',
+        models:[{name:'Other Gaming',ico:'🎮', prices:{ebay:[40,120],posh:[35,108],merc:[37,113],sx:null}, flip:3, tip:'Test all controllers and accessories before listing.'}]},
     ],
-    base:{ebay:80, posh:65, merc:70, sx:0},
-    flip:6, verdict:'Good Flip', reason:'Wireless audio sells well if in good condition',
-    tip:'Test and confirm noise cancellation works — mention it in the listing.',
-    platforms:{ebay:true,posh:true,merc:true,sx:false}
+    tip:'Test every function, include all cables and controllers in the listing.',
+    flip:5
   },
-  {
-    type: 'Gaming', emoji: '🎮', category: 'Gaming',
-    keys: ['controller','gamepad','joystick','console','playstation','xbox','nintendo','game'],
-    brands: [
-      {name:'PS5',           ico:'🎮', mul:{ebay:[1.1,1.4],posh:[1.0,1.3],merc:[1.1,1.4],sx:[1.0,1.3]}},
-      {name:'Xbox Series X', ico:'🟩', mul:{ebay:[1.0,1.3],posh:[0.9,1.2],merc:[1.0,1.3],sx:[0.9,1.2]}},
-      {name:'Nintendo Switch',ico:'🔴',mul:{ebay:[0.9,1.2],posh:[0.8,1.1],merc:[0.9,1.2],sx:[0.8,1.1]}},
-      {name:'PS4',           ico:'🎮', mul:{ebay:[0.6,0.9],posh:[0.5,0.8],merc:[0.6,0.9],sx:null}},
-      {name:'Other',         ico:'🕹️', mul:{ebay:[0.5,0.9],posh:[0.4,0.8],merc:[0.5,0.9],sx:null}},
+  { type:'Jacket / Hoodie', emoji:'🧥', cat:'Clothing',
+    keys:['jersey','sweatshirt','hoodie','jacket','coat','windbreaker'],
+    searchTerms:['supreme hoodie','vintage jacket','streetwear hoodie'],
+    brands:[
+      { name:'Supreme', ico:'🔴',
+        models:[
+          {name:'Box Logo Hoodie',  ico:'🔴', prices:{ebay:[300,800], posh:[270,730], merc:[280,760], sx:[310,900]}, flip:10,tip:'Most iconic streetwear item — deadstock commands 5-10x retail.'},
+          {name:'Box Logo Crewneck',ico:'⬜', prices:{ebay:[200,500], posh:[180,455], merc:[185,475], sx:[205,550]}, flip:9, tip:'FW drops go higher than SS — know your season.'},
+          {name:'Work Jacket',      ico:'🟠', prices:{ebay:[180,400], posh:[160,360], merc:[167,380], sx:[185,440]}, flip:8, tip:'Camp caps and coaches are the Supreme sweet spot.'},
+        ]},
+      { name:'North Face', ico:'🏔️',
+        models:[
+          {name:'Nuptse 700',       ico:'🧥', prices:{ebay:[200,400], posh:[180,360], merc:[187,378], sx:null}, flip:7, tip:'Vintage Nuptse (90s-00s) sells for 3-4x modern retail.'},
+          {name:'Denali Fleece',    ico:'🟦', prices:{ebay:[100,200], posh:[90,180],  merc:[93,188],  sx:null}, flip:6, tip:'Retro 94 Denali fleece is the grail — any color works.'},
+          {name:'McMurdo Parka',    ico:'❄️', prices:{ebay:[150,300], posh:[135,270], merc:[140,283], sx:null}, flip:5, tip:'Function meets fashion — buyers want warm and stylish.'},
+        ]},
+      { name:'Vintage', ico:'🕰️',
+        models:[
+          {name:'Vintage Nike',     ico:'✔️', prices:{ebay:[80,300],  posh:[70,270],  merc:[73,283],  sx:null}, flip:8, tip:'80s/90s Nike swoosh tees and windbreakers are exploding.'},
+          {name:'Vintage Starter',  ico:'🏟️', prices:{ebay:[60,250],  posh:[53,225],  merc:[55,235],  sx:null}, flip:7, tip:'NFL/NBA Starter jackets from 90s are very hot right now.'},
+          {name:'Vintage Band Tee',  ico:'🎸', prices:{ebay:[50,500],  posh:[44,450],  merc:[46,472],  sx:null}, flip:9, tip:'Rare 80s/90s band tees can sell for $500+. Verify authenticity.'},
+        ]},
+      { name:'Other', ico:'📦',
+        models:[{name:'Other Clothing',ico:'🧥', prices:{ebay:[15,60],posh:[12,52],merc:[13,55],sx:null}, flip:3, tip:'Condition and brand matter most — price to sell fast.'}]},
     ],
-    base:{ebay:280, posh:250, merc:260, sx:300},
-    flip:5, verdict:'Decent Flip', reason:'Consoles sell steadily but margins are slim',
-    tip:'Bundle with games and controllers — bundles move faster at better prices.',
-    platforms:{ebay:true,posh:true,merc:true,sx:true}
+    tip:'Measure and list exact dimensions — buyers size differently than tags suggest.',
+    flip:6
   },
-  {
-    type: 'Jacket / Hoodie', emoji: '🧥', category: 'Clothing',
-    keys: ['jersey','sweatshirt','hoodie','jacket','coat','parka','windbreaker','zip','pullover'],
-    brands: [
-      {name:'Supreme',    ico:'🔴', mul:{ebay:[3.0,8.0],posh:[2.8,7.0],merc:[2.9,7.5],sx:[3.2,9.0]}},
-      {name:'Nike',       ico:'✔️', mul:{ebay:[1.2,2.2],posh:[1.0,2.0],merc:[1.1,2.1],sx:null}},
-      {name:'Adidas',     ico:'🔵', mul:{ebay:[1.1,2.0],posh:[1.0,1.8],merc:[1.0,1.9],sx:null}},
-      {name:'North Face', ico:'🏔️', mul:{ebay:[1.5,3.0],posh:[1.3,2.7],merc:[1.4,2.8],sx:null}},
-      {name:'Vintage',    ico:'🕰️', mul:{ebay:[1.5,4.0],posh:[1.3,3.5],merc:[1.4,3.8],sx:null}},
-      {name:'Other',      ico:'🧥', mul:{ebay:[0.5,1.0],posh:[0.4,0.9],merc:[0.5,1.0],sx:null}},
+  { type:'Collectible', emoji:'🏆', cat:'Collectibles',
+    keys:['toy','action figure','collectible','lego','pokemon','card','funko','figure'],
+    searchTerms:['pokemon cards','funko pop','lego set','trading cards'],
+    brands:[
+      { name:'Pokémon', ico:'⚡',
+        models:[
+          {name:'Charizard (Base Set)',ico:'🔥', prices:{ebay:[200,2000],posh:[180,1800],merc:[190,1900],sx:null}, flip:10,tip:'Grade with PSA/CGC — graded 9s and 10s multiply value 5-10x.'},
+          {name:'Booster Box (Sealed)',ico:'📦', prices:{ebay:[100,500], posh:[90,450],  merc:[93,470],  sx:null}, flip:9, tip:'Sealed product appreciates year over year — don\'t open!'},
+          {name:'Elite Trainer Box',   ico:'🏆', prices:{ebay:[50,150],  posh:[44,135],  merc:[46,142],  sx:null}, flip:7, tip:'Scarlet & Violet ETBs are current meta.'},
+        ]},
+      { name:'Funko Pop', ico:'🎭',
+        models:[
+          {name:'Chase Variant',    ico:'✨', prices:{ebay:[30,200],  posh:[26,180],  merc:[27,188],  sx:null}, flip:8, tip:'Chase pops are 1-in-6 pulls — instant 3-6x retail.'},
+          {name:'Exclusive (SDCC)', ico:'🎪', prices:{ebay:[50,300],  posh:[44,270],  merc:[46,283],  sx:null}, flip:9, tip:'San Diego Comic Con exclusives are the most valuable Funkos.'},
+          {name:'Retired Pop',      ico:'🕰️', prices:{ebay:[30,150],  posh:[26,135],  merc:[27,142],  sx:null}, flip:7, tip:'Out-of-production pops appreciate steadily.'},
+        ]},
+      { name:'LEGO', ico:'🟦',
+        models:[
+          {name:'Retired Set (Sealed)',ico:'📦', prices:{ebay:[150,800],posh:[135,720], merc:[140,750], sx:null}, flip:9, tip:'LEGO appreciates 11% annually on average — best long hold.'},
+          {name:'Star Wars Set',    ico:'⭐', prices:{ebay:[80,500],  posh:[70,450],  merc:[73,472],  sx:null}, flip:8, tip:'Millennium Falcon and Death Star sets are the most valuable.'},
+          {name:'Architecture Set', ico:'🏗️', prices:{ebay:[50,200],  posh:[44,180],  merc:[46,188],  sx:null}, flip:6, tip:'Skyline sets sell well to collectors — keep sealed.'},
+        ]},
+      { name:'Other', ico:'📦',
+        models:[{name:'Other Collectible',ico:'🏆', prices:{ebay:[10,80],posh:[8,68],merc:[9,73],sx:null}, flip:5, tip:'ALWAYS check eBay SOLD listings before pricing collectibles.'}]},
     ],
-    base:{ebay:40, posh:35, merc:38, sx:0},
-    flip:6, verdict:'Good Flip', reason:'Streetwear and vintage hoodies are hot right now',
-    tip:'Search sold listings to price competitively — vintage items can 10x.',
-    platforms:{ebay:true,posh:true,merc:true,sx:false}
-  },
-  {
-    type: 'Camera', emoji: '📸', category: 'Electronics',
-    keys: ['camera','dslr','mirrorless','lens','canon','nikon','sony alpha'],
-    brands: [
-      {name:'Sony Alpha',   ico:'📸', mul:{ebay:[1.5,2.5],posh:[1.3,2.2],merc:[1.4,2.3],sx:null}},
-      {name:'Canon EOS',    ico:'🔴', mul:{ebay:[1.2,2.0],posh:[1.0,1.8],merc:[1.1,1.9],sx:null}},
-      {name:'Nikon',        ico:'🟡', mul:{ebay:[1.2,1.9],posh:[1.0,1.7],merc:[1.1,1.8],sx:null}},
-      {name:'GoPro',        ico:'🎥', mul:{ebay:[0.8,1.4],posh:[0.7,1.2],merc:[0.8,1.3],sx:null}},
-      {name:'Fujifilm',     ico:'🟩', mul:{ebay:[1.3,2.2],posh:[1.1,2.0],merc:[1.2,2.1],sx:null}},
-      {name:'Other',        ico:'📷', mul:{ebay:[0.6,1.2],posh:[0.5,1.0],merc:[0.6,1.1],sx:null}},
-    ],
-    base:{ebay:200, posh:170, merc:180, sx:0},
-    flip:6, verdict:'Good Flip', reason:'Camera gear holds value well if tested',
-    tip:'Test every function and mention sensor megapixels in the title.',
-    platforms:{ebay:true,posh:true,merc:true,sx:false}
-  },
-  {
-    type: 'Collectible', emoji: '🏆', category: 'Collectibles',
-    keys: ['toy','action figure','collectible','lego','pokemon','card','funko','figure','doll','teddy'],
-    brands: [
-      {name:'Pokémon Cards', ico:'⚡', mul:{ebay:[1.0,10.0],posh:[0.8,8.0],merc:[1.0,9.0],sx:null}},
-      {name:'Funko Pop',     ico:'🎭', mul:{ebay:[1.5,4.0], posh:[1.3,3.5], merc:[1.4,3.8], sx:null}},
-      {name:'LEGO',          ico:'🟦', mul:{ebay:[1.5,3.0], posh:[1.2,2.5], merc:[1.3,2.8], sx:null}},
-      {name:'Hot Wheels',    ico:'🏎️', mul:{ebay:[1.0,5.0], posh:[0.8,4.0], merc:[0.9,4.5], sx:null}},
-      {name:'Vintage Toy',   ico:'🕰️', mul:{ebay:[2.0,8.0], posh:[1.8,7.0], merc:[1.9,7.5], sx:null}},
-      {name:'Other',         ico:'📦', mul:{ebay:[0.5,2.0], posh:[0.4,1.5], merc:[0.5,1.8], sx:null}},
-    ],
-    base:{ebay:20, posh:15, merc:18, sx:0},
-    flip:8, verdict:'Hot Flip', reason:'Collectibles can skyrocket — research before pricing',
-    tip:'Search eBay sold listings FIRST — pricing wrong is the #1 collectibles mistake.',
-    platforms:{ebay:true,posh:true,merc:true,sx:false}
+    tip:'Search eBay completed/sold listings to price accurately before listing.',
+    flip:8
   }
 ];
 
-const FALLBACK = {
-  type:'Unknown Item', emoji:'📦', category:'General',
-  keys:[],
-  brands:[{name:'Unknown',ico:'📦',mul:{ebay:[0.5,1.0],posh:[0.4,0.9],merc:[0.5,1.0],sx:null}}],
-  base:{ebay:30, posh:25, merc:28, sx:0},
-  flip:3, verdict:'Low Margin', reason:'Could not identify item type',
-  tip:'Search eBay sold listings manually to check if this item is worth flipping.',
-  platforms:{ebay:true,posh:true,merc:true,sx:false}
-};
+// ─── SEARCH INDEX ─────────────────────────────────────────────────────────────
+const SEARCH_INDEX = [];
+DB.forEach(item => {
+  item.brands.forEach(brand => {
+    brand.models.forEach(model => {
+      SEARCH_INDEX.push({
+        label: `${brand.name} ${model.name}`,
+        displayCat: `${item.emoji} ${item.cat}`,
+        item, brand, model
+      });
+    });
+  });
+});
 
-// ── App State ──────────────────────────────────────────────────────────────────
+// ─── APP STATE ────────────────────────────────────────────────────────────────
 let tfModel = null;
 let cameraStream = null;
 let capturedImg = null;
-let detectedItem = null;
-let selectedBrand = null;
-let recentScans = JSON.parse(localStorage.getItem('rs_scans') || '[]');
-let scansToday = parseInt(localStorage.getItem('rs_today_count') || '0');
-const todayKey = new Date().toDateString();
-if (localStorage.getItem('rs_today_date') !== todayKey) { scansToday = 0; localStorage.setItem('rs_today_date', todayKey); }
+let state = { item:null, brand:null, model:null, condition:1.0, condName:'New' };
+let recentScans = JSON.parse(localStorage.getItem('rs_v2') || '[]');
+let scansToday = parseInt(localStorage.getItem('rs_today_n') || '0');
+if (localStorage.getItem('rs_day') !== new Date().toDateString()) {
+  scansToday = 0; localStorage.setItem('rs_day', new Date().toDateString());
+}
 
-// ── Load Model ─────────────────────────────────────────────────────────────────
+// ─── LOAD AI MODEL ────────────────────────────────────────────────────────────
 const banner = document.getElementById('modelBanner');
 mobilenet.load().then(m => {
   tfModel = m;
   banner.style.opacity = '0';
   setTimeout(() => banner.style.display = 'none', 500);
-}).catch(() => banner.textContent = '⚠️ AI model failed to load — use photo upload');
+}).catch(() => { banner.textContent = '⚠️ AI model unavailable — use photo upload or search'; });
 
-// ── Screen nav ─────────────────────────────────────────────────────────────────
-let currentScreen = null;
+// ─── SCREEN NAV ───────────────────────────────────────────────────────────────
+let cur = null;
 function showScreen(id) {
-  if (currentScreen === id) return;
-  const prev = currentScreen ? document.getElementById(currentScreen) : null;
-  if (prev) { prev.classList.add('exit'); setTimeout(() => prev.classList.remove('active','exit'), 250); }
+  if (cur === id) return;
+  const p = cur ? document.getElementById(cur) : null;
+  if (p) { p.classList.add('exit'); setTimeout(() => p.classList.remove('active','exit'), 250); }
   document.getElementById(id).classList.add('active');
-  currentScreen = id;
+  cur = id;
 }
-showScreen('home');
-updateStats();
-renderRecent();
+showScreen('home'); updateStats(); renderRecent();
 
 function goHome() { stopCamera(); showScreen('home'); updateStats(); renderRecent(); }
 function goScan() { showScreen('scan'); startCamera(); }
 
-// ── Camera ─────────────────────────────────────────────────────────────────────
+// ─── CAMERA ───────────────────────────────────────────────────────────────────
 function startCamera() {
   if (cameraStream) return;
-  const vid = document.getElementById('video');
   navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ideal:'environment'}, width:{ideal:1280}, height:{ideal:720} } })
-    .then(s => { cameraStream = s; vid.srcObject = s; vid.play(); })
+    .then(s => { cameraStream=s; const v=document.getElementById('video'); v.srcObject=s; v.play(); })
     .catch(() => {});
 }
 function stopCamera() {
-  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+  if (cameraStream) { cameraStream.getTracks().forEach(t=>t.stop()); cameraStream=null; }
 }
 
-// ── Capture ────────────────────────────────────────────────────────────────────
+// ─── CAPTURE ──────────────────────────────────────────────────────────────────
 function capturePhoto() {
-  const vid = document.getElementById('video');
-  const cv = document.getElementById('canvas');
+  const vid = document.getElementById('video'), cv = document.getElementById('canvas');
   if (!cameraStream) { document.getElementById('fileInput').click(); return; }
-  cv.width = vid.videoWidth || 640; cv.height = vid.videoHeight || 480;
+  cv.width = vid.videoWidth||640; cv.height = vid.videoHeight||480;
   cv.getContext('2d').drawImage(vid, 0, 0);
   capturedImg = cv.toDataURL('image/jpeg', 0.85);
-  stopCamera();
-  runAnalysis(cv);
+  stopCamera(); runAI(cv);
 }
 document.getElementById('fileInput').addEventListener('change', function() {
   const file = this.files[0]; if (!file) return;
-  const img = new Image();
-  const url = URL.createObjectURL(file);
+  const img = new Image(), url = URL.createObjectURL(file);
   img.onload = () => {
     const cv = document.getElementById('canvas');
-    cv.width = img.width; cv.height = img.height;
-    cv.getContext('2d').drawImage(img, 0, 0);
-    capturedImg = cv.toDataURL('image/jpeg', 0.85);
-    URL.revokeObjectURL(url);
-    runAnalysis(cv);
+    cv.width=img.width; cv.height=img.height;
+    cv.getContext('2d').drawImage(img,0,0);
+    capturedImg = cv.toDataURL('image/jpeg',0.85);
+    URL.revokeObjectURL(url); runAI(cv);
   };
-  img.src = url;
-  this.value = '';
+  img.src = url; this.value='';
 });
 
-// ── AI Analysis ────────────────────────────────────────────────────────────────
-async function runAnalysis(canvas) {
-  document.getElementById('preview-img').src = capturedImg;
+// ─── AI ANALYSIS ──────────────────────────────────────────────────────────────
+async function runAI(canvas) {
+  document.getElementById('prev-img').src = capturedImg;
   showScreen('analyzing');
-
-  const steps = document.getElementById('analyzeSteps');
-  const stepMsgs = ['🔍 Scanning image…','🏷️ Classifying item type…','📊 Matching to database…'];
+  const msgs = ['🔍 Scanning image…','🏷️ Classifying item…','📊 Matching database…'];
   let si = 0;
+  const steps = document.getElementById('anlyz-steps');
   const iv = setInterval(() => {
-    if (si < stepMsgs.length - 1) {
-      si++;
-      steps.innerHTML = stepMsgs.slice(0, si+1).map((s,i) =>
-        `<div class="${i===si?'step-active':i<si?'step-done':''}">${i<si?s.replace(/^[^ ]+/,'✅'):s}</div>`
-      ).join('');
+    if (si < msgs.length-1) { si++;
+      steps.innerHTML = msgs.slice(0,si+1).map((s,i)=>
+        `<div class="${i===si?'sact':i<si?'sdone':''}">${i<si?s.replace(/^[^ ]+/,'✅'):s}</div>`).join('');
     }
   }, 700);
 
+  let detected = DB[0]; // default sneakers
   try {
-    let item = FALLBACK;
     if (tfModel) {
       const preds = await tfModel.classify(canvas, 5);
-      const labels = preds.map(p => p.className.toLowerCase()).join(' ');
-      for (const it of ITEMS) {
-        if (it.keys.some(k => labels.includes(k))) { item = it; break; }
+      const labels = preds.map(p=>p.className.toLowerCase()).join(' ');
+      for (const it of DB) {
+        if (it.keys.some(k => labels.includes(k))) { detected=it; break; }
       }
     }
-    clearInterval(iv);
-    detectedItem = item;
-    showBrandPicker(item);
-  } catch(e) {
-    clearInterval(iv);
-    detectedItem = FALLBACK;
-    showBrandPicker(FALLBACK);
-  }
+  } catch(e) {}
+  clearInterval(iv);
+  state.item = detected;
+  showBrandPicker(detected);
 }
 
-// ── Brand Picker ───────────────────────────────────────────────────────────────
+// ─── BRAND PICKER ─────────────────────────────────────────────────────────────
 function showBrandPicker(item) {
-  document.getElementById('brand-preview').src = capturedImg;
-  document.getElementById('detected-chip').textContent = `Detected: ${item.type} ${item.emoji}`;
-  document.getElementById('brand-h').textContent = `What brand is it?`;
-  document.getElementById('brand-sub').textContent = `Select the brand for accurate resale prices`;
-  selectedBrand = null;
-  document.getElementById('confirmBtn').disabled = true;
+  document.getElementById('bp-img').src = capturedImg;
+  document.getElementById('bp-chip').textContent = `AI detected: ${item.emoji} ${item.type}`;
+  document.getElementById('bp-sub').textContent = `Pick the brand for model-specific pricing`;
+  state.brand = null; state.model = null;
+  document.getElementById('brandNextBtn').disabled = true;
 
   const grid = document.getElementById('brandGrid');
   grid.innerHTML = '';
-  item.brands.forEach((b, i) => {
+  item.brands.forEach(b => {
     const btn = document.createElement('div');
-    btn.className = 'brand-btn';
-    btn.innerHTML = `<div class="brand-ico">${b.ico}</div><div class="brand-name">${b.name}</div>`;
+    btn.className = 'pick-btn';
+    btn.innerHTML = `<div class="pick-ico">${b.ico}</div><div class="pick-name">${b.name}</div>`;
     btn.onclick = () => {
-      document.querySelectorAll('.brand-btn').forEach(x => x.classList.remove('selected'));
-      btn.classList.add('selected');
-      selectedBrand = b;
-      document.getElementById('confirmBtn').disabled = false;
+      grid.querySelectorAll('.pick-btn').forEach(x=>x.classList.remove('sel'));
+      btn.classList.add('sel');
+      state.brand = b;
+      document.getElementById('brandNextBtn').disabled = false;
     };
     grid.appendChild(btn);
   });
-
   showScreen('brandpick');
 }
 
 function skipBrand() {
-  selectedBrand = detectedItem.brands[detectedItem.brands.length - 1]; // use 'Other'
-  buildResult();
+  state.brand = state.item.brands[state.item.brands.length-1];
+  state.model = state.brand.models[0];
+  showConditionPicker();
 }
 
-function confirmBrand() {
-  if (!selectedBrand) return;
-  buildResult();
+// ─── MODEL PICKER ─────────────────────────────────────────────────────────────
+function goToModel() {
+  if (!state.brand) return;
+  document.getElementById('mp-img').src = capturedImg;
+  document.getElementById('mp-chip').textContent = `Brand: ${state.brand.ico} ${state.brand.name}`;
+  document.getElementById('mp-h').textContent = `Which ${state.brand.name} model?`;
+  state.model = null;
+  document.getElementById('modelNextBtn').disabled = true;
+
+  const grid = document.getElementById('modelGrid');
+  grid.innerHTML = '';
+  state.brand.models.forEach(m => {
+    const btn = document.createElement('div');
+    btn.className = 'pick-btn';
+    const hi = Math.max(...Object.values(m.prices).filter(Boolean).map(p=>p[1]));
+    btn.innerHTML = `<div class="pick-ico">${m.ico}</div><div class="pick-name">${m.name}</div><div style="font-size:10px;color:var(--green);margin-top:2px">up to $${hi}</div>`;
+    btn.onclick = () => {
+      grid.querySelectorAll('.pick-btn').forEach(x=>x.classList.remove('sel'));
+      btn.classList.add('sel');
+      state.model = m;
+      document.getElementById('modelNextBtn').disabled = false;
+    };
+    grid.appendChild(btn);
+  });
+  showScreen('modelpick');
 }
 
-// ── Build Result ───────────────────────────────────────────────────────────────
+function skipModel() {
+  state.model = state.brand.models[0];
+  showConditionPicker();
+}
+
+// ─── CONDITION PICKER ─────────────────────────────────────────────────────────
+function goToCondition() {
+  if (!state.model) return;
+  showConditionPicker();
+}
+function showConditionPicker() {
+  document.getElementById('cp-img').src = capturedImg;
+  state.condition = null;
+  document.getElementById('condNextBtn').disabled = true;
+  document.querySelectorAll('.cond-btn').forEach(b=>b.classList.remove('sel'));
+  showScreen('condpick');
+}
+function pickCond(btn, name, mul) {
+  document.querySelectorAll('.cond-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  state.condition = mul;
+  state.condName = name;
+  document.getElementById('condNextBtn').disabled = false;
+}
+
+// ─── BUILD RESULT ─────────────────────────────────────────────────────────────
 const PLATS = [
-  {key:'ebay',  label:'eBay',     ico:'🛒', color:'#E53238'},
-  {key:'posh',  label:'Poshmark', ico:'👗', color:'#CF1D3B'},
-  {key:'merc',  label:'Mercari',  ico:'🟣', color:'#7B61FF'},
-  {key:'sx',    label:'StockX',   ico:'⚡', color:'#00FF77'},
+  {key:'ebay', label:'eBay',     ico:'🛒', bg:'#E5323822'},
+  {key:'posh', label:'Poshmark', ico:'👗', bg:'#CF1D3B22'},
+  {key:'merc', label:'Mercari',  ico:'🟣', bg:'#7B61FF22'},
+  {key:'sx',   label:'StockX',   ico:'⚡', bg:'#00FF7722'},
 ];
-const FLIP_COLORS = {'Hot Flip':'#10B981','Good Flip':'#06B6D4','Decent Flip':'#F59E0B','Low Margin':'#F97316','Skip':'#EF4444'};
+const FCOLS = {'Hot Flip':'#10B981','Good Flip':'#06B6D4','Decent Flip':'#F59E0B','Low Margin':'#F97316','Skip':'#EF4444'};
+const VERDICTS = [null,'Skip','Skip','Low Margin','Low Margin','Low Margin','Decent Flip','Good Flip','Good Flip','Hot Flip','Hot Flip'];
 
 function buildResult() {
-  const item = detectedItem;
-  const brand = selectedBrand;
-  const itemName = brand.name === 'Other' ? item.type : `${brand.name} ${item.type}`;
+  if (!state.condition) return;
+  const { item, brand, model, condition, condName } = state;
+  const itemName = `${brand.name} ${model.name}`;
+  const flipScore = model.flip || item.flip || 5;
+  const verdict = VERDICTS[Math.round(flipScore)] || 'Decent Flip';
+  const col = FCOLS[verdict] || '#06B6D4';
+  const condLabel = {new:'New',likenew:'Like New',good:'Good',fair:'Fair'}[condName] || condName;
 
-  document.getElementById('result-img').src = capturedImg;
-  document.getElementById('r-cat').textContent = item.category;
+  document.getElementById('r-img').src = capturedImg;
+  document.getElementById('r-cat').textContent = item.cat;
   document.getElementById('r-name').textContent = itemName;
-  document.getElementById('r-sub').textContent = `AI identified as: ${item.type}`;
-  const conf = tfModel ? 82 : 60;
-  document.getElementById('r-conf').style.width = conf + '%';
-  document.getElementById('r-conf-txt').textContent = conf + '%';
+  document.getElementById('r-sub').textContent = `${condLabel} condition · Scanned by AI`;
+  const conf = tfModel ? 87 : 65;
+  document.getElementById('r-conf').style.width = conf+'%';
+  document.getElementById('r-conf-t').textContent = conf+'%';
 
-  // Flip score
-  const color = FLIP_COLORS[item.verdict] || '#06B6D4';
-  const circle = document.getElementById('r-flip-circle');
-  circle.style.background = `${color}20`; circle.style.border = `3px solid ${color}`;
-  document.getElementById('r-flip-n').textContent = item.flip;
-  document.getElementById('r-flip-n').style.color = color;
-  document.getElementById('r-verdict').textContent = item.verdict;
-  document.getElementById('r-reason').textContent = item.reason;
+  const fc = document.getElementById('r-fc');
+  fc.style.background = col+'22'; fc.style.border = `3px solid ${col}`;
+  document.getElementById('r-fn').textContent = flipScore;
+  document.getElementById('r-fn').style.color = col;
+  document.getElementById('r-verdict').textContent = verdict;
+  document.getElementById('r-reason').textContent = model.tip || item.tip || '';
 
-  // Prices
-  const platList = document.getElementById('r-platforms');
-  platList.innerHTML = '';
   let bestHigh = 0;
+  const platList = document.getElementById('r-plats');
+  platList.innerHTML = '';
   for (const p of PLATS) {
+    const pr = model.prices[p.key];
     const row = document.createElement('div');
-    row.className = 'plat-row';
-    const mul = brand.mul[p.key];
-    if (mul && item.platforms[p.key]) {
-      const low = Math.round(item.base[p.key] * mul[0]);
-      const high = Math.round(item.base[p.key] * mul[1]);
-      bestHigh = Math.max(bestHigh, high);
-      row.innerHTML = `<div class="plat-ico" style="background:${p.color}22">${p.ico}</div><div class="plat-name">${p.label}</div><div class="plat-range">$${low}–$${high}</div>`;
+    row.className = 'prow';
+    if (pr) {
+      const lo = Math.round(pr[0]*condition), hi = Math.round(pr[1]*condition);
+      bestHigh = Math.max(bestHigh, hi);
+      row.innerHTML = `<div class="pico" style="background:${p.bg}">${p.ico}</div><div class="pname">${p.label}</div><div class="prange">$${lo}–$${hi}</div>`;
     } else {
-      row.innerHTML = `<div class="plat-ico" style="background:rgba(255,255,255,.05);opacity:.4">${p.ico}</div><div class="plat-name" style="opacity:.4">${p.label}</div><div class="plat-na">Not listed</div>`;
+      row.innerHTML = `<div class="pico" style="background:rgba(255,255,255,.05);opacity:.35">${p.ico}</div><div class="pname" style="opacity:.35">${p.label}</div><div class="pna">Not listed</div>`;
     }
     platList.appendChild(row);
   }
 
-  // Tip
-  document.getElementById('r-tip').textContent = item.tip;
-  document.getElementById('r-tip-card').style.display = '';
+  // eBay sold listings link
+  const query = encodeURIComponent(`${itemName} ${condLabel}`);
+  document.getElementById('ebay-link').href = `https://www.ebay.com/sch/i.html?_nkw=${query}&LH_Sold=1&LH_Complete=1`;
 
-  // Profit calc
-  document.getElementById('sellInput').value = bestHigh ? Math.round(bestHigh * 0.75) : '';
-  document.getElementById('costInput').value = '';
-  document.getElementById('profitVal').textContent = '$—';
+  document.getElementById('r-tip').textContent = model.tip || item.tip || 'Research eBay sold listings for the most accurate price.';
 
-  // Save
+  document.getElementById('sellIn').value = bestHigh ? Math.round(bestHigh * 0.8) : '';
+  document.getElementById('costIn').value = '';
+  document.getElementById('pval').textContent = '$—';
+
   scansToday++;
-  localStorage.setItem('rs_today_count', scansToday);
-  recentScans.unshift({ name: itemName, category: item.category, price: bestHigh, t: Date.now() });
-  if (recentScans.length > 10) recentScans.pop();
-  localStorage.setItem('rs_scans', JSON.stringify(recentScans));
+  localStorage.setItem('rs_today_n', scansToday);
+  recentScans.unshift({ name:itemName, category:item.cat, price:bestHigh, t:Date.now() });
+  if (recentScans.length>10) recentScans.pop();
+  localStorage.setItem('rs_v2', JSON.stringify(recentScans));
 
   showScreen('result');
 }
 
-// ── Profit calc ────────────────────────────────────────────────────────────────
-function calcProfit() {
-  const cost = parseFloat(document.getElementById('costInput').value) || 0;
-  const sell = parseFloat(document.getElementById('sellInput').value) || 0;
-  const p = sell - cost;
-  const el = document.getElementById('profitVal');
-  el.textContent = p >= 0 ? `$${p.toFixed(0)}` : `-$${Math.abs(p).toFixed(0)}`;
-  el.style.color = p >= 0 ? 'var(--green)' : 'var(--red)';
+// ─── SEARCH ───────────────────────────────────────────────────────────────────
+function filterSearch(q) {
+  const sr = document.getElementById('searchResults');
+  if (!q || q.length < 2) { sr.style.display='none'; return; }
+  const matches = SEARCH_INDEX.filter(e => e.label.toLowerCase().includes(q.toLowerCase())).slice(0,6);
+  if (!matches.length) { sr.style.display='none'; return; }
+  sr.style.display='block';
+  sr.innerHTML = matches.map((m,i) => `
+    <div onclick="selectSearchResult(${i})" style="background:var(--card);border-radius:12px;padding:11px 13px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:10px">
+      <div style="font-size:20px">${m.item.emoji}</div>
+      <div><div style="font-size:13px;font-weight:700">${m.label}</div><div style="font-size:11px;color:var(--gray)">${m.displayCat}</div></div>
+      <div style="margin-left:auto;font-size:12px;font-weight:800;color:var(--green)">up to $${Math.max(...Object.values(m.model.prices).filter(Boolean).map(p=>p[1]))}</div>
+    </div>`).join('');
+  window._searchMatches = matches;
 }
 
-// ── UI helpers ─────────────────────────────────────────────────────────────────
-const EMOJIS = {Sneakers:'👟',Electronics:'📱',Bags:'👜',Watches:'⌚',Accessories:'🕶️',Clothing:'🧥',Gaming:'🎮',Collectibles:'🏆',General:'📦'};
+function selectSearchResult(i) {
+  const m = window._searchMatches[i];
+  capturedImg = null;
+  state.item = m.item; state.brand = m.brand; state.model = m.model;
+  document.getElementById('searchResults').style.display='none';
+  document.getElementById('searchInput').value = '';
+  showConditionPickerNoPhoto(m);
+}
+
+function showConditionPickerNoPhoto(m) {
+  document.getElementById('cp-img').src = m.item.emoji === '👟' ? '' : '';
+  document.getElementById('cp-img').style.display = 'none';
+  state.condition = null;
+  document.getElementById('condNextBtn').disabled = true;
+  document.querySelectorAll('.cond-btn').forEach(b=>b.classList.remove('sel'));
+  showScreen('condpick');
+}
+
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  filterSearch(q);
+}
+
+// ─── PROFIT CALC ──────────────────────────────────────────────────────────────
+function calcP() {
+  const c=parseFloat(document.getElementById('costIn').value)||0;
+  const s=parseFloat(document.getElementById('sellIn').value)||0;
+  const p=s-c, el=document.getElementById('pval');
+  el.textContent = p>=0 ? `$${p.toFixed(0)}` : `-$${Math.abs(p).toFixed(0)}`;
+  el.style.color = p>=0 ? 'var(--green)' : 'var(--red)';
+}
+
+// ─── UI ────────────────────────────────────────────────────────────────────────
+const EICO={Sneakers:'👟',Electronics:'📱',Bags:'👜',Watches:'⌚',Accessories:'🕶️',Clothing:'🧥',Gaming:'🎮',Collectibles:'🏆',General:'📦'};
 function updateStats() {
-  document.getElementById('stat-scans').textContent = scansToday;
-  const total = recentScans.reduce((a,s) => a + (s.price||0), 0);
-  document.getElementById('stat-profit').textContent = total > 999 ? '$'+Math.round(total/1000)+'k' : '$'+total;
+  document.getElementById('s-scans').textContent = scansToday;
+  const t=recentScans.reduce((a,s)=>a+(s.price||0),0);
+  document.getElementById('s-profit').textContent = t>999?'$'+Math.round(t/1000)+'k':'$'+t;
 }
 function renderRecent() {
-  const list = document.getElementById('recentList');
-  if (!recentScans.length) { list.innerHTML = '<div style="padding:20px 0;text-align:center;color:var(--gray);font-size:13px">No scans yet — tap Scan Now!</div>'; return; }
-  list.innerHTML = recentScans.map(s => `
+  const l=document.getElementById('recentList');
+  if (!recentScans.length) { l.innerHTML='<div style="padding:18px 0;text-align:center;color:var(--gray);font-size:13px">No scans yet — tap Scan Item to start!</div>'; return; }
+  l.innerHTML=recentScans.map(s=>`
     <div class="ri">
-      <div class="ri-ico">${EMOJIS[s.category]||'📦'}</div>
+      <div class="ri-ico">${EICO[s.category]||'📦'}</div>
       <div><div class="ri-name">${s.name}</div><div class="ri-cat">${s.category}</div></div>
-      ${s.price ? `<div class="ri-price">up to $${s.price}</div>` : ''}
+      ${s.price?`<div class="ri-price">up to $${s.price}</div>`:''}
     </div>`).join('');
 }
 </script>
