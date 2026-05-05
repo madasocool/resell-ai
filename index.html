@@ -165,18 +165,18 @@
     <div class="setup-sub">AI-powered item scanner that identifies<br>specific products and their resale value</div>
 
     <div class="setup-card">
-      <h3>🔑 Get your free AI key (takes 1 min)</h3>
+      <h3>🔑 Get your free AI key</h3>
       <div class="step-row">
         <div class="step-num">1</div>
-        <div class="step-txt">Go to <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> and sign in with Google</div>
+        <div class="step-txt">Open <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> — use <strong>Google AI Studio</strong>, not Google Cloud Console</div>
       </div>
       <div class="step-row">
         <div class="step-num">2</div>
-        <div class="step-txt">Click <strong>"Create API key"</strong> — it'll ask you to select a project. Just click <strong>"Create API key in new project"</strong> (the blue button at the bottom)</div>
+        <div class="step-txt">Click <strong>"Create API key"</strong> → when it shows a project dropdown, scroll down and click <strong>"Create API key in new project"</strong></div>
       </div>
       <div class="step-row">
         <div class="step-num">3</div>
-        <div class="step-txt">Your key appears — tap it to copy, then paste it below. Free: 1,500 scans/day, no credit card</div>
+        <div class="step-txt">Copy the long key that appears (starts with AIza...) and paste below</div>
       </div>
       <input class="setup-input" id="apiKeyInput" type="password" placeholder="Paste your Gemini API key here..." autocomplete="off" spellcheck="false">
     </div>
@@ -365,7 +365,7 @@ function init() {
 // ── Setup ────────────────────────────────────────────────────────────────
 document.getElementById('setupBtn').addEventListener('click', () => {
   const key = document.getElementById('apiKeyInput').value.trim();
-  if (!key || !key.startsWith('AIza')) { showToast('Please paste a valid Gemini API key'); return; }
+  if (!key || key.length < 20) { showToast('Please paste your Gemini API key'); return; }
   apiKey = key;
   localStorage.setItem('gemini_key', key);
   showScreen('home');
@@ -492,8 +492,9 @@ Rules:
     if (!resp.ok) {
       const err = await resp.json();
       const msg = err?.error?.message || `API error ${resp.status}`;
-      if (resp.status === 400 && msg.includes('API key')) { showToast('Invalid API key — please re-enter'); goHome(); return; }
-      throw new Error(msg);
+      clearInterval(stepInterval);
+      showError(resp.status, msg);
+      return;
     }
 
     const data = await resp.json();
@@ -517,9 +518,48 @@ Rules:
   } catch(err) {
     clearInterval(stepInterval);
     console.error('Gemini error:', err);
-    showToast('Scan failed: ' + err.message.slice(0, 60));
-    goHome();
+    showError(0, err.message || 'Unknown error');
   }
+}
+
+function showError(status, msg) {
+  let title = 'Scan Failed';
+  let body = msg;
+  let fix = '';
+
+  if (status === 400 || msg.toLowerCase().includes('api key')) {
+    title = 'Invalid API Key';
+    body = 'Your API key was rejected.';
+    fix = 'Go back and re-enter your key from aistudio.google.com/apikey';
+  } else if (msg.toLowerCase().includes('not enabled') || msg.toLowerCase().includes('disabled')) {
+    title = 'API Not Enabled';
+    body = 'The Gemini API isn\'t enabled for your key\'s project.';
+    fix = 'Make sure you created your key at aistudio.google.com/apikey (not Google Cloud Console). Keys from AI Studio work automatically.';
+  } else if (msg.toLowerCase().includes('quota') || status === 429) {
+    title = 'Daily Limit Reached';
+    body = 'You\'ve hit the free scan limit for today.';
+    fix = 'Free tier allows 1,500 scans/day. Try again tomorrow.';
+  } else if (status === 0 || msg.toLowerCase().includes('network') || msg.toLowerCase().includes('fetch')) {
+    title = 'No Connection';
+    body = 'Couldn\'t reach the AI server.';
+    fix = 'Check your internet and try again.';
+  } else {
+    fix = 'Error: ' + msg.slice(0, 120);
+  }
+
+  // Show error on analyzing screen
+  document.getElementById('analyzeSteps').innerHTML = `
+    <div style="margin-top:16px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);border-radius:14px;padding:18px;text-align:left">
+      <div style="color:#EF4444;font-weight:800;font-size:15px;margin-bottom:6px">❌ ${title}</div>
+      <div style="color:rgba(255,255,255,.8);font-size:13px;margin-bottom:10px">${body}</div>
+      ${fix ? `<div style="color:var(--teal);font-size:12px;line-height:1.5">${fix}</div>` : ''}
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button onclick="goHome()" style="flex:1;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:13px;font-weight:700;padding:10px;border-radius:10px;cursor:pointer">← Back</button>
+        ${title === 'Invalid API Key' || title === 'API Not Enabled' ? `<button onclick="resetKey()" style="flex:1;background:var(--purple);border:none;color:#fff;font-size:13px;font-weight:700;padding:10px;border-radius:10px;cursor:pointer">Re-enter Key</button>` : `<button onclick="goScan()" style="flex:1;background:var(--purple);border:none;color:#fff;font-size:13px;font-weight:700;padding:10px;border-radius:10px;cursor:pointer">Try Again</button>`}
+      </div>
+    </div>`;
+  document.querySelector('#analyzing .spin').style.display = 'none';
+  document.querySelector('#analyzing .analyzing-h').style.display = 'none';
 }
 
 // ── Show Result ────────────────────────────────────────────────────────────
