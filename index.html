@@ -7,7 +7,7 @@
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    :root{--bg:#080F1E;--card:#0F1E35;--card2:#162540;--purple:#7C3AED;--pl:#A855F7;--teal:#06B6D4;--green:#10B981;--red:#EF4444;--orange:#F59E0B;--gray:#64748B;--gray2:#94A3B8;--white:#F1F5F9}
+    :root{--bg:#080F1E;--card:#0F1E35;--card2:#162540;--purple:#7C3AED;--pl:#A855F7;--teal:#06B6D4;--green:#10B981;--red:#EF4444;--orange:#F59E0B;--gray:#64748B;--gray2:#94A3B8;--white:#F1F5F9;--google:#4285F4}
     html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;background:#000;color:var(--white);overflow:hidden}
     #app{width:100%;max-width:430px;height:100dvh;height:100vh;margin:0 auto;position:relative;overflow:hidden;background:var(--bg)}
     .screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s cubic-bezier(.4,0,.2,1);transform:translateY(16px)}
@@ -26,6 +26,16 @@
     #home .scroll{flex:1;overflow-y:auto;padding-bottom:90px}
     .htop{padding:52px 20px 10px;display:flex;justify-content:space-between;align-items:flex-start}
     .logo{font-size:27px;font-weight:900;background:linear-gradient(135deg,var(--pl),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .gear-btn{width:36px;height:36px;background:rgba(255,255,255,.07);border-radius:50%;border:none;color:var(--white);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    /* Google AI banner */
+    .ai-banner{margin:8px 18px 0;border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:opacity .15s}
+    .ai-banner:active{opacity:.8}
+    .ai-banner.off{background:rgba(66,133,244,.12);border:1.5px solid rgba(66,133,244,.3)}
+    .ai-banner.on{background:rgba(16,185,129,.1);border:1.5px solid rgba(16,185,129,.3)}
+    .ai-banner-ico{font-size:22px;flex-shrink:0}
+    .ai-banner-title{font-size:13px;font-weight:800;margin-bottom:2px}
+    .ai-banner-sub{font-size:11px;color:var(--gray2);line-height:1.4}
+    .ai-banner-arr{margin-left:auto;font-size:16px;color:var(--gray2)}
     .hero{margin:10px 18px 0;background:linear-gradient(140deg,#4C1D95,var(--purple));border-radius:24px;padding:24px 22px 22px;cursor:pointer;box-shadow:0 12px 40px rgba(124,58,237,.4);transition:transform .15s;position:relative;overflow:hidden}
     .hero:active{transform:scale(.97)}
     .hero::after{content:'';position:absolute;top:-80px;right:-50px;width:220px;height:220px;background:rgba(255,255,255,.04);border-radius:50%}
@@ -86,9 +96,7 @@
     .conf-field::placeholder{color:var(--gray)}
     .conf-field:disabled{opacity:.55}
     .conf-note{font-size:12px;color:var(--gray2);margin-top:8px;line-height:1.5}
-    /* AI details badge */
     #ai-details{display:none;margin-top:10px;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.2);border-radius:10px;padding:9px 12px;font-size:11px;color:var(--teal);line-height:1.9;word-break:break-word}
-    /* Word chips */
     #word-chips{display:none;margin-top:14px}
     .chips-label{font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
     #chips-wrap{display:flex;flex-wrap:wrap;gap:7px}
@@ -155,6 +163,34 @@
     .calc-inp:focus{border-color:var(--purple)}
     .calc-res{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);border-radius:12px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:8px}
     .profit-n{font-size:22px;font-weight:900;color:var(--green)}
+
+    /* SETTINGS */
+    #settings{background:var(--bg)}
+    .set-scroll{flex:1;overflow-y:auto;padding-bottom:40px}
+    .set-hdr{padding:52px 20px 24px;display:flex;align-items:center;gap:12px}
+    .set-section{margin:0 18px 20px;background:var(--card);border-radius:20px;overflow:hidden}
+    .set-top{background:linear-gradient(135deg,rgba(66,133,244,.2),rgba(66,133,244,.08));padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .set-google-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(66,133,244,.15);border:1px solid rgba(66,133,244,.35);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:800;color:#74a7f7;margin-bottom:10px}
+    .set-h{font-size:18px;font-weight:900;margin-bottom:6px}
+    .set-sub{font-size:13px;color:var(--gray2);line-height:1.6}
+    .set-steps{padding:18px 20px}
+    .step{display:flex;gap:13px;margin-bottom:16px;align-items:flex-start}
+    .step:last-child{margin-bottom:0}
+    .step-num{width:26px;height:26px;background:rgba(66,133,244,.2);border:1.5px solid rgba(66,133,244,.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#74a7f7;flex-shrink:0;margin-top:1px}
+    .step-text{font-size:13px;color:var(--white);line-height:1.55}
+    .step-text b{color:var(--teal)}
+    .step-link{display:inline-block;margin-top:4px;color:#74a7f7;font-size:13px;font-weight:700;text-decoration:none;background:rgba(66,133,244,.12);padding:5px 12px;border-radius:8px;border:1px solid rgba(66,133,244,.25)}
+    .set-input-wrap{padding:0 20px 20px}
+    .set-input{width:100%;background:var(--card2);border:2px solid rgba(255,255,255,.1);border-radius:12px;color:var(--white);font-size:13px;padding:13px 14px;outline:none;transition:border-color .2s;font-family:monospace}
+    .set-input:focus{border-color:var(--google)}
+    .set-input::placeholder{color:var(--gray);font-family:-apple-system,sans-serif}
+    .set-save{width:100%;background:linear-gradient(135deg,#4285F4,#34A853);border:none;color:#fff;font-size:15px;font-weight:800;padding:14px;border-radius:12px;cursor:pointer;margin-top:12px;transition:opacity .15s}
+    .set-save:active{opacity:.8}
+    .set-status{margin:0 18px 16px;border-radius:14px;padding:13px 16px;font-size:13px;font-weight:700;display:none}
+    .set-status.ok{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:var(--green)}
+    .set-status.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:var(--red)}
+    .set-remove{width:calc(100% - 36px);margin:0 18px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:12px;color:var(--red);font-size:13px;font-weight:700;padding:11px;cursor:pointer;display:none}
+    .set-note{margin:14px 18px 0;font-size:12px;color:var(--gray);line-height:1.6;text-align:center}
   </style>
 </head>
 <body>
@@ -168,10 +204,21 @@
           <div class="logo">Resell.Ai</div>
           <div style="font-size:12px;color:var(--gray2);margin-top:3px">Scan anything · Get real prices</div>
         </div>
-        <div style="font-size:11px;color:var(--green);background:rgba(16,185,129,.12);padding:5px 10px;border-radius:20px;font-weight:700">Free · No signup</div>
+        <button class="gear-btn" onclick="showScreen('settings');updateSettingsUI()" title="Settings">⚙️</button>
       </div>
+
+      <!-- Google AI banner -->
+      <div class="ai-banner off" id="ai-banner" onclick="showScreen('settings');updateSettingsUI()">
+        <div class="ai-banner-ico">🔑</div>
+        <div>
+          <div class="ai-banner-title">Unlock Google Lens AI — Free</div>
+          <div class="ai-banner-sub">Add a free Google key for perfect item identification</div>
+        </div>
+        <div class="ai-banner-arr">→</div>
+      </div>
+
       <div class="hero" onclick="goScan()">
-        <div class="hero-tag">✦ AI Vision · Real eBay Prices</div>
+        <div class="hero-tag" id="hero-tag">✦ AI Vision · Real eBay Prices</div>
         <div class="hero-h">What's It Worth?</div>
         <div class="hero-p">Scan any item — shoes, phones, bags, watches, clothes, toys, anything — and get real resale prices instantly.</div>
         <button class="hero-cta">📷&nbsp; Scan Item</button>
@@ -184,7 +231,7 @@
       <div class="stats">
         <div class="stat"><div class="stat-n" id="s-scans">0</div><div class="stat-l">Scans</div></div>
         <div class="stat"><div class="stat-n" id="s-profit">$0</div><div class="stat-l">Potential</div></div>
-        <div class="stat"><div class="stat-n">Any</div><div class="stat-l">Item</div></div>
+        <div class="stat"><div class="stat-n" id="s-mode">AI</div><div class="stat-l">Mode</div></div>
       </div>
       <div class="sec-h">Recent Scans</div>
       <div class="rlist" id="recentList">
@@ -194,7 +241,7 @@
     <nav class="nav">
       <div class="ni act"><div class="ni-ico">🏠</div><div class="ni-lbl">Home</div></div>
       <div class="ni" onclick="goScan()"><div class="ni-ico">📷</div><div class="ni-lbl">Scan</div></div>
-      <div class="ni"><div class="ni-ico">📈</div><div class="ni-lbl">Trends</div></div>
+      <div class="ni" onclick="showScreen('settings');updateSettingsUI()"><div class="ni-ico">⚙️</div><div class="ni-lbl">Settings</div></div>
       <div class="ni"><div class="ni-ico">👤</div><div class="ni-lbl">Profile</div></div>
     </nav>
   </div>
@@ -204,6 +251,7 @@
     <div class="scan-hdr">
       <button class="back-btn" onclick="goHome()">←</button>
       <div style="font-size:17px;font-weight:800">Scan Any Item</div>
+      <div id="scan-mode-badge" style="margin-left:auto;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;display:none"></div>
     </div>
     <video id="video" autoplay playsinline muted></video>
     <div class="viewfinder">
@@ -213,7 +261,7 @@
       </div>
     </div>
     <div class="scan-bot">
-      <div class="scan-hint">Point at any item · fill the frame · tap 📷</div>
+      <div class="scan-hint" id="scan-hint">Point at any item · fill the frame · tap 📷</div>
       <div class="scan-row">
         <button class="upload-btn" onclick="document.getElementById('fileInput').click()" title="Upload photo">🖼</button>
         <div class="shutter" onclick="capturePhoto()"><div class="shutter-inner">📷</div></div>
@@ -230,6 +278,7 @@
       <div class="conf-hdr">
         <button class="back-btn" onclick="goScan()">←</button>
         <div style="font-size:16px;font-weight:800">Confirm Item</div>
+        <div id="ai-mode-label" style="margin-left:auto;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;display:none"></div>
       </div>
       <img id="conf-img" class="conf-preview" src="" alt="" style="display:none">
       <div class="conf-body">
@@ -237,13 +286,10 @@
         <textarea class="conf-field" id="conf-field" rows="2" placeholder="e.g. Nike Air Jordan 4 Retro Black Cement"></textarea>
         <div class="conf-note" id="conf-note">✏️ AI filled this in — fix it if wrong</div>
         <div id="ai-details"></div>
-
-        <!-- Word chips: tappable words OCR found on the item -->
         <div id="word-chips">
           <div class="chips-label">📖 Text found on item — tap to use:</div>
           <div id="chips-wrap"></div>
         </div>
-
         <div class="conf-cond">
           <div class="conf-label">Condition</div>
           <div class="cond-row">
@@ -325,25 +371,70 @@
     <nav class="nav">
       <div class="ni" onclick="goHome()"><div class="ni-ico">🏠</div><div class="ni-lbl">Home</div></div>
       <div class="ni act"><div class="ni-ico">📷</div><div class="ni-lbl">Scan</div></div>
-      <div class="ni"><div class="ni-ico">📈</div><div class="ni-lbl">Trends</div></div>
+      <div class="ni" onclick="showScreen('settings');updateSettingsUI()"><div class="ni-ico">⚙️</div><div class="ni-lbl">Settings</div></div>
       <div class="ni"><div class="ni-ico">👤</div><div class="ni-lbl">Profile</div></div>
     </nav>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="screen" id="settings">
+    <div class="set-scroll">
+      <div class="set-hdr">
+        <button class="back-btn" onclick="goHome()">←</button>
+        <div style="font-size:17px;font-weight:800">Settings</div>
+      </div>
+
+      <div id="set-status" class="set-status"></div>
+
+      <div class="set-section">
+        <div class="set-top">
+          <div class="set-google-badge">🤖 Google AI · Gemini Vision</div>
+          <div class="set-h">Google Lens Quality Scanning</div>
+          <div class="set-sub">Connect Google's own AI to identify <b>any item instantly</b> — same tech as Google Lens. Free forever, no credit card.</div>
+        </div>
+        <div class="set-steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-text">Open Google AI Studio in your browser:<br>
+              <a class="step-link" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com → Get API key</a>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-text">Sign in with any Google account, click <b>"Create API key"</b>, then copy the key</div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-text">Paste it below and tap <b>Connect</b></div>
+          </div>
+        </div>
+        <div class="set-input-wrap">
+          <input class="set-input" id="gemini-key-input" type="password" placeholder="Paste your Gemini API key here (AIza…)" autocomplete="off" spellcheck="false">
+          <button class="set-save" onclick="saveGeminiKey()">🔗 Connect Google AI</button>
+        </div>
+      </div>
+
+      <button class="set-remove" id="set-remove-btn" onclick="removeGeminiKey()">Remove API Key</button>
+      <div class="set-note">Your key is stored only on this device and never shared. Free tier: 1,500 scans/day.</div>
+    </div>
   </div>
 
 </div>
 <script>
 // ─── STATE ────────────────────────────────────────────────────────────────────
-let cameraStream = null;
-let capturedImg  = null;
-let condMul      = 0.85;
-let condLabel    = 'like new';
-let recentScans  = JSON.parse(localStorage.getItem('rs3') || '[]');
-let scansToday   = parseInt(localStorage.getItem('rs3_n') || '0');
+let cameraStream  = null;
+let capturedImg   = null;
+let condMul       = 0.85;
+let condLabel     = 'like new';
+let recentScans   = JSON.parse(localStorage.getItem('rs3') || '[]');
+let scansToday    = parseInt(localStorage.getItem('rs3_n') || '0');
 let lastAiDetails = [];
-let _userEdited  = false;
+let _userEdited   = false;
 if (localStorage.getItem('rs3_day') !== new Date().toDateString()) {
   scansToday = 0; localStorage.setItem('rs3_day', new Date().toDateString());
 }
+function geminiKey() { return localStorage.getItem('gemini_key') || ''; }
+function hasGemini()  { return geminiKey().length > 10; }
 
 // ─── SCREEN NAV ───────────────────────────────────────────────────────────────
 let cur = null;
@@ -354,9 +445,79 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
   cur = id;
 }
-showScreen('home'); updateStats(); renderRecent();
-function goHome() { stopCamera(); showScreen('home'); updateStats(); renderRecent(); }
-function goScan() { showScreen('scan'); startCamera(); }
+showScreen('home'); updateStats(); renderRecent(); updateHomeBanner();
+
+function goHome() { stopCamera(); showScreen('home'); updateStats(); renderRecent(); updateHomeBanner(); }
+function goScan() { showScreen('scan'); startCamera(); updateScanBadge(); }
+
+// ─── HOME BANNER & MODE ───────────────────────────────────────────────────────
+function updateHomeBanner() {
+  const banner = document.getElementById('ai-banner');
+  const modeEl = document.getElementById('s-mode');
+  if (hasGemini()) {
+    banner.className = 'ai-banner on';
+    banner.innerHTML = `<div class="ai-banner-ico">✅</div><div><div class="ai-banner-title" style="color:var(--green)">Google AI Connected</div><div class="ai-banner-sub">Gemini Vision active — Google Lens quality scanning</div></div><div class="ai-banner-arr" style="color:var(--green)">⚙️</div>`;
+    modeEl.textContent = '🤖 AI';
+    modeEl.style.color = 'var(--green)';
+  } else {
+    banner.className = 'ai-banner off';
+    banner.innerHTML = `<div class="ai-banner-ico">🔑</div><div><div class="ai-banner-title">Unlock Google Lens AI — Free</div><div class="ai-banner-sub">Add a free Google key for perfect item identification</div></div><div class="ai-banner-arr">→</div>`;
+    modeEl.textContent = 'Basic';
+    modeEl.style.color = 'var(--gray2)';
+  }
+}
+function updateScanBadge() {
+  const b = document.getElementById('scan-mode-badge');
+  const h = document.getElementById('scan-hint');
+  if (hasGemini()) {
+    b.style.display = 'block';
+    b.style.cssText += ';background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)';
+    b.textContent = '🤖 Google AI';
+    h.textContent = 'Point at anything · Google AI identifies it instantly';
+  } else {
+    b.style.display = 'none';
+    h.textContent = 'Point at any item · fill the frame · tap 📷';
+  }
+}
+
+// ─── SETTINGS ─────────────────────────────────────────────────────────────────
+function updateSettingsUI() {
+  const inp = document.getElementById('gemini-key-input');
+  const rmv = document.getElementById('set-remove-btn');
+  const st  = document.getElementById('set-status');
+  if (hasGemini()) {
+    inp.value = '••••••••••••••••••••••••••••••••••••••••';
+    inp.disabled = true;
+    rmv.style.display = 'block';
+    st.style.display = 'block';
+    st.className = 'set-status ok';
+    st.textContent = '✅ Google AI connected — Gemini Vision active';
+  } else {
+    inp.value = '';
+    inp.disabled = false;
+    rmv.style.display = 'none';
+    st.style.display = 'none';
+  }
+}
+function saveGeminiKey() {
+  const val = document.getElementById('gemini-key-input').value.trim();
+  if (!val || val.includes('•')) return;
+  if (!val.startsWith('AIza') || val.length < 30) {
+    const st = document.getElementById('set-status');
+    st.style.display = 'block'; st.className = 'set-status err';
+    st.textContent = '❌ That doesn\'t look right. Keys start with "AIza" and are ~39 characters.';
+    return;
+  }
+  localStorage.setItem('gemini_key', val);
+  updateSettingsUI(); updateHomeBanner();
+  const st = document.getElementById('set-status');
+  st.style.display = 'block'; st.className = 'set-status ok';
+  st.textContent = '✅ Google AI connected! Every scan now uses Gemini Vision.';
+}
+function removeGeminiKey() {
+  localStorage.removeItem('gemini_key');
+  updateSettingsUI(); updateHomeBanner();
+}
 
 // ─── CAMERA ───────────────────────────────────────────────────────────────────
 function startCamera() {
@@ -396,40 +557,39 @@ document.getElementById('fileInput').addEventListener('change', function() {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
-//  SCAN FLOW — show confirm screen IMMEDIATELY, run AI in background
-//  The user sees their photo right away and can edit while AI works
+//  SCAN FLOW
 // ═══════════════════════════════════════════════════════════════════════════════
-
 function startScanFlow(canvas) {
-  _userEdited   = false;
-  lastAiDetails = [];
-
-  // Show confirm screen with photo instantly — no waiting spinner
+  _userEdited = false; lastAiDetails = [];
   const cImg = document.getElementById('conf-img');
   cImg.src = capturedImg; cImg.style.display = '';
-
   const field = document.getElementById('conf-field');
-  field.value       = '';
-  field.disabled    = true;
-  field.placeholder = '🔍 Reading label…';
+  field.value = ''; field.disabled = true;
+  field.placeholder = hasGemini() ? '🤖 Google AI identifying your item…' : '🔍 Reading label…';
   field.style.borderColor = 'rgba(255,255,255,.15)';
   field.oninput = () => {
-    _userEdited = true;
-    field.disabled = false;
+    _userEdited = true; field.disabled = false;
     document.getElementById('conf-go').disabled = field.value.trim().length < 2;
   };
-
-  document.getElementById('conf-note').textContent = 'Reading your item — results appear below…';
+  // Show which AI is running
+  const modeEl = document.getElementById('ai-mode-label');
+  if (hasGemini()) {
+    modeEl.style.display = 'block';
+    modeEl.style.cssText += ';background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.25)';
+    modeEl.textContent = '🤖 Google AI';
+  } else {
+    modeEl.style.display = 'none';
+  }
+  document.getElementById('conf-note').textContent = hasGemini()
+    ? '🤖 Google AI analyzing your photo…'
+    : 'Reading your item — results appear below…';
   document.getElementById('ai-details').style.display = 'none';
   document.getElementById('word-chips').style.display = 'none';
   document.getElementById('chips-wrap').innerHTML = '';
   document.getElementById('conf-go').disabled = true;
   condMul = 0.85; condLabel = 'like new';
   document.querySelectorAll('.cond-pill').forEach((b,i) => b.classList.toggle('sel', i===1));
-
   showScreen('confirm');
-
-  // Fire all AI in background
   runIdentification(canvas);
 }
 
@@ -438,7 +598,28 @@ async function runIdentification(canvas) {
   const dataUrl = await blobToDataUrl(blob);
   const b64     = dataUrl.split(',')[1];
 
-  // ── Track A: VQA — "what brand?" + "what type?" (network, ~5-15s) ─────────
+  // ── TRACK A: Gemini (Google AI) — runs first if key is set ─────────────────
+  if (hasGemini()) {
+    const gemResult = await runGemini(b64);
+    if (gemResult) {
+      const label = buildGeminiLabel(gemResult);
+      if (!junk(label)) {
+        lastAiDetails = [`🤖 ${gemResult.brand||'?'}`, `📦 ${gemResult.product||gemResult.type||'?'}`].filter(x => !x.includes('?'));
+        applyLabel(label, false, true); // isGemini=true
+        // Still run OCR in background to show word chips (useful even when Gemini works)
+        runOCR(dataUrl, canvas).then(ocr => {
+          if (!ocr) return;
+          const parsed = parseOCR(ocr);
+          showWordChips(parsed.chipWords);
+        });
+        return; // Gemini succeeded — done
+      }
+    }
+    // Gemini failed — fall through to classic AI
+    lastAiDetails.push('⚠️ Google AI unavailable');
+  }
+
+  // ── TRACK B: Classic AI (VQA + Caption) — fallback when no Gemini ──────────
   const [brandR, typeR, captionR] = await Promise.allSettled([
     askVQA(b64, 'What brand or company name is shown on this product?'),
     askVQA(b64, 'What specific type of product or item is this?'),
@@ -447,69 +628,61 @@ async function runIdentification(canvas) {
   const vqaBrand = settled(brandR);
   const vqaType  = settled(typeR);
   const caption  = settled(captionR);
-
   if (!junk(vqaBrand)) lastAiDetails.push(`🤖 ${vqaBrand}`);
   if (!junk(vqaType))  lastAiDetails.push(`📦 ${vqaType}`);
   const vqaLabel = buildLabel(!junk(vqaBrand)?vqaBrand:null, !junk(vqaType)?vqaType:null, caption);
-  applyLabel(vqaLabel, false);
+  applyLabel(vqaLabel, false, false);
 
-  // ── Track B: OCR — reads text directly off labels (parallel, ~3-12s) ─────
-  // Fire OCR in background — don't await it here, let it update the screen when done
+  // ── TRACK C: OCR — parallel, updates when done ─────────────────────────────
   runOCR(dataUrl, canvas).then(ocr => {
     if (!ocr) return;
     const parsed = parseOCR(ocr);
-
-    // Always show word chips so the user can see/tap any text found
     showWordChips(parsed.chipWords);
-
     if (!junk(parsed.brand)) {
-      // OCR read actual text off the label — trust it over VQA guess
       lastAiDetails = lastAiDetails.filter(d => !d.startsWith('📖'));
       lastAiDetails.unshift(`📖 ${parsed.brand}`);
       const ocrLabel = buildLabel(parsed.brand, !junk(vqaType)?vqaType:parsed.foundProduct, null);
-      applyLabel(ocrLabel, true); // isOCR=true → teal border
+      applyLabel(ocrLabel, true, false);
     }
   });
 
-  // ── Track C: Vintage clothing — extra style questions if no brand found ───
+  // ── TRACK D: Vintage clothing ───────────────────────────────────────────────
   const ctx = [vqaLabel||'', caption||''].join(' ').toLowerCase();
-  if (/shirt|jacket|hoodie|jean|pant|coat|dress|sweat|top|apparel|wear|blouse|skirt|tee|sweater|vest/.test(ctx) && junk(vqaBrand)) {
-    const [eraR, colorR, matR] = await Promise.allSettled([
+  if (/shirt|jacket|hoodie|jean|pant|coat|dress|sweat|top|blouse|skirt|tee|sweater/.test(ctx) && junk(vqaBrand)) {
+    const [eraR, colorR] = await Promise.allSettled([
       askVQA(b64, 'What decade or era does this clothing style look like?'),
       askVQA(b64, 'What is the main color of this clothing?'),
-      askVQA(b64, 'What material or fabric is this?'),
     ]);
-    const era = settled(eraR), color = settled(colorR), mat = settled(matR);
-    const parts = [!junk(color)?color:null, !junk(mat)?mat:null, vqaLabel||vqaType, !junk(era)?era:null].filter(Boolean);
+    const era = settled(eraR), color = settled(colorR);
+    const parts = [!junk(color)?color:null, vqaLabel||vqaType, !junk(era)?era:null].filter(Boolean);
     if (parts.length > 1) {
       if (!junk(color)) lastAiDetails.push(`🎨 ${color}`);
-      if (!junk(mat))   lastAiDetails.push(`🧵 ${mat}`);
       if (!junk(era))   lastAiDetails.push(`📅 ${era}`);
-      applyLabel(parts.join(' '), false);
+      applyLabel(parts.join(' '), false, false);
     }
   }
 }
 
-// Apply a label to the confirm screen (respects user edits)
-function applyLabel(label, isOCR) {
+function applyLabel(label, isOCR, isGemini) {
   if (_userEdited) return;
   const field = document.getElementById('conf-field');
   field.disabled = false;
-
   if (!junk(label)) {
     field.value = cap1(label);
-    field.style.borderColor = isOCR ? 'var(--teal)' : 'var(--purple)';
-    document.getElementById('conf-note').textContent = isOCR
-      ? '📖 Read from label — fix it if wrong'
-      : '✏️ AI identified this — fix it if wrong';
+    if (isGemini)    { field.style.borderColor = 'var(--green)'; }
+    else if (isOCR)  { field.style.borderColor = 'var(--teal)'; }
+    else             { field.style.borderColor = 'var(--purple)'; }
+    document.getElementById('conf-note').textContent = isGemini
+      ? '🤖 Google AI identified this — fix it if wrong'
+      : isOCR
+        ? '📖 Read from label — fix it if wrong'
+        : '✏️ AI identified this — fix it if wrong';
     document.getElementById('conf-go').disabled = false;
   } else if (!field.value.trim()) {
     field.placeholder = 'AI couldn\'t identify — type brand + item (e.g. "Owala water bottle")';
     field.style.borderColor = 'var(--orange)';
     document.getElementById('conf-note').textContent = '⚠️ Type what it is — include the brand name for best results';
   }
-
-  // Refresh details badge
   const box = document.getElementById('ai-details');
   if (lastAiDetails.length) {
     box.style.display = 'block';
@@ -518,116 +691,145 @@ function applyLabel(label, isOCR) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-//  IDENTIFICATION ENGINE — OCR + VQA + Caption
+//  IDENTIFICATION ENGINE
 // ═══════════════════════════════════════════════════════════════════════════════
-
-function sleep(ms)       { return new Promise(r => setTimeout(r, ms)); }
-function settled(r)      { return r.status === 'fulfilled' ? r.value : null; }
-function cap1(s)         { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
-function abortAfter(ms)  { const c = new AbortController(); setTimeout(()=>c.abort(), ms); return c.signal; }
+function sleep(ms)      { return new Promise(r => setTimeout(r, ms)); }
+function settled(r)     { return r.status === 'fulfilled' ? r.value : null; }
+function cap1(s)        { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+function abortAfter(ms) { const c = new AbortController(); setTimeout(()=>c.abort(), ms); return c.signal; }
 function blobToDataUrl(blob) {
   return new Promise((res,rej) => { const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(blob); });
 }
-
-const JUNK = new Set(['yes','no','none','unknown','unclear','object','thing','item','stuff','something','product','not visible','no brand','cannot determine','n/a','na','nothing','i don\'t know']);
+const JUNK = new Set(['yes','no','none','unknown','unclear','object','thing','item','stuff','something','product','not visible','no brand','cannot determine','n/a','na','nothing','i don\'t know','i cannot','cannot']);
 function junk(s) {
   if (!s) return true;
   const t = s.toLowerCase().trim();
-  return t.length < 2 || JUNK.has(t);
+  if (t.length < 2) return true;
+  for (const j of JUNK) if (t.includes(j)) return true;
+  return false;
 }
 
-// ── Known brands for instant matching against OCR text ───────────────────────
-const KNOWN_BRANDS = new Set([
-  // Drinkware (critical for Owala)
-  'owala','hydroflask','hydro flask','stanley','yeti','contigo','nalgene',
-  'camelbak','klean kanteen','swell','corkcicle','takeya','zojirushi',
-  'thermos','migo','iron flask','simple modern','buzio','tal',
-  // Sneakers / Streetwear
-  'nike','adidas','jordan','yeezy','supreme','off-white','bape','palace',
-  'vans','converse','new balance','puma','reebok','asics','saucony',
-  'timberland','ugg','salomon','hoka','on running','brooks','skechers',
-  'under armour','fila','ellesse','kith','fear of god','essentials',
-  // Bags / Accessories
-  'louis vuitton','gucci','prada','chanel','hermes','coach','kate spade',
-  'michael kors','burberry','balenciaga','off white','celine','loewe',
-  'goyard','bottega veneta','tumi','samsonite','herschel','jansport',
-  // Electronics
-  'apple','samsung','google','sony','bose','beats','jbl','marshall',
-  'jabra','sennheiser','anker','razer','logitech','corsair','hyperx',
-  'dyson','lg','philips','panasonic','sharp','lenovo','dell','hp','asus',
-  // Watches
-  'rolex','omega','casio','seiko','fossil','citizen','tissot','tag heuer',
-  'iwc','breitling','panerai','tudor','longines','hamilton','bulova',
-  // Clothing
-  'north face','patagonia','columbia','arcteryx','arc teryx','canada goose',
-  'moncler','stone island','carhartt','dickies','levi','levis','wrangler',
-  'ralph lauren','polo','tommy hilfiger','lacoste','fred perry','champion',
-  // Gaming / Collectibles
-  'pokemon','funko','lego','mattel','hasbro','bandai','nintendo','sony',
-  'xbox','microsoft','playstation','atari',
-  // Fragrance / Beauty
-  'chanel','dior','gucci','versace','prada','armani','burberry','coach',
-  'ysl','yves saint laurent','tom ford','creed','jo malone','maison margiela',
-  // Sports
-  'wilson','callaway','titleist','taylormade','ping','cobra','cleveland',
-  'burton','lib tech','capita','nike','adidas',
-]);
+// ── Gemini Vision API ─────────────────────────────────────────────────────────
+async function runGemini(b64) {
+  const key = geminiKey();
+  if (!key) return null;
+  const PROMPT = `You are a product identification expert for a resale app. Look at this image carefully.
 
-// ── OCR Track 1: OCR.space API (server-side, most reliable on mobile) ────────
-async function runOCRSpace(canvas) {
+Identify the item and respond in EXACTLY this format (one line each):
+BRAND: [exact brand name, or Unknown if not visible]
+PRODUCT: [specific product name and model/variant]
+TYPE: [category: Sneakers / Clothing / Electronics / Bags / Watches / Drinkware / Gaming / Collectibles / Audio / Cameras / Jewelry / Other]
+
+Rules:
+- Read any text visible on the item EXACTLY as written
+- Be specific (not just "shoe" — say "Nike Air Jordan 4 Retro White Cement")
+- For Owala, Stanley, Yeti, Hydro Flask etc: read the brand off the bottle
+- If you see a logo or recognizable design, name the brand
+
+Examples:
+BRAND: Owala
+PRODUCT: FreeSip 32oz Stainless Steel Water Bottle
+TYPE: Drinkware
+
+BRAND: Nike
+PRODUCT: Air Jordan 4 Retro Black Cement
+TYPE: Sneakers`;
+
   try {
-    // Resize to ≤1500px for OCR.space 1MB limit
-    const scale = Math.min(1.8, 1500 / Math.max(canvas.width || 640, canvas.height || 480));
-    const c = document.createElement('canvas');
-    c.width  = Math.round((canvas.width  || 640) * scale);
-    c.height = Math.round((canvas.height || 480) * scale);
-    c.getContext('2d').drawImage(canvas, 0, 0, c.width, c.height);
-    const b64 = c.toDataURL('image/jpeg', 0.82);
+    const r = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${key}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [
+            { text: PROMPT },
+            { inline_data: { mime_type: 'image/jpeg', data: b64 } }
+          ]}],
+          generationConfig: { maxOutputTokens: 200, temperature: 0.1 }
+        }),
+        signal: abortAfter(18000)
+      }
+    );
 
-    const fd = new FormData();
-    fd.append('base64Image', b64);
-    fd.append('apikey', 'helloworld');
-    fd.append('language', 'eng');
-    fd.append('isOverlayRequired', 'false');
-    fd.append('detectOrientation', 'true');
-    fd.append('scale', 'true');
-    fd.append('OCREngine', '2'); // Engine 2 is better for product labels
-
-    const r = await fetch('https://api.ocr.space/parse/image', {
-      method: 'POST', body: fd, signal: abortAfter(18000)
-    });
+    if (r.status === 400 || r.status === 403) {
+      // Invalid/expired key — remove it so user knows
+      localStorage.removeItem('gemini_key');
+      updateHomeBanner();
+      return null;
+    }
     if (!r.ok) return null;
-    const d = await r.json();
-    if (d.IsErroredOnProcessing || !d.ParsedResults?.length) return null;
 
-    const text = d.ParsedResults[0].ParsedText || '';
+    const d    = await r.json();
+    const text = d.candidates?.[0]?.content?.parts?.[0]?.text || '';
     if (!text.trim()) return null;
 
-    // Build word list compatible with parseOCR
-    const words = text.split(/[\s\n\r]+/)
-      .map(w => w.replace(/[^A-Za-z0-9&'/.-]/g, '').trim())
-      .filter(w => w.length >= 2)
-      .map(w => ({ text: w, confidence: 82 })); // OCR.space confidence ~82
+    // Parse structured response
+    const brand   = (text.match(/^BRAND:\s*(.+)/mi)?.[1] || '').trim();
+    const product = (text.match(/^PRODUCT:\s*(.+)/mi)?.[1] || '').trim();
+    const type    = (text.match(/^TYPE:\s*(.+)/mi)?.[1] || '').trim();
 
-    return { text, words, source: 'ocrspace' };
+    return {
+      brand:   (brand && brand.toLowerCase() !== 'unknown') ? brand : null,
+      product: product || null,
+      type:    type    || null,
+      raw:     text
+    };
   } catch(e) { return null; }
 }
 
-// ── OCR Track 2: Tesseract.js local fallback (dual-mode preprocessing) ────────
-let _tWorker = null;
+function buildGeminiLabel(g) {
+  const brand   = g.brand;
+  const product = g.product;
+  if (brand && product) {
+    // Avoid "Nike Nike Air Jordan 4" — if product already starts with brand, skip it
+    return product.toLowerCase().startsWith(brand.toLowerCase()) ? product : `${brand} ${product}`;
+  }
+  if (product) return product;
+  if (brand)   return brand;
+  return null;
+}
 
+// ── OCR.space API (server-side, reliable on mobile) ───────────────────────────
+async function runOCRSpace(canvas) {
+  try {
+    const scale = Math.min(1.8, 1500 / Math.max(canvas.width||640, canvas.height||480));
+    const c = document.createElement('canvas');
+    c.width  = Math.round((canvas.width||640)  * scale);
+    c.height = Math.round((canvas.height||480) * scale);
+    c.getContext('2d').drawImage(canvas, 0, 0, c.width, c.height);
+    const b64 = c.toDataURL('image/jpeg', 0.82);
+    const fd  = new FormData();
+    fd.append('base64Image', b64); fd.append('apikey', 'helloworld');
+    fd.append('language', 'eng'); fd.append('isOverlayRequired', 'false');
+    fd.append('detectOrientation', 'true'); fd.append('scale', 'true');
+    fd.append('OCREngine', '2');
+    const r = await fetch('https://api.ocr.space/parse/image', { method:'POST', body:fd, signal:abortAfter(18000) });
+    if (!r.ok) return null;
+    const d = await r.json();
+    if (d.IsErroredOnProcessing || !d.ParsedResults?.length) return null;
+    const text = d.ParsedResults[0].ParsedText || '';
+    if (!text.trim()) return null;
+    const words = text.split(/[\s\n\r]+/)
+      .map(w => w.replace(/[^A-Za-z0-9&'/.-]/g,'').trim())
+      .filter(w => w.length >= 2)
+      .map(w => ({ text:w, confidence:82 }));
+    return { text, words, source:'ocrspace' };
+  } catch(e) { return null; }
+}
+
+// ── Tesseract.js fallback (dual-mode preprocessing) ───────────────────────────
+let _tWorker = null;
 window.addEventListener('load', () => {
   setTimeout(async () => {
     if (!window.Tesseract || _tWorker) return;
     try { _tWorker = await Tesseract.createWorker('eng', 1); } catch(e) {}
   }, 3000);
 });
-
 function enhanceCanvas(canvas) {
   const scale = Math.min(2.5, 1800 / Math.max(canvas.width, canvas.height));
   const c = document.createElement('canvas');
-  c.width  = Math.round(canvas.width  * scale);
-  c.height = Math.round(canvas.height * scale);
+  c.width = Math.round(canvas.width*scale); c.height = Math.round(canvas.height*scale);
   const ctx = c.getContext('2d');
   ctx.filter = 'contrast(2) saturate(0) brightness(1.1)';
   ctx.drawImage(canvas, 0, 0, c.width, c.height);
@@ -647,7 +849,7 @@ async function runTesseract(canvas) {
     if (!_tWorker) {
       _tWorker = await Promise.race([
         Tesseract.createWorker('eng', 1),
-        sleep(16000).then(() => { throw new Error('timeout'); })
+        sleep(16000).then(()=>{throw new Error('timeout');})
       ]);
     }
     const [r1, r2] = await Promise.allSettled([
@@ -655,243 +857,177 @@ async function runTesseract(canvas) {
       Promise.race([ _tWorker.recognize(invertCanvas(canvas)),  sleep(10000).then(()=>{throw new Error();}) ]),
     ]);
     const words = [
-      ...(r1.status==='fulfilled' ? r1.value.data?.words||[] : []),
-      ...(r2.status==='fulfilled' ? r2.value.data?.words||[] : []),
+      ...(r1.status==='fulfilled'?r1.value.data?.words||[]:[]),
+      ...(r2.status==='fulfilled'?r2.value.data?.words||[]:[]),
     ];
     const text = [
-      r1.status==='fulfilled' ? r1.value.data?.text : '',
-      r2.status==='fulfilled' ? r2.value.data?.text : '',
+      r1.status==='fulfilled'?r1.value.data?.text:'',
+      r2.status==='fulfilled'?r2.value.data?.text:'',
     ].filter(Boolean).join('\n');
     return { text, words };
   } catch(e) { return null; }
 }
-
-// ── Main OCR entry: try OCR.space first, fall back to Tesseract ───────────────
 async function runOCR(dataUrl, canvas) {
-  // Fire both in parallel — OCR.space server-side + Tesseract local
-  // Whichever finds brand text first wins; we use the richer result
   const [spaceR, tessR] = await Promise.allSettled([
     runOCRSpace(canvas),
     runTesseract(canvas),
   ]);
-  const space = spaceR.status === 'fulfilled' ? spaceR.value : null;
-  const tess  = tessR.status  === 'fulfilled' ? tessR.value  : null;
-
-  // Merge both results — more words = better brand detection
+  const space = settled(spaceR), tess = settled(tessR);
   if (space && tess) {
-    const mergedWords = [...(space.words||[]), ...(tess.words||[])];
-    const mergedText  = [space.text, tess.text].filter(Boolean).join('\n');
-    return { text: mergedText, words: mergedWords };
+    return { text:[space.text,tess.text].filter(Boolean).join('\n'), words:[...(space.words||[]),...(tess.words||[])] };
   }
   return space || tess || null;
 }
 
-// Words that are everywhere on labels but NOT brand/product names
+// ── Known brands ──────────────────────────────────────────────────────────────
+const KNOWN_BRANDS = new Set([
+  'owala','hydroflask','hydro flask','stanley','yeti','contigo','nalgene','camelbak',
+  'klean kanteen','swell','corkcicle','takeya','zojirushi','thermos','simple modern',
+  'nike','adidas','jordan','yeezy','supreme','off-white','bape','palace','vans',
+  'converse','new balance','puma','reebok','asics','saucony','timberland','ugg',
+  'salomon','hoka','on running','brooks','under armour','fila','kith',
+  'louis vuitton','gucci','prada','chanel','hermes','coach','kate spade',
+  'michael kors','burberry','balenciaga','celine','loewe','goyard','tumi',
+  'samsonite','herschel','jansport','apple','samsung','google','sony','bose',
+  'beats','jbl','marshall','jabra','sennheiser','anker','razer','logitech',
+  'corsair','hyperx','dyson','lg','lenovo','dell','hp','asus','rolex','omega',
+  'casio','seiko','fossil','citizen','tissot','tag heuer','breitling','tudor',
+  'north face','patagonia','columbia','arcteryx','canada goose','moncler',
+  'stone island','carhartt','dickies','levi','levis','ralph lauren','polo',
+  'tommy hilfiger','lacoste','champion','pokemon','funko','lego','nintendo',
+  'xbox','playstation','atari','dior','versace','armani','ysl',
+]);
 const OCR_NOISE = new Set(
-  'the and of for with is are was be to a an in on at by as or but if not from this that it its your our you we me my have has can will do does made use good great new old get set net oz ml g mg fl per serving ingredients directions warnings caution keep out reach children distributed manufactured imported inc llc ltd corp co www http https com net org free paraben sulfate cruelty vegan organic natural artificial do not shake before refrigerate apply gently rub rinse repeat if irritation contact doctor'.split(' ')
+  'the and of for with is are was be to a an in on at by as or but if not from this that it its your our you we me my have has can will do does made use good great new old get set net oz ml g mg fl per serving ingredients directions warnings caution keep out reach children distributed manufactured imported inc llc ltd corp co www http https com net org free paraben sulfate cruelty vegan organic natural'.split(' ')
 );
-
 const PRODUCT_KEYWORDS = [
-  'water bottle','hand sanitizer','sanitizer','shampoo','conditioner','lotion',
-  'moisturizer','sunscreen','cologne','perfume','deodorant','toothpaste',
-  'sneaker','shoe','boot','jacket','hoodie','shirt','jeans','shorts','dress',
-  'watch','backpack','wallet','purse','headphones','earbuds','speaker',
-  'charger','keyboard','laptop','tablet','protein powder','supplement',
+  'water bottle','hand sanitizer','shampoo','conditioner','lotion','moisturizer',
+  'sunscreen','cologne','perfume','deodorant','toothpaste','sneaker','shoe','boot',
+  'jacket','hoodie','shirt','jeans','watch','backpack','wallet','purse','headphones',
+  'earbuds','speaker','charger','laptop','tablet','protein powder','supplement',
   'vitamin','energy drink','coffee','mug','tumbler','bottle',
 ];
-
 function parseOCR({ text, words }) {
   if (!text?.trim()) return { brand: null, chipWords: [], foundProduct: null };
-
-  // High-confidence alpha words that aren't noise
   const good = [...new Set(
-    (words || [])
+    (words||[])
       .filter(w => (w.confidence||50) > 40 && /^[A-Za-z0-9&'/.-]{2,24}$/.test(w.text?.trim()))
       .map(w => w.text.trim())
       .filter(w => !OCR_NOISE.has(w.toLowerCase()) && w.length >= 2)
   )];
-
   const tl = text.toLowerCase();
-
-  // ── Priority 1: exact match against known brand database ────────────────────
-  // Try full text first (catches multi-word brands like "Hydro Flask")
+  // Priority 1: known brand database
   let knownMatch = null;
-  // Sort known brands longest first so "hydro flask" beats "hydro"
   const sortedBrands = [...KNOWN_BRANDS].sort((a,b) => b.length - a.length);
   for (const brand of sortedBrands) {
     if (tl.includes(brand)) { knownMatch = brand; break; }
   }
-  // Also try individual words
   if (!knownMatch) {
-    for (const w of good) {
-      if (KNOWN_BRANDS.has(w.toLowerCase())) { knownMatch = w; break; }
-    }
+    for (const w of good) { if (KNOWN_BRANDS.has(w.toLowerCase())) { knownMatch = w; break; } }
   }
-
-  // ── Priority 2: ALLCAPS words = strong brand signal ─────────────────────────
-  // (OWALA, SUPREME, PURELL, YETI — these are almost always brand names)
-  const caps = good.filter(w => w === w.toUpperCase() && w.length >= 3 && w.length <= 16 && !/^\d+$/.test(w));
-
-  // ── Priority 3: Proper-case words ────────────────────────────────────────────
-  const proper = good.filter(w => /^[A-Z][a-z]{1,}/.test(w) && w.length >= 3 && !caps.includes(w));
-
-  // Pick best brand
+  // Priority 2: ALLCAPS words
+  const caps = good.filter(w => w===w.toUpperCase() && w.length>=3 && w.length<=16 && !/^\d+$/.test(w));
+  // Priority 3: Proper-case
+  const proper = good.filter(w => /^[A-Z][a-z]{1,}/.test(w) && w.length>=3 && !caps.includes(w));
   let brand = null;
-  if (knownMatch) {
-    // Known brand — capitalize properly
-    brand = knownMatch.split(' ').map(cap1).join(' ');
-  } else if (caps.length >= 2) {
-    brand = caps.slice(0,2).join(' ');
-  } else if (caps.length === 1) {
-    brand = caps[0].length <= 9 ? caps[0] : cap1(caps[0].toLowerCase());
-  } else if (proper.length) {
-    brand = proper.slice(0,2).join(' ');
-  }
-
+  if (knownMatch)           brand = knownMatch.split(' ').map(cap1).join(' ');
+  else if (caps.length>=2)  brand = caps.slice(0,2).join(' ');
+  else if (caps.length===1) brand = caps[0].length<=9 ? caps[0] : cap1(caps[0].toLowerCase());
+  else if (proper.length)   brand = proper.slice(0,2).join(' ');
   const foundProduct = PRODUCT_KEYWORDS.find(p => tl.includes(p)) || null;
-  const chipWords = good.filter(w => w.length >= 3).slice(0, 16);
-
+  const chipWords = good.filter(w => w.length>=3).slice(0,16);
   return { brand, chipWords, foundProduct };
 }
 
-// ── VQA: Ask AI specific questions ───────────────────────────────────────────
+// ── VQA fallback ──────────────────────────────────────────────────────────────
 async function askVQA(b64, question) {
   const urls = [
     'https://api-inference.huggingface.co/models/Salesforce/blip-vqa-base',
     'https://api-inference.huggingface.co/models/dandelin/vilt-b32-finetuned-vqa',
   ];
   for (const url of urls) {
-    for (let t = 0; t < 2; t++) {
+    for (let t=0; t<2; t++) {
       try {
-        const r = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ inputs: { image: b64, question } }),
-          signal: abortAfter(14000)
-        });
-        if (r.ok) {
-          const d  = await r.json();
-          const ans = Array.isArray(d) ? d[0]?.answer : d?.answer;
-          if (ans?.trim().length > 1) return ans.trim();
-          break;
-        }
-        if (r.status === 503) {
-          const e = await r.json().catch(()=>({}));
-          await sleep(Math.min((e.estimated_time||7)*1000, 11000));
-          continue;
-        }
+        const r = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({inputs:{image:b64,question}}), signal:abortAfter(14000) });
+        if (r.ok) { const d=await r.json(); const ans=Array.isArray(d)?d[0]?.answer:d?.answer; if (ans?.trim().length>1) return ans.trim(); break; }
+        if (r.status===503) { const e=await r.json().catch(()=>({})); await sleep(Math.min((e.estimated_time||7)*1000,11000)); continue; }
         break;
-      } catch(e) { if (t < 1) await sleep(1500); }
+      } catch(e) { if (t<1) await sleep(1500); }
     }
   }
   return null;
 }
-
-// ── Caption: visual fallback ─────────────────────────────────────────────────
 async function runCaption(blob) {
   const urls = [
     'https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base',
     'https://api-inference.huggingface.co/models/nlpconnect/vit-gpt2-image-captioning',
   ];
   for (const url of urls) {
-    for (let t = 0; t < 2; t++) {
+    for (let t=0; t<2; t++) {
       try {
-        const r = await fetch(url, {
-          method:'POST', headers:{'Content-Type':'image/jpeg'}, body:blob,
-          signal: abortAfter(18000)
-        });
-        if (r.ok) {
-          const d  = await r.json();
-          const tx = Array.isArray(d) ? d[0]?.generated_text : d?.generated_text;
-          if (tx?.length > 4) return tx.trim();
-          break;
-        }
-        if (r.status === 503) {
-          const e = await r.json().catch(()=>({}));
-          await sleep(Math.min((e.estimated_time||8)*1000, 12000));
-          continue;
-        }
+        const r = await fetch(url, { method:'POST', headers:{'Content-Type':'image/jpeg'}, body:blob, signal:abortAfter(18000) });
+        if (r.ok) { const d=await r.json(); const tx=Array.isArray(d)?d[0]?.generated_text:d?.generated_text; if (tx?.length>4) return tx.trim(); break; }
+        if (r.status===503) { const e=await r.json().catch(()=>({})); await sleep(Math.min((e.estimated_time||8)*1000,12000)); continue; }
         break;
-      } catch(e) { if (t < 1) await sleep(1500); }
+      } catch(e) { if (t<1) await sleep(1500); }
     }
   }
   return null;
 }
-
 function buildLabel(brand, type, caption) {
-  if (brand && type) {
-    return type.toLowerCase().includes(brand.toLowerCase()) ? type : `${brand} ${type}`;
-  }
+  if (brand && type) return type.toLowerCase().includes(brand.toLowerCase()) ? type : `${brand} ${type}`;
   if (brand) return brand;
   if (type)  return type;
-  if (caption) {
-    return caption
-      .replace(/^(a |an |the )/i, '')
-      .replace(/ on (a|an|the|white|black|wooden|grey|gray) \S+/i, '')
-      .replace(/ (against|sitting|placed|resting|next to|near|held|being).*/i, '')
-      .replace(/ (background|surface|table|floor|wall|shelf).*/i, '')
-      .replace(/\s+/g,' ').trim();
-  }
+  if (caption) return caption.replace(/^(a |an |the )/i,'').replace(/ on (a|an|the|white|black|wooden|grey|gray) \S+/i,'').replace(/ (against|sitting|placed|resting|next to|near|held|being).*/i,'').replace(/ (background|surface|table|floor|wall|shelf).*/i,'').replace(/\s+/g,' ').trim();
   return null;
 }
 
 // ── Word chips ────────────────────────────────────────────────────────────────
 function showWordChips(words) {
-  const box  = document.getElementById('word-chips');
-  const wrap = document.getElementById('chips-wrap');
-  if (!words || !words.length) { box.style.display='none'; return; }
-  box.style.display = 'block';
-  wrap.innerHTML = words.map(w =>
-    `<button class="chip" onclick="useChip('${w.replace(/'/g,"\\'")}')">${w}</button>`
-  ).join('');
+  const box=document.getElementById('word-chips'), wrap=document.getElementById('chips-wrap');
+  if (!words||!words.length){box.style.display='none';return;}
+  box.style.display='block';
+  wrap.innerHTML=words.map(w=>`<button class="chip" onclick="useChip('${w.replace(/'/g,"\\'")}'">${w}</button>`).join('');
 }
 function useChip(word) {
-  _userEdited = true;
-  const field = document.getElementById('conf-field');
-  const cur   = field.value.trim();
-  if (!cur.toLowerCase().includes(word.toLowerCase())) {
-    field.value = cur ? `${cur} ${word}` : word;
-  }
-  field.disabled = false;
-  field.style.borderColor = 'var(--teal)';
-  document.getElementById('conf-go').disabled = field.value.trim().length < 2;
+  _userEdited=true;
+  const field=document.getElementById('conf-field'), cur=field.value.trim();
+  if (!cur.toLowerCase().includes(word.toLowerCase())) field.value=cur?`${cur} ${word}`:word;
+  field.disabled=false; field.style.borderColor='var(--teal)';
+  document.getElementById('conf-go').disabled=field.value.trim().length<2;
 }
 
-// ─── CONFIRM SCREEN (for manual home search) ──────────────────────────────────
+// ─── CONFIRM (manual search) ──────────────────────────────────────────────────
 function showConfirm(name) {
-  capturedImg = null;
-  document.getElementById('conf-img').style.display = 'none';
-  document.getElementById('word-chips').style.display = 'none';
-  document.getElementById('ai-details').style.display = 'none';
-  _userEdited = false; lastAiDetails = [];
-
-  const field = document.getElementById('conf-field');
-  field.disabled = false;
-  field.value = name || '';
-  field.placeholder = 'e.g. Nike Air Jordan 4 Retro Black Cement';
-  field.style.borderColor = name ? 'var(--purple)' : 'rgba(255,255,255,.07)';
-  field.oninput = () => {
-    document.getElementById('conf-go').disabled = field.value.trim().length < 2;
-  };
-  document.getElementById('conf-note').textContent = '✏️ Edit if needed, then tap Get Real Prices';
-  document.getElementById('conf-go').disabled = !name || name.trim().length < 2;
-  condMul = 0.85; condLabel = 'like new';
-  document.querySelectorAll('.cond-pill').forEach((b,i) => b.classList.toggle('sel', i===1));
+  capturedImg=null;
+  document.getElementById('conf-img').style.display='none';
+  document.getElementById('word-chips').style.display='none';
+  document.getElementById('ai-details').style.display='none';
+  document.getElementById('ai-mode-label').style.display='none';
+  _userEdited=false; lastAiDetails=[];
+  const field=document.getElementById('conf-field');
+  field.disabled=false; field.value=name||'';
+  field.placeholder='e.g. Nike Air Jordan 4 Retro Black Cement';
+  field.style.borderColor=name?'var(--purple)':'rgba(255,255,255,.07)';
+  field.oninput=()=>{document.getElementById('conf-go').disabled=field.value.trim().length<2;};
+  document.getElementById('conf-note').textContent='✏️ Edit if needed, then tap Get Real Prices';
+  document.getElementById('conf-go').disabled=!name||name.trim().length<2;
+  condMul=0.85; condLabel='like new';
+  document.querySelectorAll('.cond-pill').forEach((b,i)=>b.classList.toggle('sel',i===1));
   showScreen('confirm');
 }
-
 function pickCond(btn, mul) {
-  condMul = mul;
-  const m = {1.0:'new', 0.85:'like new', 0.65:'good', 0.45:'fair'};
-  condLabel = m[mul] || 'used';
-  document.querySelectorAll('.cond-pill').forEach(b => b.classList.remove('sel'));
+  condMul=mul;
+  const m={1.0:'new',0.85:'like new',0.65:'good',0.45:'fair'};
+  condLabel=m[mul]||'used';
+  document.querySelectorAll('.cond-pill').forEach(b=>b.classList.remove('sel'));
   btn.classList.add('sel');
 }
 
 // ─── RESULT ───────────────────────────────────────────────────────────────────
-const VERDICTS = ['Skip','Skip','Low Margin','Low Margin','Low Margin','Decent Flip','Decent Flip','Good Flip','Good Flip','Hot Flip','Hot Flip'];
-const VCOLORS  = {'Hot Flip':'#10B981','Good Flip':'#06B6D4','Decent Flip':'#F59E0B','Low Margin':'#F97316','Skip':'#EF4444'};
-const CAT_TIPS = {
+const VERDICTS=['Skip','Skip','Low Margin','Low Margin','Low Margin','Decent Flip','Decent Flip','Good Flip','Good Flip','Hot Flip','Hot Flip'];
+const VCOLORS={'Hot Flip':'#10B981','Good Flip':'#06B6D4','Decent Flip':'#F59E0B','Low Margin':'#F97316','Skip':'#EF4444'};
+const CAT_TIPS={
   sneaker:'Deadstock (unworn with box) can 2-3x value. Clean soles and list original box shots.',
   phone:'Factory reset first. Note if carrier unlocked — adds 20% value. Test Face ID.',
   bag:'Photograph every angle + serial number. Buyers need to verify authenticity.',
@@ -902,9 +1038,8 @@ const CAT_TIPS = {
   collectible:'Check eBay SOLD listings before pricing. Sealed items are worth far more.',
   default:'Take clear photos in natural light. Include all original packaging to maximize sale price.'
 };
-
 function inferTip(n) {
-  n = n.toLowerCase();
+  n=n.toLowerCase();
   if (/shoe|sneaker|boot|jordan|yeezy|nike|adidas|dunk|new balance|converse/.test(n)) return CAT_TIPS.sneaker;
   if (/phone|iphone|samsung|pixel|android|galaxy/.test(n))                            return CAT_TIPS.phone;
   if (/bag|purse|handbag|backpack|tote|louis|gucci|coach|prada|chanel/.test(n))       return CAT_TIPS.bag;
@@ -913,205 +1048,125 @@ function inferTip(n) {
   if (/ps5|ps4|xbox|nintendo|switch|console|controller|playstation/.test(n))          return CAT_TIPS.gaming;
   if (/jacket|hoodie|shirt|supreme|vintage|coat|sweater|off-white|bape/.test(n))      return CAT_TIPS.clothing;
   if (/card|pokemon|lego|funko|toy|figure|collectible/.test(n))                       return CAT_TIPS.collectible;
-  if (/camera|dslr|canon|nikon|fujifilm|gopro/.test(n))    return 'Include ALL accessories: battery, charger, memory card, original box. Post test shots — cameras without them sell 30% slower.';
+  if (/camera|dslr|canon|nikon|fujifilm|gopro/.test(n))   return 'Include ALL accessories: battery, charger, memory card. Post test shots.';
   if (/headphone|earphone|airpod|earbud|speaker|bose|beats/.test(n)) return 'Test audio quality. Include original case/tips. Factory-sealed earbuds sell for 40% more.';
-  if (/bottle|tumbler|mug|flask/.test(n))                  return 'Clean and photograph in natural light. Include the lid. Limited color ways sell for 2-3x retail.';
-  if (/ring|necklace|bracelet|jewelry|gold|silver|diamond/.test(n)) return 'Include certificates or receipts. Clean jewelry before listing — huge visual difference.';
+  if (/bottle|tumbler|mug|flask/.test(n))                 return 'Clean and photograph in natural light. Include the lid. Limited colorways sell for 2-3x retail.';
+  if (/ring|necklace|bracelet|jewelry|gold|silver|diamond/.test(n)) return 'Include certificates or receipts. Clean jewelry before listing.';
   return CAT_TIPS.default;
 }
-
 function inferCategory(n) {
-  n = n.toLowerCase();
+  n=n.toLowerCase();
   if (/shoe|sneaker|boot|loafer|jordan|yeezy|dunk|airforce|air force|new balance|converse|vans|reebok|puma|asics/.test(n)) return {cat:'Sneakers',emoji:'👟',flip:7};
-  if (/iphone|samsung|pixel|android|smartphone|galaxy/.test(n))                 return {cat:'Phones',emoji:'📱',flip:5};
-  if (/phone/.test(n))                                                           return {cat:'Phones',emoji:'📱',flip:5};
+  if (/iphone|samsung|pixel|android|smartphone|galaxy|phone/.test(n))              return {cat:'Phones',emoji:'📱',flip:5};
   if (/bag|purse|handbag|backpack|tote|wallet|clutch|gucci|louis vuitton|chanel|prada/.test(n)) return {cat:'Bags',emoji:'👜',flip:7};
-  if (/watch|rolex|casio|omega|seiko|fossil|apple watch|smartwatch/.test(n))    return {cat:'Watches',emoji:'⌚',flip:7};
-  if (/airpod|earbud|headphone|earphone|speaker|bose|sony wh|beats/.test(n))   return {cat:'Audio',emoji:'🎧',flip:5};
-  if (/laptop|macbook|computer|notebook|ipad|tablet|chromebook/.test(n))        return {cat:'Computers',emoji:'💻',flip:4};
+  if (/watch|rolex|casio|omega|seiko|fossil|apple watch|smartwatch/.test(n))       return {cat:'Watches',emoji:'⌚',flip:7};
+  if (/airpod|earbud|headphone|earphone|speaker|bose|sony wh|beats/.test(n))      return {cat:'Audio',emoji:'🎧',flip:5};
+  if (/laptop|macbook|computer|notebook|ipad|tablet|chromebook/.test(n))           return {cat:'Computers',emoji:'💻',flip:4};
   if (/jacket|hoodie|sweatshirt|coat|jersey|shirt|pants|jeans|shorts|supreme|off-white|bape|vintage/.test(n)) return {cat:'Clothing',emoji:'🧥',flip:6};
   if (/ps5|ps4|xbox|nintendo|switch|console|controller|playstation|gameboy/.test(n)) return {cat:'Gaming',emoji:'🎮',flip:5};
-  if (/camera|dslr|canon|nikon|fujifilm|gopro|lens|mirrorless/.test(n))         return {cat:'Cameras',emoji:'📸',flip:6};
-  if (/pokemon|yugioh|trading card|mtg|magic the gathering/.test(n))            return {cat:'Trading Cards',emoji:'🃏',flip:9};
-  if (/lego|funko|toy|action figure|barbie|hot wheels|collectible/.test(n))     return {cat:'Collectibles',emoji:'🏆',flip:8};
-  if (/sunglasses|glasses|ray-ban|oakley/.test(n))                              return {cat:'Accessories',emoji:'🕶️',flip:6};
-  if (/guitar|piano|drum|violin|instrument|vinyl|record/.test(n))               return {cat:'Music',emoji:'🎸',flip:7};
-  if (/bottle|tumbler|flask|mug|thermos|owala|hydro|stanley|yeti/.test(n))      return {cat:'Drinkware',emoji:'🫙',flip:5};
-  if (/book|novel|textbook|comic|manga/.test(n))                                return {cat:'Books',emoji:'📚',flip:3};
-  if (/ring|necklace|bracelet|jewelry|gold|silver|diamond|earring/.test(n))     return {cat:'Jewelry',emoji:'💍',flip:6};
-  if (/drone|dji|rc car|remote control/.test(n))                                return {cat:'Drones & RC',emoji:'🚁',flip:6};
-  if (/bike|bicycle|skateboard|scooter/.test(n))                                return {cat:'Sports',emoji:'🛹',flip:5};
+  if (/camera|dslr|canon|nikon|fujifilm|gopro|lens|mirrorless/.test(n))            return {cat:'Cameras',emoji:'📸',flip:6};
+  if (/pokemon|yugioh|trading card|mtg|magic the gathering/.test(n))               return {cat:'Trading Cards',emoji:'🃏',flip:9};
+  if (/lego|funko|toy|action figure|barbie|hot wheels|collectible/.test(n))        return {cat:'Collectibles',emoji:'🏆',flip:8};
+  if (/sunglasses|glasses|ray-ban|oakley/.test(n))                                 return {cat:'Accessories',emoji:'🕶️',flip:6};
+  if (/guitar|piano|drum|violin|instrument|vinyl|record/.test(n))                  return {cat:'Music',emoji:'🎸',flip:7};
+  if (/bottle|tumbler|flask|mug|thermos|owala|hydro|stanley|yeti|contigo|freesip/.test(n)) return {cat:'Drinkware',emoji:'🫙',flip:5};
+  if (/book|novel|textbook|comic|manga/.test(n))                                   return {cat:'Books',emoji:'📚',flip:3};
+  if (/ring|necklace|bracelet|jewelry|gold|silver|diamond|earring/.test(n))        return {cat:'Jewelry',emoji:'💍',flip:6};
+  if (/drone|dji|rc car|remote control/.test(n))                                   return {cat:'Drones & RC',emoji:'🚁',flip:6};
+  if (/bike|bicycle|skateboard|scooter/.test(n))                                   return {cat:'Sports',emoji:'🛹',flip:5};
   return {cat:'General',emoji:'📦',flip:4};
 }
-
 function goToResult() {
-  const itemName = document.getElementById('conf-field').value.trim();
+  const itemName=document.getElementById('conf-field').value.trim();
   if (!itemName) return;
-
-  const { cat, emoji, flip } = inferCategory(itemName);
-  const verdict = VERDICTS[Math.min(Math.round(flip), 10)];
-  const col     = VCOLORS[verdict];
-
-  document.getElementById('r-img').src = capturedImg || '';
-  document.getElementById('r-img').style.display = capturedImg ? '' : 'none';
-  document.getElementById('r-cat').textContent  = `${emoji} ${cat}`;
-  document.getElementById('r-name').textContent = itemName;
-  document.getElementById('r-sub').textContent  = `${cap1(condLabel)} condition`;
-  document.getElementById('r-conf').style.width = capturedImg ? '84%' : '100%';
-  document.getElementById('r-conf-t').textContent = capturedImg ? '84%' : '—';
-
-  const fc = document.getElementById('r-flip');
-  fc.style.background = col+'22'; fc.style.border=`3px solid ${col}`;
-  document.getElementById('r-flip-n').textContent  = flip;
-  document.getElementById('r-flip-n').style.color  = col;
-  document.getElementById('r-verdict').textContent = verdict;
-  document.getElementById('r-reason').textContent  = `Based on current demand for ${cat.toLowerCase()}`;
-  document.getElementById('r-ebay').href = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(itemName)}&LH_Sold=1&LH_Complete=1&_sop=13`;
-  document.getElementById('r-tip').textContent = inferTip(itemName);
-  document.getElementById('sell-inp').value = '';
-  document.getElementById('cost-inp').value = '';
-  document.getElementById('profit-n').textContent = '$—';
-  document.getElementById('live-sub').textContent  = 'Fetching real sold data…';
-  document.getElementById('live-dot').style.cssText = 'background:var(--red);animation:blink 2s infinite';
-  document.getElementById('live-body').innerHTML  = `<div class="live-loading"><div class="live-spin"></div><div style="font-size:12px;color:var(--gray2)">Searching eBay sold listings…</div></div>`;
+  const {cat,emoji,flip}=inferCategory(itemName);
+  const verdict=VERDICTS[Math.min(Math.round(flip),10)];
+  const col=VCOLORS[verdict];
+  document.getElementById('r-img').src=capturedImg||''; document.getElementById('r-img').style.display=capturedImg?'':'none';
+  document.getElementById('r-cat').textContent=`${emoji} ${cat}`;
+  document.getElementById('r-name').textContent=itemName;
+  document.getElementById('r-sub').textContent=`${cap1(condLabel)} condition`;
+  document.getElementById('r-conf').style.width=capturedImg&&hasGemini()?'96%':capturedImg?'84%':'100%';
+  document.getElementById('r-conf-t').textContent=capturedImg&&hasGemini()?'96%':capturedImg?'84%':'—';
+  const fc=document.getElementById('r-flip');
+  fc.style.background=col+'22'; fc.style.border=`3px solid ${col}`;
+  document.getElementById('r-flip-n').textContent=flip; document.getElementById('r-flip-n').style.color=col;
+  document.getElementById('r-verdict').textContent=verdict;
+  document.getElementById('r-reason').textContent=`Based on current demand for ${cat.toLowerCase()}`;
+  document.getElementById('r-ebay').href=`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(itemName)}&LH_Sold=1&LH_Complete=1&_sop=13`;
+  document.getElementById('r-tip').textContent=inferTip(itemName);
+  document.getElementById('sell-inp').value=''; document.getElementById('cost-inp').value='';
+  document.getElementById('profit-n').textContent='$—';
+  document.getElementById('live-sub').textContent='Fetching real sold data…';
+  document.getElementById('live-dot').style.cssText='background:var(--red);animation:blink 2s infinite';
+  document.getElementById('live-body').innerHTML=`<div class="live-loading"><div class="live-spin"></div><div style="font-size:12px;color:var(--gray2)">Searching eBay sold listings…</div></div>`;
   showScreen('result');
-
-  scansToday++;
-  localStorage.setItem('rs3_n', scansToday);
-  recentScans.unshift({ name:itemName, cat, price:0, t:Date.now() });
-  if (recentScans.length > 12) recentScans.pop();
-  localStorage.setItem('rs3', JSON.stringify(recentScans));
-
-  fetchRealPrices(itemName, condLabel, condMul).then(data => {
-    showLivePrices(data, itemName);
+  scansToday++; localStorage.setItem('rs3_n',scansToday);
+  recentScans.unshift({name:itemName,cat,price:0,t:Date.now()});
+  if (recentScans.length>12) recentScans.pop();
+  localStorage.setItem('rs3',JSON.stringify(recentScans));
+  fetchRealPrices(itemName,condLabel,condMul).then(data => {
+    showLivePrices(data,itemName);
     if (data?.median) {
-      document.getElementById('sell-inp').value = data.median;
-      calcProfit();
-      recentScans[0].price = data.median;
-      localStorage.setItem('rs3', JSON.stringify(recentScans));
+      document.getElementById('sell-inp').value=data.median; calcProfit();
+      recentScans[0].price=data.median; localStorage.setItem('rs3',JSON.stringify(recentScans));
     }
   });
 }
 
 // ─── LIVE EBAY PRICE FETCH ────────────────────────────────────────────────────
 async function fetchRealPrices(itemName, cond, mul) {
-  const condStr = (cond==='new'||cond==='like new') ? '' : cond;
-  const query   = `${itemName} ${condStr}`.trim();
-  const ebayUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(query)}&LH_Sold=1&LH_Complete=1&_sop=13`;
-  const proxies = [
-    async () => { const r=await fetch(`https://corsproxy.io/?${encodeURIComponent(ebayUrl)}`,{signal:abortAfter(12000)}); return r.ok?r.text():null; },
-    async () => { const r=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(ebayUrl)}`,{signal:abortAfter(12000)}); if(!r.ok)return null; const d=await r.json(); return d.contents||null; },
-    async () => { const r=await fetch(`https://thingproxy.freeboard.io/fetch/${ebayUrl}`,{signal:abortAfter(12000)}); return r.ok?r.text():null; },
+  const condStr=(cond==='new'||cond==='like new')?'':cond;
+  const query=`${itemName} ${condStr}`.trim();
+  const ebayUrl=`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(query)}&LH_Sold=1&LH_Complete=1&_sop=13`;
+  const proxies=[
+    async()=>{const r=await fetch(`https://corsproxy.io/?${encodeURIComponent(ebayUrl)}`,{signal:abortAfter(12000)});return r.ok?r.text():null;},
+    async()=>{const r=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(ebayUrl)}`,{signal:abortAfter(12000)});if(!r.ok)return null;const d=await r.json();return d.contents||null;},
+    async()=>{const r=await fetch(`https://thingproxy.freeboard.io/fetch/${ebayUrl}`,{signal:abortAfter(12000)});return r.ok?r.text():null;},
   ];
   for (const proxy of proxies) {
     try {
-      const html = await proxy();
+      const html=await proxy();
       if (!html) continue;
-      const raw = [];
-      const pats = [
+      const raw=[];
+      const pats=[
         /s-item__price[^>]*>[\s\S]*?\$([\d,]+(?:\.\d{2})?)/g,
         /class="[^"]*price[^"]*"[^>]*>[\s\S]*?\$([\d,]+(?:\.\d{2})?)/g,
         /\$([\d,]{1,7}(?:\.\d{2})?)\s*(?:USD)?/g,
       ];
       for (const re of pats) {
-        let m;
-        while ((m=re.exec(html))!==null) {
-          const n=parseFloat(m[1].replace(/,/g,''));
-          if (n>1&&n<100000) raw.push(n);
-        }
+        let m; while((m=re.exec(html))!==null){const n=parseFloat(m[1].replace(/,/g,''));if(n>1&&n<100000)raw.push(n);}
         if (raw.length>=5) break;
       }
       if (raw.length<3) continue;
       raw.sort((a,b)=>a-b);
-      const trim  = Math.floor(raw.length*0.1);
-      const clean = raw.slice(trim, raw.length-trim||undefined);
-      return {
-        low:    Math.round(clean[0]*mul),
-        median: Math.round(clean[Math.floor(clean.length/2)]*mul),
-        high:   Math.round(clean[clean.length-1]*mul),
-        avg:    Math.round(clean.reduce((a,b)=>a+b,0)/clean.length*mul),
-        count:  clean.length, query
-      };
-    } catch(e) { continue; }
+      const trim=Math.floor(raw.length*0.1);
+      const clean=raw.slice(trim,raw.length-trim||undefined);
+      return {low:Math.round(clean[0]*mul),median:Math.round(clean[Math.floor(clean.length/2)]*mul),high:Math.round(clean[clean.length-1]*mul),avg:Math.round(clean.reduce((a,b)=>a+b,0)/clean.length*mul),count:clean.length,query};
+    } catch(e){continue;}
   }
   return null;
 }
-
-function showLivePrices(data, itemName) {
+function showLivePrices(data,itemName) {
   const body=document.getElementById('live-body'),sub=document.getElementById('live-sub'),dot=document.getElementById('live-dot');
-  if (!data||data.count<3) {
-    dot.style.cssText='background:var(--gray);animation:none';
-    sub.textContent='No sold listings found';
-    body.innerHTML=`<div class="live-err">No eBay data for "${itemName}".<br>Try the eBay link below, or edit the item name and try again.</div>`;
-    return;
-  }
+  if (!data||data.count<3){dot.style.cssText='background:var(--gray);animation:none';sub.textContent='No sold listings found';body.innerHTML=`<div class="live-err">No eBay data for "${itemName}".<br>Try the eBay link below, or edit the item name and try again.</div>`;return;}
   sub.textContent=`${data.count} recent sales · "${data.query}"`;
   const pct=data.high>data.low?Math.round(((data.median-data.low)/(data.high-data.low))*100):50;
-  body.innerHTML=`
-    <div class="live-stats">
-      <div class="lst"><div class="lst-n" style="color:var(--green)">$${data.low}</div><div class="lst-l">Low</div></div>
-      <div class="lst"><div class="lst-n" style="color:var(--teal)">$${data.median}</div><div class="lst-l">Median</div></div>
-      <div class="lst"><div class="lst-n" style="color:var(--pl)">$${data.high}</div><div class="lst-l">High</div></div>
-    </div>
-    <div class="price-bar">
-      <div class="pb-labels"><span>$${data.low}</span><span>avg $${data.avg}</span><span>$${data.high}</span></div>
-      <div class="pb-track"><div class="pb-fill" style="width:${pct}%"></div></div>
-    </div>
-    <div class="live-samples">Based on ${data.count} actual eBay sold listings · refreshed each scan</div>`;
+  body.innerHTML=`<div class="live-stats"><div class="lst"><div class="lst-n" style="color:var(--green)">$${data.low}</div><div class="lst-l">Low</div></div><div class="lst"><div class="lst-n" style="color:var(--teal)">$${data.median}</div><div class="lst-l">Median</div></div><div class="lst"><div class="lst-n" style="color:var(--pl)">$${data.high}</div><div class="lst-l">High</div></div></div><div class="price-bar"><div class="pb-labels"><span>$${data.low}</span><span>avg $${data.avg}</span><span>$${data.high}</span></div><div class="pb-track"><div class="pb-fill" style="width:${pct}%"></div></div></div><div class="live-samples">Based on ${data.count} actual eBay sold listings · refreshed each scan</div>`;
 }
 
 // ─── HOME SEARCH ──────────────────────────────────────────────────────────────
-const SUGGESTIONS = [
-  'Nike Air Jordan 4 Retro','Air Force 1 White','Yeezy Boost 350 V2 Zebra',
-  'iPhone 15 Pro Max','Samsung Galaxy S24 Ultra','AirPods Pro 2nd Gen',
-  'Louis Vuitton Neverfull MM','Supreme Box Logo Hoodie','Sony WH-1000XM5',
-  'PS5 Console','MacBook Pro M3','Casio G-Shock GA-2100',
-  'Funko Pop Chase','Pokemon Booster Box','North Face Nuptse 700',
-  'Rolex Submariner','New Balance 550','Adidas Samba OG',
-  'Apple Watch Ultra 2','LEGO Star Wars Millennium Falcon',
-];
-function homeSearchInput(q) {
-  const drop=document.getElementById('homeDrop');
-  if (!q||q.length<2){drop.style.display='none';return;}
-  const ms=SUGGESTIONS.filter(s=>s.toLowerCase().includes(q.toLowerCase())).slice(0,5);
-  if (!ms.length){drop.style.display='none';return;}
-  drop.style.display='block';
-  drop.innerHTML=ms.map(s=>`<div class="search-item" onclick="homeSelectSearch('${s.replace(/'/g,"\\'")}')"><div style="font-size:18px">${inferCategory(s).emoji}</div><div style="font-size:13px;font-weight:600">${s}</div></div>`).join('');
-}
-function homeSelectSearch(name) {
-  document.getElementById('homeSearch').value=name;
-  document.getElementById('homeDrop').style.display='none';
-  showConfirm(name);
-}
-function homeSearchGo() {
-  const q=document.getElementById('homeSearch').value.trim();
-  if (!q) return;
-  document.getElementById('homeDrop').style.display='none';
-  showConfirm(q);
-}
-function launchManualSearch(name) { showConfirm(name); }
+const SUGGESTIONS=['Nike Air Jordan 4 Retro','Air Force 1 White','Yeezy Boost 350 V2 Zebra','iPhone 15 Pro Max','Samsung Galaxy S24 Ultra','AirPods Pro 2nd Gen','Louis Vuitton Neverfull MM','Supreme Box Logo Hoodie','Sony WH-1000XM5','PS5 Console','MacBook Pro M3','Casio G-Shock GA-2100','Funko Pop Chase','Pokemon Booster Box','North Face Nuptse 700','Rolex Submariner','New Balance 550','Adidas Samba OG','Apple Watch Ultra 2','LEGO Star Wars Millennium Falcon'];
+function homeSearchInput(q){const drop=document.getElementById('homeDrop');if(!q||q.length<2){drop.style.display='none';return;}const ms=SUGGESTIONS.filter(s=>s.toLowerCase().includes(q.toLowerCase())).slice(0,5);if(!ms.length){drop.style.display='none';return;}drop.style.display='block';drop.innerHTML=ms.map(s=>`<div class="search-item" onclick="homeSelectSearch('${s.replace(/'/g,"\\'")}')"><div style="font-size:18px">${inferCategory(s).emoji}</div><div style="font-size:13px;font-weight:600">${s}</div></div>`).join('');}
+function homeSelectSearch(name){document.getElementById('homeSearch').value=name;document.getElementById('homeDrop').style.display='none';showConfirm(name);}
+function homeSearchGo(){const q=document.getElementById('homeSearch').value.trim();if(!q)return;document.getElementById('homeDrop').style.display='none';showConfirm(q);}
 
 // ─── PROFIT CALC ──────────────────────────────────────────────────────────────
-function calcProfit() {
-  const c=parseFloat(document.getElementById('cost-inp').value)||0;
-  const s=parseFloat(document.getElementById('sell-inp').value)||0;
-  const p=s-c, el=document.getElementById('profit-n');
-  el.textContent = p!==0?(p>=0?`$${p.toFixed(0)}`:`-$${Math.abs(p).toFixed(0)}`):'$—';
-  el.style.color = p>=0?'var(--green)':'var(--red)';
-}
+function calcProfit(){const c=parseFloat(document.getElementById('cost-inp').value)||0,s=parseFloat(document.getElementById('sell-inp').value)||0,p=s-c,el=document.getElementById('profit-n');el.textContent=p!==0?(p>=0?`$${p.toFixed(0)}`:`-$${Math.abs(p).toFixed(0)}`):'$—';el.style.color=p>=0?'var(--green)':'var(--red)';}
 
 // ─── UI HELPERS ───────────────────────────────────────────────────────────────
-function updateStats() {
-  document.getElementById('s-scans').textContent=scansToday;
-  const t=recentScans.reduce((a,s)=>a+(s.price||0),0);
-  document.getElementById('s-profit').textContent=t>999?'$'+(t/1000).toFixed(1)+'k':'$'+t;
-}
-function renderRecent() {
-  const l=document.getElementById('recentList');
-  if (!recentScans.length){l.innerHTML='<div style="padding:18px 0;text-align:center;color:var(--gray2);font-size:13px">No scans yet — scan anything to start!</div>';return;}
-  const EICO={Sneakers:'👟',Phones:'📱',Bags:'👜',Watches:'⌚',Audio:'🎧',Computers:'💻',Clothing:'🧥',Gaming:'🎮',Cameras:'📸','Trading Cards':'🃏',Collectibles:'🏆',Accessories:'🕶️',Music:'🎸',Drinkware:'🫙',Books:'📚',Jewelry:'💍','Drones & RC':'🚁',Sports:'🛹',General:'📦'};
-  l.innerHTML=recentScans.map(s=>`<div class="ri" onclick="showConfirm('${s.name.replace(/'/g,"\\'")}')"><div class="ri-ico">${EICO[s.cat]||'📦'}</div><div><div class="ri-name">${s.name}</div><div class="ri-cat">${s.cat}</div></div>${s.price?`<div class="ri-price">~$${s.price}</div>`:''}</div>`).join('');
-}
+function updateStats(){document.getElementById('s-scans').textContent=scansToday;const t=recentScans.reduce((a,s)=>a+(s.price||0),0);document.getElementById('s-profit').textContent=t>999?'$'+(t/1000).toFixed(1)+'k':'$'+t;}
+function renderRecent(){const l=document.getElementById('recentList');if(!recentScans.length){l.innerHTML='<div style="padding:18px 0;text-align:center;color:var(--gray2);font-size:13px">No scans yet — scan anything to start!</div>';return;}const EICO={Sneakers:'👟',Phones:'📱',Bags:'👜',Watches:'⌚',Audio:'🎧',Computers:'💻',Clothing:'🧥',Gaming:'🎮',Cameras:'📸','Trading Cards':'🃏',Collectibles:'🏆',Accessories:'🕶️',Music:'🎸',Drinkware:'🫙',Books:'📚',Jewelry:'💍','Drones & RC':'🚁',Sports:'🛹',General:'📦'};l.innerHTML=recentScans.map(s=>`<div class="ri" onclick="showConfirm('${s.name.replace(/'/g,"\\'")}')"><div class="ri-ico">${EICO[s.cat]||'📦'}</div><div><div class="ri-name">${s.name}</div><div class="ri-cat">${s.cat}</div></div>${s.price?`<div class="ri-price">~$${s.price}</div>`:''}</div>`).join('');}
 </script>
 </body>
 </html>
