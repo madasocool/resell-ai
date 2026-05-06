@@ -4,32 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Resell.Ai</title>
-  <!-- Tesseract.js: reads text directly off labels / packaging -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     :root{--bg:#080F1E;--card:#0F1E35;--card2:#162540;--purple:#7C3AED;--pl:#A855F7;--teal:#06B6D4;--green:#10B981;--red:#EF4444;--orange:#F59E0B;--gray:#64748B;--gray2:#94A3B8;--white:#F1F5F9}
     html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;background:#000;color:var(--white);overflow:hidden}
     #app{width:100%;max-width:430px;height:100dvh;height:100vh;margin:0 auto;position:relative;overflow:hidden;background:var(--bg)}
-
-    /* SCREEN TRANSITIONS */
     .screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s cubic-bezier(.4,0,.2,1);transform:translateY(16px)}
     .screen.active{opacity:1;pointer-events:all;transform:translateY(0)}
     .screen.exit{opacity:0;transform:translateY(-12px)}
-
-    /* NAV */
     .nav{position:absolute;bottom:0;left:0;right:0;background:rgba(8,15,30,.96);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;padding:10px 0 30px;border-top:1px solid rgba(255,255,255,.06);z-index:10}
     .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:2px 0}
     .ni-ico{font-size:22px;line-height:1}
     .ni-lbl{font-size:10px;color:var(--gray2);letter-spacing:.02em}
     .ni.act .ni-lbl{color:var(--pl)}
-
-    /* BACK / ACTION BUTTONS */
     .back-btn{width:36px;height:36px;background:rgba(255,255,255,.08);border-radius:50%;border:none;color:var(--white);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
     .pill-btn{background:var(--purple);border:none;color:#fff;font-size:13px;font-weight:700;padding:8px 16px;border-radius:20px;cursor:pointer;transition:opacity .15s}
     .pill-btn:active{opacity:.8}
 
-    /* ═══ HOME ═══ */
+    /* HOME */
     #home .scroll{flex:1;overflow-y:auto;padding-bottom:90px}
     .htop{padding:52px 20px 10px;display:flex;justify-content:space-between;align-items:flex-start}
     .logo{font-size:27px;font-weight:900;background:linear-gradient(135deg,var(--pl),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -40,7 +33,6 @@
     .hero-h{font-size:23px;font-weight:900;margin-bottom:5px;line-height:1.25}
     .hero-p{font-size:13px;color:rgba(255,255,255,.72);line-height:1.6;margin-bottom:18px}
     .hero-cta{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--purple);font-weight:800;font-size:14px;padding:10px 18px;border-radius:50px;border:none;cursor:pointer}
-
     .search-wrap{margin:14px 18px 0;position:relative}
     .search-input{width:100%;background:var(--card);border:1.5px solid rgba(255,255,255,.07);border-radius:14px;color:var(--white);font-size:14px;padding:13px 48px 13px 16px;outline:none;transition:border-color .2s}
     .search-input:focus{border-color:var(--purple)}
@@ -50,20 +42,19 @@
     .search-item{padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04)}
     .search-item:last-child{border-bottom:none}
     .search-item:active{background:rgba(124,58,237,.2)}
-
     .stats{display:flex;gap:10px;padding:14px 18px 0}
     .stat{flex:1;background:var(--card);border-radius:14px;padding:13px 10px;text-align:center}
     .stat-n{font-size:20px;font-weight:900;color:var(--teal)}
     .stat-l{font-size:10px;color:var(--gray2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
     .sec-h{padding:18px 18px 10px;font-size:16px;font-weight:800}
     .rlist{padding:0 18px;display:flex;flex-direction:column;gap:9px}
-    .ri{background:var(--card);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:12px}
+    .ri{background:var(--card);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:12px;cursor:pointer}
     .ri-ico{width:40px;height:40px;background:linear-gradient(135deg,var(--purple),var(--teal));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
     .ri-name{font-size:13px;font-weight:700;line-height:1.3}
     .ri-cat{font-size:11px;color:var(--gray2);margin-top:2px}
     .ri-price{margin-left:auto;font-size:13px;font-weight:900;color:var(--green);white-space:nowrap}
 
-    /* ═══ SCAN ═══ */
+    /* SCAN */
     #scan{background:#000}
     .scan-hdr{position:absolute;top:0;left:0;right:0;z-index:10;padding:52px 20px 14px;display:flex;align-items:center;gap:12px;background:linear-gradient(to bottom,rgba(0,0,0,.7) 0%,transparent 100%)}
     #video{width:100%;height:100%;object-fit:cover}
@@ -84,27 +75,25 @@
     #fileInput{display:none}
     #canvas{display:none}
 
-    /* ═══ IDENTIFYING ═══ */
-    #identifying{background:var(--bg);align-items:center;justify-content:center;text-align:center;padding:36px 28px}
-    .id-img{width:200px;height:200px;border-radius:22px;object-fit:cover;margin-bottom:28px;box-shadow:0 16px 50px rgba(0,0,0,.6)}
-    .id-spinner{width:44px;height:44px;border:4px solid rgba(168,85,247,.2);border-top-color:var(--pl);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 14px}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .id-title{font-size:19px;font-weight:800;margin-bottom:10px}
-    .id-steps{font-size:13px;color:var(--gray2);line-height:2.1}
-    .sdone{color:var(--green)}
-    .sact{color:var(--teal);font-weight:700}
-    .id-note{margin-top:16px;font-size:11px;color:var(--gray);line-height:1.7}
-
-    /* ═══ CONFIRM ═══ */
+    /* CONFIRM */
     #confirm{background:var(--bg)}
     .conf-scroll{flex:1;overflow-y:auto;padding-bottom:20px}
     .conf-hdr{padding:52px 20px 16px;display:flex;align-items:center;gap:12px}
     .conf-preview{width:100%;height:200px;object-fit:cover;display:block;background:var(--card)}
     .conf-body{padding:20px 18px}
     .conf-label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--gray2);font-weight:700;margin-bottom:8px}
-    .conf-field{width:100%;background:var(--card2);border:2px solid var(--purple);border-radius:14px;color:var(--white);font-size:15px;font-weight:600;padding:13px 14px;outline:none;line-height:1.4}
+    .conf-field{width:100%;background:var(--card2);border:2px solid var(--purple);border-radius:14px;color:var(--white);font-size:15px;font-weight:600;padding:13px 14px;outline:none;line-height:1.4;transition:border-color .2s}
     .conf-field::placeholder{color:var(--gray)}
+    .conf-field:disabled{opacity:.55}
     .conf-note{font-size:12px;color:var(--gray2);margin-top:8px;line-height:1.5}
+    /* AI details badge */
+    #ai-details{display:none;margin-top:10px;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.2);border-radius:10px;padding:9px 12px;font-size:11px;color:var(--teal);line-height:1.9;word-break:break-word}
+    /* Word chips */
+    #word-chips{display:none;margin-top:14px}
+    .chips-label{font-size:11px;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+    #chips-wrap{display:flex;flex-wrap:wrap;gap:7px}
+    .chip{background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.3);color:var(--teal);font-size:12px;font-weight:700;padding:6px 13px;border-radius:20px;cursor:pointer;line-height:1;transition:background .15s}
+    .chip:active{background:rgba(6,182,212,.3)}
     .conf-cond{margin-top:20px}
     .cond-row{display:flex;gap:8px;margin-top:8px}
     .cond-pill{flex:1;background:var(--card);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;color:var(--white);font-size:11px;font-weight:700;padding:10px 4px;cursor:pointer;text-align:center;transition:all .15s;line-height:1.3}
@@ -113,12 +102,10 @@
     .conf-go:active{opacity:.85}
     .conf-go:disabled{opacity:.35;cursor:not-allowed}
 
-    /* ═══ RESULT ═══ */
+    /* RESULT */
     #result{background:var(--bg)}
     .res-scroll{flex:1;overflow-y:auto;padding-bottom:90px}
     .res-hdr{padding:52px 20px 14px;display:flex;align-items:center;gap:12px}
-
-    /* Item card */
     .item-card{margin:0 18px 14px;background:var(--card);border-radius:22px;overflow:hidden}
     .item-img{width:100%;height:190px;object-fit:cover;display:block;background:var(--card2)}
     .item-body{padding:16px}
@@ -128,8 +115,6 @@
     .conf-bar-row{display:flex;align-items:center;gap:8px}
     .cbar{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
     .cbar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--purple),var(--teal))}
-
-    /* Live prices */
     .live-card{margin:0 18px 14px;background:var(--card);border:1.5px solid rgba(239,68,68,.3);border-radius:20px;padding:16px}
     .live-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
     .live-title-t{font-size:14px;font-weight:800;margin-bottom:3px}
@@ -138,6 +123,7 @@
     @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
     .live-loading{display:flex;align-items:center;gap:10px;padding:4px 0}
     .live-spin{width:18px;height:18px;border:2px solid rgba(239,68,68,.2);border-top-color:var(--red);border-radius:50%;animation:spin 1s linear infinite;flex-shrink:0}
+    @keyframes spin{to{transform:rotate(360deg)}}
     .live-stats{display:flex;gap:8px}
     .lst{flex:1;background:rgba(255,255,255,.04);border-radius:12px;padding:10px 8px;text-align:center}
     .lst-n{font-size:17px;font-weight:900}
@@ -148,27 +134,19 @@
     .pb-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--purple),var(--green));transition:width .6s ease}
     .live-samples{font-size:11px;color:var(--gray);margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.05)}
     .live-err{font-size:12px;color:var(--gray2);line-height:1.6}
-
-    /* Flip score */
     .flip-card{margin:0 18px 14px;background:var(--card);border-radius:18px;padding:15px;display:flex;align-items:center;gap:14px}
     .flip-circle{width:64px;height:64px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
     .flip-n{font-size:24px;font-weight:900;line-height:1}
     .flip-l{font-size:9px;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
     .flip-verdict{font-size:15px;font-weight:800;margin-bottom:4px}
     .flip-reason{font-size:12px;color:var(--gray2);line-height:1.5}
-
-    /* eBay link */
     .ebay-btn{margin:0 18px 14px;background:rgba(255,100,0,.1);border:1px solid rgba(255,100,0,.25);border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:12px;text-decoration:none;cursor:pointer;transition:opacity .15s}
     .ebay-btn:active{opacity:.8}
     .ebay-btn h4{font-size:14px;font-weight:800;margin-bottom:2px}
     .ebay-btn p{font-size:11px;color:var(--gray2)}
-
-    /* Tip */
     .tip-card{margin:0 18px 14px;background:linear-gradient(135deg,rgba(124,58,237,.18),rgba(6,182,212,.1));border:1px solid rgba(124,58,237,.25);border-radius:18px;padding:15px}
     .tip-h{font-size:13px;font-weight:800;margin-bottom:7px}
     .tip-t{font-size:13px;color:rgba(255,255,255,.78);line-height:1.65}
-
-    /* Calc */
     .calc-card{margin:0 18px 14px;background:var(--card);border-radius:18px;padding:15px}
     .calc-h{font-size:14px;font-weight:800;margin-bottom:12px}
     .calc-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
@@ -182,7 +160,7 @@
 <body>
 <div id="app">
 
-  <!-- ═══ HOME ═══ -->
+  <!-- HOME -->
   <div class="screen" id="home">
     <div class="scroll">
       <div class="htop">
@@ -192,26 +170,22 @@
         </div>
         <div style="font-size:11px;color:var(--green);background:rgba(16,185,129,.12);padding:5px 10px;border-radius:20px;font-weight:700">Free · No signup</div>
       </div>
-
       <div class="hero" onclick="goScan()">
         <div class="hero-tag">✦ AI Vision · Real eBay Prices</div>
         <div class="hero-h">What's It Worth?</div>
         <div class="hero-p">Scan any item — shoes, phones, bags, watches, clothes, toys, anything — and get real resale prices instantly.</div>
         <button class="hero-cta">📷&nbsp; Scan Item</button>
       </div>
-
       <div class="search-wrap">
         <input class="search-input" id="homeSearch" placeholder="Or type any item… e.g. Air Jordan 4 Bred" oninput="homeSearchInput(this.value)" onkeydown="if(event.key==='Enter')homeSearchGo()">
         <button class="search-go" onclick="homeSearchGo()">→</button>
         <div class="search-drop" id="homeDrop"></div>
       </div>
-
       <div class="stats">
         <div class="stat"><div class="stat-n" id="s-scans">0</div><div class="stat-l">Scans</div></div>
         <div class="stat"><div class="stat-n" id="s-profit">$0</div><div class="stat-l">Potential</div></div>
         <div class="stat"><div class="stat-n">Any</div><div class="stat-l">Item</div></div>
       </div>
-
       <div class="sec-h">Recent Scans</div>
       <div class="rlist" id="recentList">
         <div style="padding:18px 0;text-align:center;color:var(--gray2);font-size:13px">No scans yet — scan anything to start!</div>
@@ -225,7 +199,7 @@
     </nav>
   </div>
 
-  <!-- ═══ SCAN ═══ -->
+  <!-- SCAN -->
   <div class="screen" id="scan">
     <div class="scan-hdr">
       <button class="back-btn" onclick="goHome()">←</button>
@@ -234,14 +208,12 @@
     <video id="video" autoplay playsinline muted></video>
     <div class="viewfinder">
       <div class="vf-box">
-        <div class="vf-corner vf-tl"></div>
-        <div class="vf-corner vf-tr"></div>
-        <div class="vf-corner vf-bl"></div>
-        <div class="vf-corner vf-br"></div>
+        <div class="vf-corner vf-tl"></div><div class="vf-corner vf-tr"></div>
+        <div class="vf-corner vf-bl"></div><div class="vf-corner vf-br"></div>
       </div>
     </div>
     <div class="scan-bot">
-      <div class="scan-hint">Point at any item · shoes · phones · bags · anything</div>
+      <div class="scan-hint">Point at any item · fill the frame · tap 📷</div>
       <div class="scan-row">
         <button class="upload-btn" onclick="document.getElementById('fileInput').click()" title="Upload photo">🖼</button>
         <div class="shutter" onclick="capturePhoto()"><div class="shutter-inner">📷</div></div>
@@ -252,30 +224,25 @@
     <canvas id="canvas"></canvas>
   </div>
 
-  <!-- ═══ IDENTIFYING ═══ -->
-  <div class="screen" id="identifying">
-    <img class="id-img" id="id-img" src="" alt="">
-    <div class="id-spinner"></div>
-    <div class="id-title">Identifying Item…</div>
-    <div class="id-steps" id="id-steps">
-      <div class="sact">🤖 Sending to AI Vision…</div>
-    </div>
-    <div class="id-note">First scan may take 10–15 sec while the AI model wakes up.<br>It's much faster after that.</div>
-  </div>
-
-  <!-- ═══ CONFIRM ═══ -->
+  <!-- CONFIRM -->
   <div class="screen" id="confirm">
     <div class="conf-scroll">
       <div class="conf-hdr">
         <button class="back-btn" onclick="goScan()">←</button>
         <div style="font-size:16px;font-weight:800">Confirm Item</div>
       </div>
-      <img id="conf-img" class="conf-preview" src="" alt="">
+      <img id="conf-img" class="conf-preview" src="" alt="" style="display:none">
       <div class="conf-body">
         <div class="conf-label">What is this item?</div>
         <textarea class="conf-field" id="conf-field" rows="2" placeholder="e.g. Nike Air Jordan 4 Retro Black Cement"></textarea>
-        <div class="conf-note" id="conf-note">✏️ AI filled this in — fix it if it's wrong, or type anything to search</div>
-        <div id="ai-details" style="display:none;margin-top:10px;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.2);border-radius:10px;padding:10px 12px;font-size:11px;color:var(--teal);line-height:1.9"></div>
+        <div class="conf-note" id="conf-note">✏️ AI filled this in — fix it if wrong</div>
+        <div id="ai-details"></div>
+
+        <!-- Word chips: tappable words OCR found on the item -->
+        <div id="word-chips">
+          <div class="chips-label">📖 Text found on item — tap to use:</div>
+          <div id="chips-wrap"></div>
+        </div>
 
         <div class="conf-cond">
           <div class="conf-label">Condition</div>
@@ -286,13 +253,12 @@
             <div class="cond-pill" onclick="pickCond(this,0.45)">⚠️<br>Fair</div>
           </div>
         </div>
-
-        <button class="conf-go" id="conf-go" onclick="goToResult()">Get Real Prices →</button>
+        <button class="conf-go" id="conf-go" onclick="goToResult()" disabled>Get Real Prices →</button>
       </div>
     </div>
   </div>
 
-  <!-- ═══ RESULT ═══ -->
+  <!-- RESULT -->
   <div class="screen" id="result">
     <div class="res-scroll">
       <div class="res-hdr">
@@ -300,8 +266,6 @@
         <div style="font-size:17px;font-weight:800">Scan Result</div>
         <button class="pill-btn" onclick="goScan()" style="margin-left:auto">Scan Again</button>
       </div>
-
-      <!-- Item card -->
       <div class="item-card">
         <img id="r-img" class="item-img" src="" alt="">
         <div class="item-body">
@@ -315,50 +279,33 @@
           </div>
         </div>
       </div>
-
-      <!-- LIVE EBAY PRICES -->
       <div class="live-card">
         <div class="live-hdr">
-          <div>
-            <div class="live-title-t">🔴 Live eBay Sold Prices</div>
-            <div class="live-sub-t" id="live-sub">Fetching real data…</div>
-          </div>
+          <div><div class="live-title-t">🔴 Live eBay Sold Prices</div><div class="live-sub-t" id="live-sub">Fetching real data…</div></div>
           <div class="live-dot" id="live-dot">LIVE</div>
         </div>
         <div id="live-body">
-          <div class="live-loading">
-            <div class="live-spin"></div>
-            <div style="font-size:12px;color:var(--gray2)">Pulling recent sold listings…</div>
-          </div>
+          <div class="live-loading"><div class="live-spin"></div><div style="font-size:12px;color:var(--gray2)">Pulling recent sold listings…</div></div>
         </div>
       </div>
-
-      <!-- Flip score -->
       <div class="flip-card">
         <div class="flip-circle" id="r-flip">
-          <div class="flip-n" id="r-flip-n">–</div>
-          <div class="flip-l">FLIP</div>
+          <div class="flip-n" id="r-flip-n">–</div><div class="flip-l">FLIP</div>
         </div>
         <div>
           <div class="flip-verdict" id="r-verdict">–</div>
           <div class="flip-reason" id="r-reason">–</div>
         </div>
       </div>
-
-      <!-- eBay link -->
       <a class="ebay-btn" id="r-ebay" href="#" target="_blank" rel="noopener">
         <div style="font-size:26px">🔍</div>
         <div><h4>Browse All Sold Listings</h4><p>See every recent eBay sale for this exact item</p></div>
         <div style="margin-left:auto;font-size:18px;color:var(--gray2)">→</div>
       </a>
-
-      <!-- Tip -->
       <div class="tip-card">
         <div class="tip-h">💡 Selling Tip</div>
-        <div class="tip-t" id="r-tip">Take clear photos in natural light. Include all original accessories and packaging — it can increase your sale price by 20–40%.</div>
+        <div class="tip-t" id="r-tip"></div>
       </div>
-
-      <!-- Profit Calculator -->
       <div class="calc-card">
         <div class="calc-h">💰 Profit Calculator</div>
         <div class="calc-row">
@@ -392,9 +339,10 @@ let condMul      = 0.85;
 let condLabel    = 'like new';
 let recentScans  = JSON.parse(localStorage.getItem('rs3') || '[]');
 let scansToday   = parseInt(localStorage.getItem('rs3_n') || '0');
+let lastAiDetails = [];
+let _userEdited  = false;
 if (localStorage.getItem('rs3_day') !== new Date().toDateString()) {
-  scansToday = 0;
-  localStorage.setItem('rs3_day', new Date().toDateString());
+  scansToday = 0; localStorage.setItem('rs3_day', new Date().toDateString());
 }
 
 // ─── SCREEN NAV ───────────────────────────────────────────────────────────────
@@ -407,16 +355,19 @@ function showScreen(id) {
   cur = id;
 }
 showScreen('home'); updateStats(); renderRecent();
-
 function goHome() { stopCamera(); showScreen('home'); updateStats(); renderRecent(); }
 function goScan() { showScreen('scan'); startCamera(); }
 
 // ─── CAMERA ───────────────────────────────────────────────────────────────────
 function startCamera() {
   if (cameraStream) return;
-  navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ideal:'environment'}, width:{ideal:1280} } })
-    .then(s => { cameraStream = s; const v = document.getElementById('video'); v.srcObject = s; v.play(); })
-    .catch(() => {});
+  navigator.mediaDevices.getUserMedia({
+    video:{ facingMode:{ideal:'environment'}, width:{ideal:1920}, height:{ideal:1080} }
+  }).then(s => {
+    cameraStream = s;
+    const v = document.getElementById('video');
+    v.srcObject = s; v.play();
+  }).catch(() => {});
 }
 function stopCamera() {
   if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
@@ -426,9 +377,9 @@ function capturePhoto() {
   if (!cameraStream) { document.getElementById('fileInput').click(); return; }
   cv.width = vid.videoWidth || 640; cv.height = vid.videoHeight || 480;
   cv.getContext('2d').drawImage(vid, 0, 0);
-  capturedImg = cv.toDataURL('image/jpeg', 0.85);
+  capturedImg = cv.toDataURL('image/jpeg', 0.92);
   stopCamera();
-  processImage(cv);
+  startScanFlow(cv);
 }
 document.getElementById('fileInput').addEventListener('change', function() {
   const file = this.files[0]; if (!file) return;
@@ -437,122 +388,373 @@ document.getElementById('fileInput').addEventListener('change', function() {
     const cv = document.getElementById('canvas');
     cv.width = img.width; cv.height = img.height;
     cv.getContext('2d').drawImage(img, 0, 0);
-    capturedImg = cv.toDataURL('image/jpeg', 0.85);
+    capturedImg = cv.toDataURL('image/jpeg', 0.92);
     URL.revokeObjectURL(url);
-    processImage(cv);
+    startScanFlow(cv);
   };
   img.src = url; this.value = '';
 });
 
-// ═══════════════════════════════════════════════════════════════════════════
-// IDENTIFICATION ENGINE
-// Three parallel tracks:
-//   1. OCR  — Tesseract.js reads text directly off labels (best for brands)
-//   2. VQA  — BLIP visual Q&A: "what brand?" "what type of product?"
-//   3. Caption — BLIP description fallback for unbranded/no-label items
-// ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
+//  SCAN FLOW — show confirm screen IMMEDIATELY, run AI in background
+//  The user sees their photo right away and can edit while AI works
+// ═══════════════════════════════════════════════════════════════════════════════
 
-// ── Utilities ──────────────────────────────────────────────────────────────
-function abortAfter(ms) {
-  const ctrl = new AbortController();
-  setTimeout(() => ctrl.abort(), ms);
-  return ctrl.signal;
+function startScanFlow(canvas) {
+  _userEdited   = false;
+  lastAiDetails = [];
+
+  // Show confirm screen with photo instantly — no waiting spinner
+  const cImg = document.getElementById('conf-img');
+  cImg.src = capturedImg; cImg.style.display = '';
+
+  const field = document.getElementById('conf-field');
+  field.value       = '';
+  field.disabled    = true;
+  field.placeholder = '🔍 Reading label…';
+  field.style.borderColor = 'rgba(255,255,255,.15)';
+  field.oninput = () => {
+    _userEdited = true;
+    field.disabled = false;
+    document.getElementById('conf-go').disabled = field.value.trim().length < 2;
+  };
+
+  document.getElementById('conf-note').textContent = 'Reading your item — results appear below…';
+  document.getElementById('ai-details').style.display = 'none';
+  document.getElementById('word-chips').style.display = 'none';
+  document.getElementById('chips-wrap').innerHTML = '';
+  document.getElementById('conf-go').disabled = true;
+  condMul = 0.85; condLabel = 'like new';
+  document.querySelectorAll('.cond-pill').forEach((b,i) => b.classList.toggle('sel', i===1));
+
+  showScreen('confirm');
+
+  // Fire all AI in background
+  runIdentification(canvas);
 }
-function blobToDataUrl(blob) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result);
-    r.onerror = rej;
-    r.readAsDataURL(blob);
+
+async function runIdentification(canvas) {
+  const blob    = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.92));
+  const dataUrl = await blobToDataUrl(blob);
+  const b64     = dataUrl.split(',')[1];
+
+  // ── Track A: VQA — "what brand?" + "what type?" (network, ~5-15s) ─────────
+  const [brandR, typeR, captionR] = await Promise.allSettled([
+    askVQA(b64, 'What brand or company name is shown on this product?'),
+    askVQA(b64, 'What specific type of product or item is this?'),
+    runCaption(blob),
+  ]);
+  const vqaBrand = settled(brandR);
+  const vqaType  = settled(typeR);
+  const caption  = settled(captionR);
+
+  if (!junk(vqaBrand)) lastAiDetails.push(`🤖 ${vqaBrand}`);
+  if (!junk(vqaType))  lastAiDetails.push(`📦 ${vqaType}`);
+  const vqaLabel = buildLabel(!junk(vqaBrand)?vqaBrand:null, !junk(vqaType)?vqaType:null, caption);
+  applyLabel(vqaLabel, false);
+
+  // ── Track B: OCR — reads text directly off labels (parallel, ~3-12s) ─────
+  // Fire OCR in background — don't await it here, let it update the screen when done
+  runOCR(dataUrl, canvas).then(ocr => {
+    if (!ocr) return;
+    const parsed = parseOCR(ocr);
+
+    // Always show word chips so the user can see/tap any text found
+    showWordChips(parsed.chipWords);
+
+    if (!junk(parsed.brand)) {
+      // OCR read actual text off the label — trust it over VQA guess
+      lastAiDetails = lastAiDetails.filter(d => !d.startsWith('📖'));
+      lastAiDetails.unshift(`📖 ${parsed.brand}`);
+      const ocrLabel = buildLabel(parsed.brand, !junk(vqaType)?vqaType:parsed.foundProduct, null);
+      applyLabel(ocrLabel, true); // isOCR=true → teal border
+    }
   });
+
+  // ── Track C: Vintage clothing — extra style questions if no brand found ───
+  const ctx = [vqaLabel||'', caption||''].join(' ').toLowerCase();
+  if (/shirt|jacket|hoodie|jean|pant|coat|dress|sweat|top|apparel|wear|blouse|skirt|tee|sweater|vest/.test(ctx) && junk(vqaBrand)) {
+    const [eraR, colorR, matR] = await Promise.allSettled([
+      askVQA(b64, 'What decade or era does this clothing style look like?'),
+      askVQA(b64, 'What is the main color of this clothing?'),
+      askVQA(b64, 'What material or fabric is this?'),
+    ]);
+    const era = settled(eraR), color = settled(colorR), mat = settled(matR);
+    const parts = [!junk(color)?color:null, !junk(mat)?mat:null, vqaLabel||vqaType, !junk(era)?era:null].filter(Boolean);
+    if (parts.length > 1) {
+      if (!junk(color)) lastAiDetails.push(`🎨 ${color}`);
+      if (!junk(mat))   lastAiDetails.push(`🧵 ${mat}`);
+      if (!junk(era))   lastAiDetails.push(`📅 ${era}`);
+      applyLabel(parts.join(' '), false);
+    }
+  }
 }
-const JUNK = new Set(['yes','no','none','unknown','unclear','object','thing','item','stuff','something','product','i don\'t know','cannot determine','n/a','na','nothing']);
+
+// Apply a label to the confirm screen (respects user edits)
+function applyLabel(label, isOCR) {
+  if (_userEdited) return;
+  const field = document.getElementById('conf-field');
+  field.disabled = false;
+
+  if (!junk(label)) {
+    field.value = cap1(label);
+    field.style.borderColor = isOCR ? 'var(--teal)' : 'var(--purple)';
+    document.getElementById('conf-note').textContent = isOCR
+      ? '📖 Read from label — fix it if wrong'
+      : '✏️ AI identified this — fix it if wrong';
+    document.getElementById('conf-go').disabled = false;
+  } else if (!field.value.trim()) {
+    field.placeholder = 'AI couldn\'t identify — type brand + item (e.g. "Owala water bottle")';
+    field.style.borderColor = 'var(--orange)';
+    document.getElementById('conf-note').textContent = '⚠️ Type what it is — include the brand name for best results';
+  }
+
+  // Refresh details badge
+  const box = document.getElementById('ai-details');
+  if (lastAiDetails.length) {
+    box.style.display = 'block';
+    box.textContent   = lastAiDetails.join(' · ');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  IDENTIFICATION ENGINE — OCR + VQA + Caption
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function sleep(ms)       { return new Promise(r => setTimeout(r, ms)); }
+function settled(r)      { return r.status === 'fulfilled' ? r.value : null; }
+function cap1(s)         { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+function abortAfter(ms)  { const c = new AbortController(); setTimeout(()=>c.abort(), ms); return c.signal; }
+function blobToDataUrl(blob) {
+  return new Promise((res,rej) => { const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(blob); });
+}
+
+const JUNK = new Set(['yes','no','none','unknown','unclear','object','thing','item','stuff','something','product','not visible','no brand','cannot determine','n/a','na','nothing','i don\'t know']);
 function junk(s) {
   if (!s) return true;
   const t = s.toLowerCase().trim();
   return t.length < 2 || JUNK.has(t);
 }
-function cap1(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
-// ── Track 1: OCR — reads actual text off labels ────────────────────────────
-let _tWorker = null;
-async function getTesseract() {
-  if (!window.Tesseract) return null;
-  if (!_tWorker) _tWorker = await Tesseract.createWorker('eng');
-  return _tWorker;
-}
+// ── Known brands for instant matching against OCR text ───────────────────────
+const KNOWN_BRANDS = new Set([
+  // Drinkware (critical for Owala)
+  'owala','hydroflask','hydro flask','stanley','yeti','contigo','nalgene',
+  'camelbak','klean kanteen','swell','corkcicle','takeya','zojirushi',
+  'thermos','migo','iron flask','simple modern','buzio','tal',
+  // Sneakers / Streetwear
+  'nike','adidas','jordan','yeezy','supreme','off-white','bape','palace',
+  'vans','converse','new balance','puma','reebok','asics','saucony',
+  'timberland','ugg','salomon','hoka','on running','brooks','skechers',
+  'under armour','fila','ellesse','kith','fear of god','essentials',
+  // Bags / Accessories
+  'louis vuitton','gucci','prada','chanel','hermes','coach','kate spade',
+  'michael kors','burberry','balenciaga','off white','celine','loewe',
+  'goyard','bottega veneta','tumi','samsonite','herschel','jansport',
+  // Electronics
+  'apple','samsung','google','sony','bose','beats','jbl','marshall',
+  'jabra','sennheiser','anker','razer','logitech','corsair','hyperx',
+  'dyson','lg','philips','panasonic','sharp','lenovo','dell','hp','asus',
+  // Watches
+  'rolex','omega','casio','seiko','fossil','citizen','tissot','tag heuer',
+  'iwc','breitling','panerai','tudor','longines','hamilton','bulova',
+  // Clothing
+  'north face','patagonia','columbia','arcteryx','arc teryx','canada goose',
+  'moncler','stone island','carhartt','dickies','levi','levis','wrangler',
+  'ralph lauren','polo','tommy hilfiger','lacoste','fred perry','champion',
+  // Gaming / Collectibles
+  'pokemon','funko','lego','mattel','hasbro','bandai','nintendo','sony',
+  'xbox','microsoft','playstation','atari',
+  // Fragrance / Beauty
+  'chanel','dior','gucci','versace','prada','armani','burberry','coach',
+  'ysl','yves saint laurent','tom ford','creed','jo malone','maison margiela',
+  // Sports
+  'wilson','callaway','titleist','taylormade','ping','cobra','cleveland',
+  'burton','lib tech','capita','nike','adidas',
+]);
 
-// Pre-warm Tesseract after page loads (so first scan is faster)
-window.addEventListener('load', () => setTimeout(() => getTesseract().catch(() => {}), 3000));
-
-async function runOCR(dataUrl) {
+// ── OCR Track 1: OCR.space API (server-side, most reliable on mobile) ────────
+async function runOCRSpace(canvas) {
   try {
-    const w = await getTesseract();
-    if (!w) return null;
-    const { data } = await w.recognize(dataUrl);
-    return { text: data.text || '', words: data.words || [] };
+    // Resize to ≤1500px for OCR.space 1MB limit
+    const scale = Math.min(1.8, 1500 / Math.max(canvas.width || 640, canvas.height || 480));
+    const c = document.createElement('canvas');
+    c.width  = Math.round((canvas.width  || 640) * scale);
+    c.height = Math.round((canvas.height || 480) * scale);
+    c.getContext('2d').drawImage(canvas, 0, 0, c.width, c.height);
+    const b64 = c.toDataURL('image/jpeg', 0.82);
+
+    const fd = new FormData();
+    fd.append('base64Image', b64);
+    fd.append('apikey', 'helloworld');
+    fd.append('language', 'eng');
+    fd.append('isOverlayRequired', 'false');
+    fd.append('detectOrientation', 'true');
+    fd.append('scale', 'true');
+    fd.append('OCREngine', '2'); // Engine 2 is better for product labels
+
+    const r = await fetch('https://api.ocr.space/parse/image', {
+      method: 'POST', body: fd, signal: abortAfter(18000)
+    });
+    if (!r.ok) return null;
+    const d = await r.json();
+    if (d.IsErroredOnProcessing || !d.ParsedResults?.length) return null;
+
+    const text = d.ParsedResults[0].ParsedText || '';
+    if (!text.trim()) return null;
+
+    // Build word list compatible with parseOCR
+    const words = text.split(/[\s\n\r]+/)
+      .map(w => w.replace(/[^A-Za-z0-9&'/.-]/g, '').trim())
+      .filter(w => w.length >= 2)
+      .map(w => ({ text: w, confidence: 82 })); // OCR.space confidence ~82
+
+    return { text, words, source: 'ocrspace' };
   } catch(e) { return null; }
 }
 
-// Noise words that appear on every label but are NOT brand/product names
-const OCR_STOP = new Set(
-  'the and of for with is are was be to a an in on at by as or but if not from this that it its '+
-  'your our you we me my have has can will do does made use used good great new old get set made '+
-  'net oz ml g mg fl per serving ingredients directions warnings caution keep out reach children '+
-  'distributed manufactured imported usa america canada distributed by inc llc ltd corp co '+
-  'www http https com net org store shop buy free delivery returns policy privacy terms '+
-  'do not shake well before refrigerate store below above apply gently rub rinse repeat '+
-  'if irritation occurs discontinue contact doctor physician professional advice '+
-  'flammable fragrance free paraben sulfate cruelty vegan organic natural artificial '.split(' ')
-);
+// ── OCR Track 2: Tesseract.js local fallback (dual-mode preprocessing) ────────
+let _tWorker = null;
 
-function parseOCR(ocr) {
-  if (!ocr || !ocr.text.trim()) return { brand: null, productWords: [], rawLines: [] };
+window.addEventListener('load', () => {
+  setTimeout(async () => {
+    if (!window.Tesseract || _tWorker) return;
+    try { _tWorker = await Tesseract.createWorker('eng', 1); } catch(e) {}
+  }, 3000);
+});
 
-  // Split into lines — first lines usually contain brand/product name
-  const lines = ocr.text.split('\n')
-    .map(l => l.trim())
-    .filter(l => l.length >= 2);
-
-  // High-confidence meaningful words
-  const goodWords = (ocr.words || [])
-    .filter(w => w.confidence > 50 && w.text && /^[A-Za-z&'/.-]{2,22}$/.test(w.text.trim()))
-    .map(w => w.text.trim())
-    .filter(w => !OCR_STOP.has(w.toLowerCase()) && isNaN(w));
-
-  // ALL-CAPS words = strongest brand signal (OWALA, PURELL, SUPREME, LEVI'S)
-  const caps = goodWords.filter(w => w === w.toUpperCase() && w.length >= 3 && w.length <= 16);
-
-  // Proper-case words (Nike, Adidas, Metallica)
-  const proper = goodWords.filter(w => /^[A-Z][a-z]{1,}/.test(w) && !caps.includes(w) && w.length >= 3);
-
-  // Pick brand: 1-3 ALLCAPS words first, then proper-case
-  let brand = null;
-  if (caps.length >= 2) {
-    brand = caps.slice(0, 2).join(' ');
-  } else if (caps.length === 1) {
-    // Short all-caps = keep as-is (OWALA → OWALA). Long = title-case.
-    brand = caps[0].length <= 8 ? caps[0] : cap1(caps[0].toLowerCase());
-  } else if (proper.length) {
-    brand = proper.slice(0, 2).join(' ');
-  }
-
-  // Product-type keywords found anywhere in the OCR text
-  const text = ocr.text.toLowerCase();
-  const PRODUCT_KWORDS = [
-    'water bottle','hand sanitizer','sanitizer','shampoo','conditioner','lotion',
-    'moisturizer','sunscreen','cologne','perfume','deodorant','toothpaste',
-    'sneaker','shoe','boot','jacket','hoodie','shirt','jeans','shorts','dress',
-    'watch','bag','backpack','wallet','purse','headphones','earbuds','speaker',
-    'phone case','charger','keyboard','mouse','monitor','laptop','tablet',
-    'protein powder','supplement','vitamin','energy drink','coffee','tea',
-  ];
-  const foundProduct = PRODUCT_KWORDS.find(p => text.includes(p)) || null;
-
-  return { brand, productWords: caps.concat(proper).slice(0, 6), rawLines: lines.slice(0, 3), foundProduct };
+function enhanceCanvas(canvas) {
+  const scale = Math.min(2.5, 1800 / Math.max(canvas.width, canvas.height));
+  const c = document.createElement('canvas');
+  c.width  = Math.round(canvas.width  * scale);
+  c.height = Math.round(canvas.height * scale);
+  const ctx = c.getContext('2d');
+  ctx.filter = 'contrast(2) saturate(0) brightness(1.1)';
+  ctx.drawImage(canvas, 0, 0, c.width, c.height);
+  return c.toDataURL('image/png');
+}
+function invertCanvas(canvas) {
+  const c = document.createElement('canvas');
+  c.width = canvas.width; c.height = canvas.height;
+  const ctx = c.getContext('2d');
+  ctx.filter = 'invert(1) contrast(1.8) saturate(0)';
+  ctx.drawImage(canvas, 0, 0);
+  return c.toDataURL('image/png');
+}
+async function runTesseract(canvas) {
+  try {
+    if (!window.Tesseract) return null;
+    if (!_tWorker) {
+      _tWorker = await Promise.race([
+        Tesseract.createWorker('eng', 1),
+        sleep(16000).then(() => { throw new Error('timeout'); })
+      ]);
+    }
+    const [r1, r2] = await Promise.allSettled([
+      Promise.race([ _tWorker.recognize(enhanceCanvas(canvas)), sleep(12000).then(()=>{throw new Error();}) ]),
+      Promise.race([ _tWorker.recognize(invertCanvas(canvas)),  sleep(10000).then(()=>{throw new Error();}) ]),
+    ]);
+    const words = [
+      ...(r1.status==='fulfilled' ? r1.value.data?.words||[] : []),
+      ...(r2.status==='fulfilled' ? r2.value.data?.words||[] : []),
+    ];
+    const text = [
+      r1.status==='fulfilled' ? r1.value.data?.text : '',
+      r2.status==='fulfilled' ? r2.value.data?.text : '',
+    ].filter(Boolean).join('\n');
+    return { text, words };
+  } catch(e) { return null; }
 }
 
-// ── Track 2: VQA — ask AI specific questions ───────────────────────────────
+// ── Main OCR entry: try OCR.space first, fall back to Tesseract ───────────────
+async function runOCR(dataUrl, canvas) {
+  // Fire both in parallel — OCR.space server-side + Tesseract local
+  // Whichever finds brand text first wins; we use the richer result
+  const [spaceR, tessR] = await Promise.allSettled([
+    runOCRSpace(canvas),
+    runTesseract(canvas),
+  ]);
+  const space = spaceR.status === 'fulfilled' ? spaceR.value : null;
+  const tess  = tessR.status  === 'fulfilled' ? tessR.value  : null;
+
+  // Merge both results — more words = better brand detection
+  if (space && tess) {
+    const mergedWords = [...(space.words||[]), ...(tess.words||[])];
+    const mergedText  = [space.text, tess.text].filter(Boolean).join('\n');
+    return { text: mergedText, words: mergedWords };
+  }
+  return space || tess || null;
+}
+
+// Words that are everywhere on labels but NOT brand/product names
+const OCR_NOISE = new Set(
+  'the and of for with is are was be to a an in on at by as or but if not from this that it its your our you we me my have has can will do does made use good great new old get set net oz ml g mg fl per serving ingredients directions warnings caution keep out reach children distributed manufactured imported inc llc ltd corp co www http https com net org free paraben sulfate cruelty vegan organic natural artificial do not shake before refrigerate apply gently rub rinse repeat if irritation contact doctor'.split(' ')
+);
+
+const PRODUCT_KEYWORDS = [
+  'water bottle','hand sanitizer','sanitizer','shampoo','conditioner','lotion',
+  'moisturizer','sunscreen','cologne','perfume','deodorant','toothpaste',
+  'sneaker','shoe','boot','jacket','hoodie','shirt','jeans','shorts','dress',
+  'watch','backpack','wallet','purse','headphones','earbuds','speaker',
+  'charger','keyboard','laptop','tablet','protein powder','supplement',
+  'vitamin','energy drink','coffee','mug','tumbler','bottle',
+];
+
+function parseOCR({ text, words }) {
+  if (!text?.trim()) return { brand: null, chipWords: [], foundProduct: null };
+
+  // High-confidence alpha words that aren't noise
+  const good = [...new Set(
+    (words || [])
+      .filter(w => (w.confidence||50) > 40 && /^[A-Za-z0-9&'/.-]{2,24}$/.test(w.text?.trim()))
+      .map(w => w.text.trim())
+      .filter(w => !OCR_NOISE.has(w.toLowerCase()) && w.length >= 2)
+  )];
+
+  const tl = text.toLowerCase();
+
+  // ── Priority 1: exact match against known brand database ────────────────────
+  // Try full text first (catches multi-word brands like "Hydro Flask")
+  let knownMatch = null;
+  // Sort known brands longest first so "hydro flask" beats "hydro"
+  const sortedBrands = [...KNOWN_BRANDS].sort((a,b) => b.length - a.length);
+  for (const brand of sortedBrands) {
+    if (tl.includes(brand)) { knownMatch = brand; break; }
+  }
+  // Also try individual words
+  if (!knownMatch) {
+    for (const w of good) {
+      if (KNOWN_BRANDS.has(w.toLowerCase())) { knownMatch = w; break; }
+    }
+  }
+
+  // ── Priority 2: ALLCAPS words = strong brand signal ─────────────────────────
+  // (OWALA, SUPREME, PURELL, YETI — these are almost always brand names)
+  const caps = good.filter(w => w === w.toUpperCase() && w.length >= 3 && w.length <= 16 && !/^\d+$/.test(w));
+
+  // ── Priority 3: Proper-case words ────────────────────────────────────────────
+  const proper = good.filter(w => /^[A-Z][a-z]{1,}/.test(w) && w.length >= 3 && !caps.includes(w));
+
+  // Pick best brand
+  let brand = null;
+  if (knownMatch) {
+    // Known brand — capitalize properly
+    brand = knownMatch.split(' ').map(cap1).join(' ');
+  } else if (caps.length >= 2) {
+    brand = caps.slice(0,2).join(' ');
+  } else if (caps.length === 1) {
+    brand = caps[0].length <= 9 ? caps[0] : cap1(caps[0].toLowerCase());
+  } else if (proper.length) {
+    brand = proper.slice(0,2).join(' ');
+  }
+
+  const foundProduct = PRODUCT_KEYWORDS.find(p => tl.includes(p)) || null;
+  const chipWords = good.filter(w => w.length >= 3).slice(0, 16);
+
+  return { brand, chipWords, foundProduct };
+}
+
+// ── VQA: Ask AI specific questions ───────────────────────────────────────────
 async function askVQA(b64, question) {
   const urls = [
     'https://api-inference.huggingface.co/models/Salesforce/blip-vqa-base',
@@ -565,17 +767,17 @@ async function askVQA(b64, question) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ inputs: { image: b64, question } }),
-          signal: abortAfter(13000)
+          signal: abortAfter(14000)
         });
         if (r.ok) {
-          const d = await r.json();
+          const d  = await r.json();
           const ans = Array.isArray(d) ? d[0]?.answer : d?.answer;
-          if (ans && ans.trim().length > 1) return ans.trim();
+          if (ans?.trim().length > 1) return ans.trim();
           break;
         }
         if (r.status === 503) {
-          const e = await r.json().catch(() => ({}));
-          await sleep(Math.min((e.estimated_time || 7) * 1000, 11000));
+          const e = await r.json().catch(()=>({}));
+          await sleep(Math.min((e.estimated_time||7)*1000, 11000));
           continue;
         }
         break;
@@ -585,29 +787,28 @@ async function askVQA(b64, question) {
   return null;
 }
 
-// ── Track 3: Caption — visual description fallback ─────────────────────────
+// ── Caption: visual fallback ─────────────────────────────────────────────────
 async function runCaption(blob) {
   const urls = [
     'https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base',
     'https://api-inference.huggingface.co/models/nlpconnect/vit-gpt2-image-captioning',
-    'https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-large',
   ];
   for (const url of urls) {
     for (let t = 0; t < 2; t++) {
       try {
         const r = await fetch(url, {
-          method: 'POST', headers: { 'Content-Type': 'image/jpeg' }, body: blob,
+          method:'POST', headers:{'Content-Type':'image/jpeg'}, body:blob,
           signal: abortAfter(18000)
         });
         if (r.ok) {
-          const d = await r.json();
+          const d  = await r.json();
           const tx = Array.isArray(d) ? d[0]?.generated_text : d?.generated_text;
-          if (tx && tx.length > 4) return tx.trim();
+          if (tx?.length > 4) return tx.trim();
           break;
         }
         if (r.status === 503) {
-          const e = await r.json().catch(() => ({}));
-          await sleep(Math.min((e.estimated_time || 8) * 1000, 12000));
+          const e = await r.json().catch(()=>({}));
+          await sleep(Math.min((e.estimated_time||8)*1000, 12000));
           continue;
         }
         break;
@@ -617,183 +818,82 @@ async function runCaption(blob) {
   return null;
 }
 
-function cleanCaption(c) {
-  return c
-    .replace(/^(a |an |the )/i, '')
-    .replace(/ on (a |an |the |white |black |wooden |concrete |grey |gray |blue )\S*/i, '')
-    .replace(/ (against|with a|sitting|placed|resting|next to|near|over|under|held|displayed).*/i, '')
-    .replace(/ (background|surface|table|floor|wall|shelf|counter).*/i, '')
-    .replace(/\s+/g, ' ').trim();
-}
-
-// ── Combine all three tracks into the best search query ───────────────────
-let lastAiDetails = [];
-
-async function identifyWithBLIP(blob) {
-  updateIdStep('📖 Reading label text + asking AI…');
-
-  const dataUrl = await blobToDataUrl(blob);
-  const b64 = dataUrl.split(',')[1];
-
-  // Fire all three tracks at the same time
-  const [ocrR, brandVqaR, typeVqaR, captionR] = await Promise.allSettled([
-    runOCR(dataUrl),
-    askVQA(b64, 'What brand or company name is shown on this product?'),
-    askVQA(b64, 'What specific type of product or item is this?'),
-    runCaption(blob),
-  ]);
-
-  const ocrRaw   = ocrR.status      === 'fulfilled' ? ocrR.value      : null;
-  const vqaBrand = brandVqaR.status === 'fulfilled' ? brandVqaR.value : null;
-  const vqaType  = typeVqaR.status  === 'fulfilled' ? typeVqaR.value  : null;
-  const caption  = captionR.status  === 'fulfilled' ? captionR.value  : null;
-
-  const ocr = parseOCR(ocrRaw);
-  lastAiDetails = [];
-
-  // Pick brand: OCR wins (actual text on label) over VQA guess
-  const ocrBrand = !junk(ocr.brand) ? ocr.brand : null;
-  const aiBrand  = !junk(vqaBrand)  ? vqaBrand  : null;
-  const brand = ocrBrand || aiBrand;
-
-  // Pick product type: VQA answer or OCR keyword
-  const type = (!junk(vqaType) ? vqaType : null) || ocr.foundProduct || null;
-
-  // Build confirm details panel
-  if (ocrBrand) lastAiDetails.push(`📖 Label: ${ocrBrand}`);
-  if (aiBrand && aiBrand.toLowerCase() !== (ocrBrand||'').toLowerCase()) lastAiDetails.push(`🤖 AI brand: ${aiBrand}`);
-  if (type)     lastAiDetails.push(`📦 Type: ${type}`);
-  if (caption && !brand && !type) lastAiDetails.push(`👁 Sees: ${cleanCaption(caption)}`);
-
-  // Compose final label
-  let label = null;
+function buildLabel(brand, type, caption) {
   if (brand && type) {
-    // Don't double-write brand if it's already in the type string
-    label = type.toLowerCase().includes(brand.toLowerCase()) ? type : `${brand} ${type}`;
-  } else if (brand && ocr.foundProduct) {
-    label = `${brand} ${ocr.foundProduct}`;
-  } else if (brand) {
-    label = brand;
-  } else if (type) {
-    label = type;
-  } else if (caption) {
-    label = cleanCaption(caption);
+    return type.toLowerCase().includes(brand.toLowerCase()) ? type : `${brand} ${type}`;
   }
-
-  // ── Clothing without a readable brand → ask style/era questions ──────────
-  const isClothing = /cloth|shirt|jacket|hoodie|jean|pant|coat|dress|sweat|top|apparel|wear|blouse|skirt|tee|sweater|vest|cardigan/.test((label||'').toLowerCase() + (caption||'').toLowerCase());
-  if (isClothing && !brand) {
-    updateIdStep('👗 Clothing — getting color, material & era…');
-    const [eraR, colorR, matR] = await Promise.allSettled([
-      askVQA(b64, 'What decade or era does this clothing style look like?'),
-      askVQA(b64, 'What is the main color of this clothing?'),
-      askVQA(b64, 'What material or fabric is this made of?'),
-    ]);
-    const era   = eraR.status   === 'fulfilled' && !junk(eraR.value)   ? eraR.value   : null;
-    const color = colorR.status === 'fulfilled' && !junk(colorR.value) ? colorR.value : null;
-    const mat   = matR.status   === 'fulfilled' && !junk(matR.value)   ? matR.value   : null;
-    const parts = [color, mat, label||type, era].filter(Boolean);
-    if (parts.length > 1) {
-      label = parts.join(' ');
-      if (color) lastAiDetails.push(`🎨 Color: ${color}`);
-      if (mat)   lastAiDetails.push(`🧵 Material: ${mat}`);
-      if (era)   lastAiDetails.push(`📅 Era: ${era}`);
-    }
+  if (brand) return brand;
+  if (type)  return type;
+  if (caption) {
+    return caption
+      .replace(/^(a |an |the )/i, '')
+      .replace(/ on (a|an|the|white|black|wooden|grey|gray) \S+/i, '')
+      .replace(/ (against|sitting|placed|resting|next to|near|held|being).*/i, '')
+      .replace(/ (background|surface|table|floor|wall|shelf).*/i, '')
+      .replace(/\s+/g,' ').trim();
   }
-
-  return label ? cap1(label) : null;
+  return null;
 }
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-let stepSi = 0;
-const stepMsgs = [
-  '🤖 Sending to AI Vision…',
-  '🔍 Reading brand & label text…',
-  '🏷️ Identifying product type…',
-  '📦 Combining results…'
-];
-function updateIdStep(custom) {
-  const el = document.getElementById('id-steps');
-  if (custom) { el.innerHTML = `<div class="sact">${custom}</div>`; return; }
-  stepSi = Math.min(stepSi + 1, stepMsgs.length - 1);
-  el.innerHTML = stepMsgs.slice(0, stepSi + 1).map((s, i) =>
-    `<div class="${i === stepSi ? 'sact' : 'sdone'}">${i < stepSi ? s.replace(/^[^ ]+/, '✅') : s}</div>`
+// ── Word chips ────────────────────────────────────────────────────────────────
+function showWordChips(words) {
+  const box  = document.getElementById('word-chips');
+  const wrap = document.getElementById('chips-wrap');
+  if (!words || !words.length) { box.style.display='none'; return; }
+  box.style.display = 'block';
+  wrap.innerHTML = words.map(w =>
+    `<button class="chip" onclick="useChip('${w.replace(/'/g,"\\'")}')">${w}</button>`
   ).join('');
 }
-
-async function processImage(canvas) {
-  document.getElementById('id-img').src = capturedImg;
-  stepSi = 0;
-  document.getElementById('id-steps').innerHTML = `<div class="sact">${stepMsgs[0]}</div>`;
-  showScreen('identifying');
-
-  const stepIv = setInterval(updateIdStep, 2000);
-  const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.85));
-  const aiText = await identifyWithBLIP(blob);
-  clearInterval(stepIv);
-
-  // Go to confirm screen — with AI result pre-filled (or empty if failed)
-  showConfirm(aiText);
+function useChip(word) {
+  _userEdited = true;
+  const field = document.getElementById('conf-field');
+  const cur   = field.value.trim();
+  if (!cur.toLowerCase().includes(word.toLowerCase())) {
+    field.value = cur ? `${cur} ${word}` : word;
+  }
+  field.disabled = false;
+  field.style.borderColor = 'var(--teal)';
+  document.getElementById('conf-go').disabled = field.value.trim().length < 2;
 }
 
-// ─── CONFIRM SCREEN ───────────────────────────────────────────────────────────
-function showConfirm(aiText) {
-  document.getElementById('conf-img').src = capturedImg || '';
-  if (!capturedImg) document.getElementById('conf-img').style.display = 'none';
-  else document.getElementById('conf-img').style.display = '';
+// ─── CONFIRM SCREEN (for manual home search) ──────────────────────────────────
+function showConfirm(name) {
+  capturedImg = null;
+  document.getElementById('conf-img').style.display = 'none';
+  document.getElementById('word-chips').style.display = 'none';
+  document.getElementById('ai-details').style.display = 'none';
+  _userEdited = false; lastAiDetails = [];
 
   const field = document.getElementById('conf-field');
-  const detailBox = document.getElementById('ai-details');
-  const note = document.getElementById('conf-note');
-
-  // Show AI details panel if we have them
-  if (lastAiDetails && lastAiDetails.length > 0) {
-    detailBox.style.display = 'block';
-    detailBox.innerHTML = '🤖 AI found:<br>' + lastAiDetails.join(' &nbsp;·&nbsp; ');
-  } else {
-    detailBox.style.display = 'none';
-  }
-
-  if (aiText) {
-    // The buildIdentification function already cleaned this up
-    field.value = aiText;
-    field.style.borderColor = 'var(--purple)';
-    note.textContent = '✏️ AI identified this — correct it if needed';
-  } else {
-    field.value = '';
-    field.placeholder = 'AI couldn\'t read it — type the brand + item name';
-    field.style.borderColor = 'var(--orange)';
-    note.textContent = '⚠️ Type what it is, include brand name for best results';
-    detailBox.style.display = 'none';
-  }
-
-  // Reset condition to Like New
-  condMul = 0.85; condLabel = 'like new';
-  document.querySelectorAll('.cond-pill').forEach((b, i) => b.classList.toggle('sel', i === 1));
-
+  field.disabled = false;
+  field.value = name || '';
+  field.placeholder = 'e.g. Nike Air Jordan 4 Retro Black Cement';
+  field.style.borderColor = name ? 'var(--purple)' : 'rgba(255,255,255,.07)';
   field.oninput = () => {
     document.getElementById('conf-go').disabled = field.value.trim().length < 2;
   };
-  document.getElementById('conf-go').disabled = field.value.trim().length < 2;
-
+  document.getElementById('conf-note').textContent = '✏️ Edit if needed, then tap Get Real Prices';
+  document.getElementById('conf-go').disabled = !name || name.trim().length < 2;
+  condMul = 0.85; condLabel = 'like new';
+  document.querySelectorAll('.cond-pill').forEach((b,i) => b.classList.toggle('sel', i===1));
   showScreen('confirm');
 }
 
 function pickCond(btn, mul) {
   condMul = mul;
-  const mulMap = {1.0:'new', 0.85:'like new', 0.65:'good', 0.45:'fair'};
-  condLabel = mulMap[mul] || 'used';
+  const m = {1.0:'new', 0.85:'like new', 0.65:'good', 0.45:'fair'};
+  condLabel = m[mul] || 'used';
   document.querySelectorAll('.cond-pill').forEach(b => b.classList.remove('sel'));
   btn.classList.add('sel');
 }
 
 // ─── RESULT ───────────────────────────────────────────────────────────────────
-const VERDICTS  = ['Skip','Skip','Low Margin','Low Margin','Low Margin','Decent Flip','Decent Flip','Good Flip','Good Flip','Hot Flip','Hot Flip'];
-const VCOLORS   = {'Hot Flip':'#10B981','Good Flip':'#06B6D4','Decent Flip':'#F59E0B','Low Margin':'#F97316','Skip':'#EF4444'};
-const CAT_TIPS  = {
+const VERDICTS = ['Skip','Skip','Low Margin','Low Margin','Low Margin','Decent Flip','Decent Flip','Good Flip','Good Flip','Hot Flip','Hot Flip'];
+const VCOLORS  = {'Hot Flip':'#10B981','Good Flip':'#06B6D4','Decent Flip':'#F59E0B','Low Margin':'#F97316','Skip':'#EF4444'};
+const CAT_TIPS = {
   sneaker:'Deadstock (unworn with box) can 2-3x value. Clean soles and list original box shots.',
-  phone:'Factory reset first. Note if it\'s carrier unlocked — adds 20% value. Test Face ID.',
+  phone:'Factory reset first. Note if carrier unlocked — adds 20% value. Test Face ID.',
   bag:'Photograph every angle + serial number. Buyers need to verify authenticity.',
   watch:'Box and papers can double value. Photograph dial, caseback, and bracelet.',
   laptop:'List exact specs in title: chip, RAM, storage. Include the charger.',
@@ -803,44 +903,45 @@ const CAT_TIPS  = {
   default:'Take clear photos in natural light. Include all original packaging to maximize sale price.'
 };
 
-function inferTip(name) {
-  const n = name.toLowerCase();
+function inferTip(n) {
+  n = n.toLowerCase();
   if (/shoe|sneaker|boot|jordan|yeezy|nike|adidas|dunk|new balance|converse/.test(n)) return CAT_TIPS.sneaker;
-  if (/phone|iphone|samsung|pixel|android|galaxy/.test(n)) return CAT_TIPS.phone;
-  if (/bag|purse|handbag|backpack|tote|louis|gucci|coach|prada|chanel/.test(n)) return CAT_TIPS.bag;
-  if (/watch|rolex|casio|omega|apple watch|seiko/.test(n)) return CAT_TIPS.watch;
-  if (/laptop|macbook|computer|notebook|ipad/.test(n)) return CAT_TIPS.laptop;
-  if (/ps5|ps4|xbox|nintendo|switch|console|controller|playstation/.test(n)) return CAT_TIPS.gaming;
-  if (/jacket|hoodie|shirt|supreme|vintage|coat|sweater|off-white|bape/.test(n)) return CAT_TIPS.clothing;
-  if (/card|pokemon|lego|funko|toy|figure|collectible|trading card/.test(n)) return CAT_TIPS.collectible;
-  if (/camera|dslr|canon|nikon|fujifilm|gopro/.test(n)) return 'Include ALL accessories: battery, charger, memory card, original box. Post test shots to prove it works — cameras without test photos sell 30% slower.';
-  if (/headphone|earphone|airpod|earbud|speaker|bose|sony wh|beats/.test(n)) return 'Test audio quality and include original case/tips. Factory-sealed earbuds sell for 40% more. List the exact model number in your title.';
-  if (/ring|necklace|bracelet|jewelry|gold|silver|diamond/.test(n)) return 'Include any authenticity certificates or receipts. Photograph under good lighting at multiple angles. Clean jewelry before listing — it makes a huge visual difference.';
+  if (/phone|iphone|samsung|pixel|android|galaxy/.test(n))                            return CAT_TIPS.phone;
+  if (/bag|purse|handbag|backpack|tote|louis|gucci|coach|prada|chanel/.test(n))       return CAT_TIPS.bag;
+  if (/watch|rolex|casio|omega|apple watch|seiko/.test(n))                             return CAT_TIPS.watch;
+  if (/laptop|macbook|computer|notebook|ipad/.test(n))                                return CAT_TIPS.laptop;
+  if (/ps5|ps4|xbox|nintendo|switch|console|controller|playstation/.test(n))          return CAT_TIPS.gaming;
+  if (/jacket|hoodie|shirt|supreme|vintage|coat|sweater|off-white|bape/.test(n))      return CAT_TIPS.clothing;
+  if (/card|pokemon|lego|funko|toy|figure|collectible/.test(n))                       return CAT_TIPS.collectible;
+  if (/camera|dslr|canon|nikon|fujifilm|gopro/.test(n))    return 'Include ALL accessories: battery, charger, memory card, original box. Post test shots — cameras without them sell 30% slower.';
+  if (/headphone|earphone|airpod|earbud|speaker|bose|beats/.test(n)) return 'Test audio quality. Include original case/tips. Factory-sealed earbuds sell for 40% more.';
+  if (/bottle|tumbler|mug|flask/.test(n))                  return 'Clean and photograph in natural light. Include the lid. Limited color ways sell for 2-3x retail.';
+  if (/ring|necklace|bracelet|jewelry|gold|silver|diamond/.test(n)) return 'Include certificates or receipts. Clean jewelry before listing — huge visual difference.';
   return CAT_TIPS.default;
 }
 
-function inferCategory(name) {
-  const n = name.toLowerCase();
-  if (/shoe|sneaker|boot|loafer|jordan|yeezy|dunk|airforce|air force|new balance|converse|vans|reebok|puma|asics/.test(n)) return {cat:'Sneakers', emoji:'👟', flip:7};
-  if (/iphone|samsung|pixel|android|smartphone|galaxy/.test(n)) return {cat:'Phones', emoji:'📱', flip:5};
-  if (/phone/.test(n)) return {cat:'Phones', emoji:'📱', flip:5};
-  if (/bag|purse|handbag|backpack|tote|wallet|clutch|gucci|louis vuitton|lv |chanel|prada/.test(n)) return {cat:'Bags', emoji:'👜', flip:7};
-  if (/watch|rolex|casio|omega|seiko|fossil|apple watch|smartwatch|audemars/.test(n)) return {cat:'Watches', emoji:'⌚', flip:7};
-  if (/airpod|earbud|headphone|earphone|speaker|bose|sony wh|beats/.test(n)) return {cat:'Audio', emoji:'🎧', flip:5};
-  if (/laptop|macbook|computer|notebook|ipad|tablet|chromebook/.test(n)) return {cat:'Computers', emoji:'💻', flip:4};
-  if (/jacket|hoodie|sweatshirt|coat|jersey|shirt|pants|jeans|shorts|supreme|off-white|bape|vintage/.test(n)) return {cat:'Clothing', emoji:'🧥', flip:6};
-  if (/ps5|ps4|xbox|nintendo|switch|console|controller|playstation|gameboy|atari/.test(n)) return {cat:'Gaming', emoji:'🎮', flip:5};
-  if (/camera|dslr|canon|nikon|fujifilm|gopro|lens|mirrorless|sony a/.test(n)) return {cat:'Cameras', emoji:'📸', flip:6};
-  if (/pokemon|magic the gathering|yugioh|trading card|mtg/.test(n)) return {cat:'Trading Cards', emoji:'🃏', flip:9};
-  if (/lego|funko|toy|action figure|barbie|hot wheels|collectible|limited edition/.test(n)) return {cat:'Collectibles', emoji:'🏆', flip:8};
-  if (/sunglasses|glasses|ray-ban|oakley|gucci glasses|cartier/.test(n)) return {cat:'Accessories', emoji:'🕶️', flip:6};
-  if (/guitar|piano|drum|violin|instrument|vinyl|record|turntable/.test(n)) return {cat:'Music', emoji:'🎸', flip:7};
-  if (/book|novel|textbook|comic|manga/.test(n)) return {cat:'Books', emoji:'📚', flip:3};
-  if (/ring|necklace|bracelet|jewelry|gold|silver|diamond|earring/.test(n)) return {cat:'Jewelry', emoji:'💍', flip:6};
-  if (/drone|dji|rc car|remote control/.test(n)) return {cat:'Drones & RC', emoji:'🚁', flip:6};
-  if (/bike|bicycle|skateboard|scooter/.test(n)) return {cat:'Sports', emoji:'🛹', flip:5};
-  if (/coffee|espresso|nespresso|keurig|appliance|blender|instant pot/.test(n)) return {cat:'Appliances', emoji:'☕', flip:4};
-  return {cat:'General', emoji:'📦', flip:4};
+function inferCategory(n) {
+  n = n.toLowerCase();
+  if (/shoe|sneaker|boot|loafer|jordan|yeezy|dunk|airforce|air force|new balance|converse|vans|reebok|puma|asics/.test(n)) return {cat:'Sneakers',emoji:'👟',flip:7};
+  if (/iphone|samsung|pixel|android|smartphone|galaxy/.test(n))                 return {cat:'Phones',emoji:'📱',flip:5};
+  if (/phone/.test(n))                                                           return {cat:'Phones',emoji:'📱',flip:5};
+  if (/bag|purse|handbag|backpack|tote|wallet|clutch|gucci|louis vuitton|chanel|prada/.test(n)) return {cat:'Bags',emoji:'👜',flip:7};
+  if (/watch|rolex|casio|omega|seiko|fossil|apple watch|smartwatch/.test(n))    return {cat:'Watches',emoji:'⌚',flip:7};
+  if (/airpod|earbud|headphone|earphone|speaker|bose|sony wh|beats/.test(n))   return {cat:'Audio',emoji:'🎧',flip:5};
+  if (/laptop|macbook|computer|notebook|ipad|tablet|chromebook/.test(n))        return {cat:'Computers',emoji:'💻',flip:4};
+  if (/jacket|hoodie|sweatshirt|coat|jersey|shirt|pants|jeans|shorts|supreme|off-white|bape|vintage/.test(n)) return {cat:'Clothing',emoji:'🧥',flip:6};
+  if (/ps5|ps4|xbox|nintendo|switch|console|controller|playstation|gameboy/.test(n)) return {cat:'Gaming',emoji:'🎮',flip:5};
+  if (/camera|dslr|canon|nikon|fujifilm|gopro|lens|mirrorless/.test(n))         return {cat:'Cameras',emoji:'📸',flip:6};
+  if (/pokemon|yugioh|trading card|mtg|magic the gathering/.test(n))            return {cat:'Trading Cards',emoji:'🃏',flip:9};
+  if (/lego|funko|toy|action figure|barbie|hot wheels|collectible/.test(n))     return {cat:'Collectibles',emoji:'🏆',flip:8};
+  if (/sunglasses|glasses|ray-ban|oakley/.test(n))                              return {cat:'Accessories',emoji:'🕶️',flip:6};
+  if (/guitar|piano|drum|violin|instrument|vinyl|record/.test(n))               return {cat:'Music',emoji:'🎸',flip:7};
+  if (/bottle|tumbler|flask|mug|thermos|owala|hydro|stanley|yeti/.test(n))      return {cat:'Drinkware',emoji:'🫙',flip:5};
+  if (/book|novel|textbook|comic|manga/.test(n))                                return {cat:'Books',emoji:'📚',flip:3};
+  if (/ring|necklace|bracelet|jewelry|gold|silver|diamond|earring/.test(n))     return {cat:'Jewelry',emoji:'💍',flip:6};
+  if (/drone|dji|rc car|remote control/.test(n))                                return {cat:'Drones & RC',emoji:'🚁',flip:6};
+  if (/bike|bicycle|skateboard|scooter/.test(n))                                return {cat:'Sports',emoji:'🛹',flip:5};
+  return {cat:'General',emoji:'📦',flip:4};
 }
 
 function goToResult() {
@@ -849,46 +950,38 @@ function goToResult() {
 
   const { cat, emoji, flip } = inferCategory(itemName);
   const verdict = VERDICTS[Math.min(Math.round(flip), 10)];
-  const col = VCOLORS[verdict];
+  const col     = VCOLORS[verdict];
 
   document.getElementById('r-img').src = capturedImg || '';
   document.getElementById('r-img').style.display = capturedImg ? '' : 'none';
-  document.getElementById('r-cat').textContent = `${emoji} ${cat}`;
+  document.getElementById('r-cat').textContent  = `${emoji} ${cat}`;
   document.getElementById('r-name').textContent = itemName;
-  document.getElementById('r-sub').textContent = `${condLabel.charAt(0).toUpperCase()+condLabel.slice(1)} condition · AI identified`;
-  document.getElementById('r-conf').style.width = capturedImg ? '82%' : '100%';
-  document.getElementById('r-conf-t').textContent = capturedImg ? '82%' : '—';
+  document.getElementById('r-sub').textContent  = `${cap1(condLabel)} condition`;
+  document.getElementById('r-conf').style.width = capturedImg ? '84%' : '100%';
+  document.getElementById('r-conf-t').textContent = capturedImg ? '84%' : '—';
 
   const fc = document.getElementById('r-flip');
-  fc.style.background = col + '22'; fc.style.border = `3px solid ${col}`;
-  document.getElementById('r-flip-n').textContent = flip;
-  document.getElementById('r-flip-n').style.color = col;
+  fc.style.background = col+'22'; fc.style.border=`3px solid ${col}`;
+  document.getElementById('r-flip-n').textContent  = flip;
+  document.getElementById('r-flip-n').style.color  = col;
   document.getElementById('r-verdict').textContent = verdict;
-  document.getElementById('r-reason').textContent = `Based on current demand for ${cat.toLowerCase()}`;
-
-  const q = encodeURIComponent(itemName);
-  document.getElementById('r-ebay').href = `https://www.ebay.com/sch/i.html?_nkw=${q}&LH_Sold=1&LH_Complete=1&_sop=13`;
-
+  document.getElementById('r-reason').textContent  = `Based on current demand for ${cat.toLowerCase()}`;
+  document.getElementById('r-ebay').href = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(itemName)}&LH_Sold=1&LH_Complete=1&_sop=13`;
   document.getElementById('r-tip').textContent = inferTip(itemName);
   document.getElementById('sell-inp').value = '';
   document.getElementById('cost-inp').value = '';
   document.getElementById('profit-n').textContent = '$—';
-
-  // Reset live card
-  document.getElementById('live-sub').textContent = 'Fetching real sold data…';
+  document.getElementById('live-sub').textContent  = 'Fetching real sold data…';
   document.getElementById('live-dot').style.cssText = 'background:var(--red);animation:blink 2s infinite';
-  document.getElementById('live-body').innerHTML = `<div class="live-loading"><div class="live-spin"></div><div style="font-size:12px;color:var(--gray2)">Searching eBay sold listings…</div></div>`;
-
+  document.getElementById('live-body').innerHTML  = `<div class="live-loading"><div class="live-spin"></div><div style="font-size:12px;color:var(--gray2)">Searching eBay sold listings…</div></div>`;
   showScreen('result');
 
-  // Save scan
   scansToday++;
   localStorage.setItem('rs3_n', scansToday);
-  recentScans.unshift({ name: itemName, cat, price: 0, t: Date.now() });
+  recentScans.unshift({ name:itemName, cat, price:0, t:Date.now() });
   if (recentScans.length > 12) recentScans.pop();
   localStorage.setItem('rs3', JSON.stringify(recentScans));
 
-  // Fetch real eBay prices in background
   fetchRealPrices(itemName, condLabel, condMul).then(data => {
     showLivePrices(data, itemName);
     if (data?.median) {
@@ -902,81 +995,59 @@ function goToResult() {
 
 // ─── LIVE EBAY PRICE FETCH ────────────────────────────────────────────────────
 async function fetchRealPrices(itemName, cond, mul) {
-  const condStr = cond === 'new' ? '' : cond === 'like new' ? '' : cond;
-  const query = `${itemName} ${condStr}`.trim();
+  const condStr = (cond==='new'||cond==='like new') ? '' : cond;
+  const query   = `${itemName} ${condStr}`.trim();
   const ebayUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(query)}&LH_Sold=1&LH_Complete=1&_sop=13`;
-
   const proxies = [
-    async () => {
-      const r = await fetch(`https://corsproxy.io/?${encodeURIComponent(ebayUrl)}`, { signal: AbortSignal.timeout(12000) });
-      return r.ok ? r.text() : null;
-    },
-    async () => {
-      const r = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(ebayUrl)}`, { signal: AbortSignal.timeout(12000) });
-      if (!r.ok) return null;
-      const d = await r.json();
-      return d.contents || null;
-    },
-    async () => {
-      const r = await fetch(`https://thingproxy.freeboard.io/fetch/${ebayUrl}`, { signal: AbortSignal.timeout(12000) });
-      return r.ok ? r.text() : null;
-    }
+    async () => { const r=await fetch(`https://corsproxy.io/?${encodeURIComponent(ebayUrl)}`,{signal:abortAfter(12000)}); return r.ok?r.text():null; },
+    async () => { const r=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(ebayUrl)}`,{signal:abortAfter(12000)}); if(!r.ok)return null; const d=await r.json(); return d.contents||null; },
+    async () => { const r=await fetch(`https://thingproxy.freeboard.io/fetch/${ebayUrl}`,{signal:abortAfter(12000)}); return r.ok?r.text():null; },
   ];
-
   for (const proxy of proxies) {
     try {
       const html = await proxy();
       if (!html) continue;
-
       const raw = [];
-      // Try multiple eBay price patterns (structure can vary)
-      const patterns = [
+      const pats = [
         /s-item__price[^>]*>[\s\S]*?\$([\d,]+(?:\.\d{2})?)/g,
         /class="[^"]*price[^"]*"[^>]*>[\s\S]*?\$([\d,]+(?:\.\d{2})?)/g,
-        /\$([\d,]{1,7}(?:\.\d{2})?)\s*(?:USD)?/g
+        /\$([\d,]{1,7}(?:\.\d{2})?)\s*(?:USD)?/g,
       ];
-      for (const re of patterns) {
+      for (const re of pats) {
         let m;
-        while ((m = re.exec(html)) !== null) {
-          const n = parseFloat(m[1].replace(/,/g, ''));
-          if (n > 1 && n < 100000) raw.push(n);
+        while ((m=re.exec(html))!==null) {
+          const n=parseFloat(m[1].replace(/,/g,''));
+          if (n>1&&n<100000) raw.push(n);
         }
-        if (raw.length >= 5) break;
+        if (raw.length>=5) break;
       }
-      if (raw.length < 3) continue;
-
-      raw.sort((a, b) => a - b);
-      const trim = Math.floor(raw.length * 0.1);
-      const clean = raw.slice(trim, raw.length - trim || undefined);
-      const median = Math.round(clean[Math.floor(clean.length / 2)] * mul);
-      const low    = Math.round(clean[0] * mul);
-      const high   = Math.round(clean[clean.length - 1] * mul);
-      const avg    = Math.round(clean.reduce((a, b) => a + b, 0) / clean.length * mul);
-      return { low, median, high, avg, count: clean.length, query };
+      if (raw.length<3) continue;
+      raw.sort((a,b)=>a-b);
+      const trim  = Math.floor(raw.length*0.1);
+      const clean = raw.slice(trim, raw.length-trim||undefined);
+      return {
+        low:    Math.round(clean[0]*mul),
+        median: Math.round(clean[Math.floor(clean.length/2)]*mul),
+        high:   Math.round(clean[clean.length-1]*mul),
+        avg:    Math.round(clean.reduce((a,b)=>a+b,0)/clean.length*mul),
+        count:  clean.length, query
+      };
     } catch(e) { continue; }
   }
   return null;
 }
 
 function showLivePrices(data, itemName) {
-  const body = document.getElementById('live-body');
-  const sub  = document.getElementById('live-sub');
-  const dot  = document.getElementById('live-dot');
-
-  if (!data || data.count < 3) {
-    dot.style.cssText = 'background:var(--gray);animation:none';
-    sub.textContent = 'No sold listings found';
-    body.innerHTML = `<div class="live-err">
-      Couldn't find eBay sold data for "${itemName}".<br>
-      Try the eBay link below to search manually — or edit the item name and scan again.
-    </div>`;
+  const body=document.getElementById('live-body'),sub=document.getElementById('live-sub'),dot=document.getElementById('live-dot');
+  if (!data||data.count<3) {
+    dot.style.cssText='background:var(--gray);animation:none';
+    sub.textContent='No sold listings found';
+    body.innerHTML=`<div class="live-err">No eBay data for "${itemName}".<br>Try the eBay link below, or edit the item name and try again.</div>`;
     return;
   }
-
-  sub.textContent = `${data.count} recent sales · "${data.query}"`;
-  const pct = data.high > data.low ? Math.round(((data.median - data.low) / (data.high - data.low)) * 100) : 50;
-
-  body.innerHTML = `
+  sub.textContent=`${data.count} recent sales · "${data.query}"`;
+  const pct=data.high>data.low?Math.round(((data.median-data.low)/(data.high-data.low))*100):50;
+  body.innerHTML=`
     <div class="live-stats">
       <div class="lst"><div class="lst-n" style="color:var(--green)">$${data.low}</div><div class="lst-l">Low</div></div>
       <div class="lst"><div class="lst-n" style="color:var(--teal)">$${data.median}</div><div class="lst-l">Median</div></div>
@@ -997,74 +1068,49 @@ const SUGGESTIONS = [
   'PS5 Console','MacBook Pro M3','Casio G-Shock GA-2100',
   'Funko Pop Chase','Pokemon Booster Box','North Face Nuptse 700',
   'Rolex Submariner','New Balance 550','Adidas Samba OG',
-  'Apple Watch Ultra 2','LEGO Star Wars Millennium Falcon'
+  'Apple Watch Ultra 2','LEGO Star Wars Millennium Falcon',
 ];
-
 function homeSearchInput(q) {
-  const drop = document.getElementById('homeDrop');
-  if (!q || q.length < 2) { drop.style.display = 'none'; return; }
-  const matches = SUGGESTIONS.filter(s => s.toLowerCase().includes(q.toLowerCase())).slice(0, 5);
-  if (!matches.length) { drop.style.display = 'none'; return; }
-  drop.style.display = 'block';
-  drop.innerHTML = matches.map(s => `
-    <div class="search-item" onclick="homeSelectSearch('${s.replace(/'/g,"\\'")}')">
-      <div style="font-size:18px">${inferCategory(s).emoji}</div>
-      <div style="font-size:13px;font-weight:600">${s}</div>
-    </div>`).join('');
+  const drop=document.getElementById('homeDrop');
+  if (!q||q.length<2){drop.style.display='none';return;}
+  const ms=SUGGESTIONS.filter(s=>s.toLowerCase().includes(q.toLowerCase())).slice(0,5);
+  if (!ms.length){drop.style.display='none';return;}
+  drop.style.display='block';
+  drop.innerHTML=ms.map(s=>`<div class="search-item" onclick="homeSelectSearch('${s.replace(/'/g,"\\'")}')"><div style="font-size:18px">${inferCategory(s).emoji}</div><div style="font-size:13px;font-weight:600">${s}</div></div>`).join('');
 }
-
 function homeSelectSearch(name) {
-  document.getElementById('homeSearch').value = name;
-  document.getElementById('homeDrop').style.display = 'none';
-  launchManualSearch(name);
+  document.getElementById('homeSearch').value=name;
+  document.getElementById('homeDrop').style.display='none';
+  showConfirm(name);
 }
-
 function homeSearchGo() {
-  const q = document.getElementById('homeSearch').value.trim();
+  const q=document.getElementById('homeSearch').value.trim();
   if (!q) return;
-  document.getElementById('homeDrop').style.display = 'none';
-  launchManualSearch(q);
+  document.getElementById('homeDrop').style.display='none';
+  showConfirm(q);
 }
-
-function launchManualSearch(name) {
-  capturedImg = null;
-  document.getElementById('conf-img').style.display = 'none';
-  document.getElementById('conf-field').value = name;
-  condMul = 0.85; condLabel = 'like new';
-  document.querySelectorAll('.cond-pill').forEach((b, i) => b.classList.toggle('sel', i === 1));
-  document.getElementById('conf-go').disabled = false;
-  showScreen('confirm');
-}
+function launchManualSearch(name) { showConfirm(name); }
 
 // ─── PROFIT CALC ──────────────────────────────────────────────────────────────
 function calcProfit() {
-  const c = parseFloat(document.getElementById('cost-inp').value) || 0;
-  const s = parseFloat(document.getElementById('sell-inp').value) || 0;
-  const p = s - c;
-  const el = document.getElementById('profit-n');
-  el.textContent = p !== 0 ? (p >= 0 ? `$${p.toFixed(0)}` : `-$${Math.abs(p).toFixed(0)}`) : '$—';
-  el.style.color = p >= 0 ? 'var(--green)' : 'var(--red)';
+  const c=parseFloat(document.getElementById('cost-inp').value)||0;
+  const s=parseFloat(document.getElementById('sell-inp').value)||0;
+  const p=s-c, el=document.getElementById('profit-n');
+  el.textContent = p!==0?(p>=0?`$${p.toFixed(0)}`:`-$${Math.abs(p).toFixed(0)}`):'$—';
+  el.style.color = p>=0?'var(--green)':'var(--red)';
 }
 
 // ─── UI HELPERS ───────────────────────────────────────────────────────────────
 function updateStats() {
-  document.getElementById('s-scans').textContent = scansToday;
-  const t = recentScans.reduce((a, s) => a + (s.price || 0), 0);
-  document.getElementById('s-profit').textContent = t > 999 ? '$' + (t/1000).toFixed(1) + 'k' : '$' + t;
+  document.getElementById('s-scans').textContent=scansToday;
+  const t=recentScans.reduce((a,s)=>a+(s.price||0),0);
+  document.getElementById('s-profit').textContent=t>999?'$'+(t/1000).toFixed(1)+'k':'$'+t;
 }
 function renderRecent() {
-  const l = document.getElementById('recentList');
-  if (!recentScans.length) {
-    l.innerHTML = '<div style="padding:18px 0;text-align:center;color:var(--gray2);font-size:13px">No scans yet — scan anything to start!</div>';
-    return;
-  }
-  const EICO = {Sneakers:'👟',Phones:'📱',Bags:'👜',Watches:'⌚',Audio:'🎧',Computers:'💻',Clothing:'🧥',Gaming:'🎮',Cameras:'📸','Trading Cards':'🃏',Collectibles:'🏆',Accessories:'🕶️',Music:'🎸',Books:'📚',Jewelry:'💍','Drones & RC':'🚁',Sports:'🛹',Appliances:'☕',General:'📦'};
-  l.innerHTML = recentScans.map(s => `
-    <div class="ri" onclick="launchManualSearch('${s.name.replace(/'/g,"\\'")}')">
-      <div class="ri-ico">${EICO[s.cat] || '📦'}</div>
-      <div><div class="ri-name">${s.name}</div><div class="ri-cat">${s.cat}</div></div>
-      ${s.price ? `<div class="ri-price">~$${s.price}</div>` : ''}
-    </div>`).join('');
+  const l=document.getElementById('recentList');
+  if (!recentScans.length){l.innerHTML='<div style="padding:18px 0;text-align:center;color:var(--gray2);font-size:13px">No scans yet — scan anything to start!</div>';return;}
+  const EICO={Sneakers:'👟',Phones:'📱',Bags:'👜',Watches:'⌚',Audio:'🎧',Computers:'💻',Clothing:'🧥',Gaming:'🎮',Cameras:'📸','Trading Cards':'🃏',Collectibles:'🏆',Accessories:'🕶️',Music:'🎸',Drinkware:'🫙',Books:'📚',Jewelry:'💍','Drones & RC':'🚁',Sports:'🛹',General:'📦'};
+  l.innerHTML=recentScans.map(s=>`<div class="ri" onclick="showConfirm('${s.name.replace(/'/g,"\\'")}')"><div class="ri-ico">${EICO[s.cat]||'📦'}</div><div><div class="ri-name">${s.name}</div><div class="ri-cat">${s.cat}</div></div>${s.price?`<div class="ri-price">~$${s.price}</div>`:''}</div>`).join('');
 }
 </script>
 </body>
